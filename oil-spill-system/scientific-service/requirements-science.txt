@@ -1,0 +1,8 @@
+# OpenDrift/OpenOil scientific stack.
+# Installed separately from the base requirements so the API stays
+# reliable and this heavier stack can be upgraded/isolated independently.
+#
+# Status (2 Sep 2026): verified installable & importable on:
+#   Windows 11, Python 3.12, no Docker required.
+opendrift==1.14.12
+copernicusmarine>=2.4.1

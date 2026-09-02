@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="490" viewBox="0 0 820 490" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6D28D9"/>
+    </marker>
+    <marker id="wa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+  <rect width="820" height="490" fill="#ffffff"/>
+  <rect x="6" y="6" width="808" height="478" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
+  <!-- sea graticule -->
+  <line x1="6" y1="125" x2="814" y2="125" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="6" y1="245" x2="814" y2="245" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="6" y1="365" x2="814" y2="365" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="208" y1="6" x2="208" y2="484" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="410" y1="6" x2="410" y2="484" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="612" y1="6" x2="612" y2="484" stroke="#E2E8F0" stroke-width="1.5"/>
+  <!-- origin hotspot -->
+  <circle cx="565" cy="248" r="98" fill="#FDE68A" opacity="0.45"/>
+  <circle cx="565" cy="248" r="66" fill="#FBBF24" opacity="0.55"/>
+  <circle cx="565" cy="248" r="38" fill="#F97316" opacity="0.75"/>
+  <circle cx="565" cy="248" r="17" fill="#DC2626" opacity="0.92"/>
+  <line x1="565" y1="128" x2="565" y2="368" stroke="#B91C1C" stroke-width="2" opacity="0.5"/>
+  <line x1="445" y1="248" x2="685" y2="248" stroke="#B91C1C" stroke-width="2" opacity="0.5"/>
+  <!-- backward particle arrows -->
+  <path d="M85,85 Q290,130 468,222" fill="none" stroke="#7C3AED" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#pa)"/>
+  <path d="M70,265 Q255,278 450,252" fill="none" stroke="#7C3AED" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#pa)"/>
+  <path d="M115,420 Q305,382 478,286" fill="none" stroke="#7C3AED" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#pa)"/>
+  <!-- particles -->
+  <circle cx="85" cy="85" r="5" fill="#7C3AED"/><circle cx="150" cy="104" r="4" fill="#A78BFA"/><circle cx="215" cy="121" r="5" fill="#7C3AED"/><circle cx="282" cy="141" r="4" fill="#A78BFA"/><circle cx="345" cy="163" r="5" fill="#7C3AED"/><circle cx="70" cy="265" r="5" fill="#7C3AED"/><circle cx="140" cy="272" r="4" fill="#A78BFA"/><circle cx="212" cy="277" r="5" fill="#7C3AED"/><circle cx="286" cy="272" r="4" fill="#A78BFA"/><circle cx="360" cy="264" r="5" fill="#7C3AED"/><circle cx="115" cy="420" r="5" fill="#7C3AED"/><circle cx="185" cy="408" r="4" fill="#A78BFA"/><circle cx="255" cy="392" r="5" fill="#7C3AED"/><circle cx="325" cy="370" r="4" fill="#A78BFA"/><circle cx="392" cy="344" r="5" fill="#7C3AED"/>
+  <!-- wind -->
+  <line x1="618" y1="62" x2="762" y2="102" stroke="#94A3B8" stroke-width="8" marker-end="url(#wa)"/>
+  <line x1="648" y1="34" x2="772" y2="68" stroke="#CBD5E1" stroke-width="6" marker-end="url(#wa)"/>
+</svg>

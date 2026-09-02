@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1680 620" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="1680" height="620" fill="#ffffff"/>
+
+  <!-- ROW 1 -->
+  <g>
+    <rect x="30" y="70" width="330" height="130" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="2.5"/>
+    <text x="195" y="120" text-anchor="middle" font-size="21" font-weight="bold" fill="#1e3a8a">SENTINEL-1 SAR</text>
+    <text x="195" y="150" text-anchor="middle" font-size="14" fill="#334155">GRD &#183; free &#183; C-band</text>
+    <text x="195" y="172" text-anchor="middle" font-size="14" fill="#334155">named inside the PS itself</text>
+
+    <rect x="400" y="70" width="330" height="130" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="2.5"/>
+    <text x="565" y="120" text-anchor="middle" font-size="21" font-weight="bold" fill="#1e3a8a">PREPROCESS</text>
+    <text x="565" y="150" text-anchor="middle" font-size="14" fill="#334155">calibrate &#183; speckle filter</text>
+    <text x="565" y="172" text-anchor="middle" font-size="14" fill="#334155">land mask</text>
+
+    <rect x="770" y="70" width="330" height="130" rx="14" fill="#ccfbf1" stroke="#0f766e" stroke-width="2.5"/>
+    <text x="935" y="120" text-anchor="middle" font-size="21" font-weight="bold" fill="#115e59">U-NET SEGMENTATION</text>
+    <text x="935" y="150" text-anchor="middle" font-size="14" fill="#334155">Zenodo-trained &#183; dual-pol aware</text>
+    <text x="935" y="172" text-anchor="middle" font-size="14" fill="#334155">slick vs look-alike classes</text>
+
+    <rect x="1140" y="70" width="330" height="130" rx="14" fill="#ccfbf1" stroke="#0f766e" stroke-width="2.5"/>
+    <text x="1305" y="120" text-anchor="middle" font-size="21" font-weight="bold" fill="#115e59">SLICK POLYGONS</text>
+    <text x="1305" y="150" text-anchor="middle" font-size="14" fill="#334155">GeoJSON + confidence</text>
+    <text x="1305" y="172" text-anchor="middle" font-size="14" fill="#334155">area &#183; shape features</text>
+  </g>
+
+  <line x1="360" y1="135" x2="396" y2="135" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="730" y1="135" x2="766" y2="135" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1100" y1="135" x2="1136" y2="135" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+
+  <!-- ELBOW connector row1 -> row2 -->
+  <polyline points="1305,200 1305,300 195,300 195,426" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+
+  <!-- ROW 2 -->
+  <g>
+    <rect x="30" y="430" width="330" height="140" rx="14" fill="#ede9fe" stroke="#6d28d9" stroke-width="2.5"/>
+    <text x="195" y="468" text-anchor="middle" font-size="20" font-weight="bold" fill="#5b21b6">OPEN DRIFT HINDCAST</text>
+    <text x="195" y="495" text-anchor="middle" font-size="14" fill="#334155">BACKWARD ensemble &#215;100</text>
+    <text x="195" y="517" text-anchor="middle" font-size="14" fill="#334155">wind drift 1&#8211;6% &#183; Ekman angle</text>
+    <text x="195" y="539" text-anchor="middle" font-size="14" fill="#334155">Stokes drift &#183; CMEMS + ERA5</text>
+
+    <rect x="400" y="430" width="330" height="140" rx="14" fill="#ede9fe" stroke="#6d28d9" stroke-width="2.5"/>
+    <text x="565" y="468" text-anchor="middle" font-size="20" font-weight="bold" fill="#5b21b6">ORIGIN MAP</text>
+    <text x="565" y="495" text-anchor="middle" font-size="14" fill="#334155">probability surface over sea</text>
+    <text x="565" y="517" text-anchor="middle" font-size="14" fill="#334155">(PDF, not a single guess)</text>
+    <text x="565" y="539" text-anchor="middle" font-size="14" fill="#334155">hindcast window 2&#8211;12 h</text>
+
+    <rect x="770" y="430" width="330" height="140" rx="14" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+    <text x="935" y="468" text-anchor="middle" font-size="20" font-weight="bold" fill="#92400e">AIS FUSION SCORING</text>
+    <text x="935" y="495" text-anchor="middle" font-size="14" fill="#334155">proximity .40 &#183; trajectory .25</text>
+    <text x="935" y="517" text-anchor="middle" font-size="14" fill="#334155">dark-window .20 &#183; anomaly .15</text>
+    <text x="935" y="539" text-anchor="middle" font-size="14" fill="#334155">MarineCadastre tracks</text>
+
+    <rect x="1140" y="430" width="330" height="140" rx="14" fill="#dcfce7" stroke="#166534" stroke-width="2.5"/>
+    <text x="1305" y="468" text-anchor="middle" font-size="20" font-weight="bold" fill="#14532d">SUSPECT DOSSIERS</text>
+    <text x="1305" y="495" text-anchor="middle" font-size="14" fill="#334155">ranked vessels + confidence %</text>
+    <text x="1305" y="517" text-anchor="middle" font-size="14" fill="#334155">dashboard map view</text>
+    <text x="1305" y="539" text-anchor="middle" font-size="14" fill="#334155">court-ready PDF case file</text>
+  </g>
+
+  <line x1="360" y1="500" x2="396" y2="500" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="730" y1="500" x2="766" y2="500" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1100" y1="500" x2="1136" y2="500" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+
+  <!-- Stage labels -->
+  <text x="30" y="45" font-size="15" font-weight="600" fill="#64748b" letter-spacing="2">DETECT</text>
+  <text x="30" y="410" font-size="15" font-weight="600" fill="#64748b" letter-spacing="2">REWIND &#8594; ATTRIBUTE &#8594; PROVE</text>
+</svg>

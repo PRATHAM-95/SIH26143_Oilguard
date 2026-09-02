@@ -1,0 +1,62 @@
+# Environment files
+.env
+*.env.local
+frontend/.env
+frontend/.env.local
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Java / Maven
+target/
+*.class
+*.jar
+!*.jar.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated / temporary
+*.log
+logs/
+tmp/
+temp/
+
+# Large data / models / weights
+*.nc
+*.h5
+*.hdf5
+*.onnx
+*.pt
+*.pth
+*.npy
+*.npz
+*.tif
+*.tiff
+data/
+datasets/
+models/
+weights/
+
+# Scientific environment
+scientific-service/.venv/
+
+# Simulation output
+output/

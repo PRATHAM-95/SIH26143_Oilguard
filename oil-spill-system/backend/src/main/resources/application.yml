@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: oil-spill-backend
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017}
+      database: ${MONGODB_DATABASE:oilspill}
+
+server:
+  port: ${SPRING_PORT:8082}
+
+python:
+  service:
+    url: ${PYTHON_SERVICE_URL:http://localhost:8000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

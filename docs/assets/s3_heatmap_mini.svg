@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="490" viewBox="0 0 940 490" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="940" height="490" fill="#ffffff"/>
+  <rect x="8" y="8" width="924" height="474" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2.5"/>
+  <!-- graticule ticks -->
+  <line x1="239" y1="8" x2="239" y2="482" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="470" y1="8" x2="470" y2="482" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="701" y1="8" x2="701" y2="482" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="8" y1="126" x2="932" y2="126" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="8" y1="245" x2="932" y2="245" stroke="#E2E8F0" stroke-width="1.5"/>
+  <line x1="8" y1="364" x2="932" y2="364" stroke="#E2E8F0" stroke-width="1.5"/>
+  <!-- probability surface -->
+  <ellipse cx="470" cy="245" rx="215" ry="150" fill="#FFEDD5"/>
+  <ellipse cx="470" cy="245" rx="150" ry="105" fill="#FED7AA"/>
+  <ellipse cx="470" cy="245" rx="100" ry="70" fill="#FB923C" opacity="0.85"/>
+  <ellipse cx="470" cy="245" rx="55" ry="38" fill="#EA580C" opacity="0.85"/>
+  <circle cx="470" cy="245" r="20" fill="#B91C1C"/>
+  <ellipse cx="470" cy="245" rx="150" ry="105" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 7"/>
+  <ellipse cx="470" cy="245" rx="100" ry="70" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 7"/>
+  <!-- crosshair -->
+  <line x1="470" y1="205" x2="470" y2="285" stroke="#7F1D1D" stroke-width="3"/>
+  <line x1="430" y1="245" x2="510" y2="245" stroke="#7F1D1D" stroke-width="3"/>
+  <!-- coords -->
+  <text x="24" y="470" font-size="15" fill="#94A3B8">76.0&#176;E</text>
+  <text x="856" y="470" font-size="15" fill="#94A3B8">80.0&#176;E</text>
+  <text x="18" y="32" font-size="15" fill="#94A3B8">12.5&#176;N</text>
+</svg>
