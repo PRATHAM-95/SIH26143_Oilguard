@@ -5,6 +5,7 @@ spring:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017}
       database: ${MONGODB_DATABASE:oilspill}
+      auto-index-creation: true
 
 server:
   port: ${SPRING_PORT:8082}
@@ -12,6 +13,22 @@ server:
 python:
   service:
     url: ${PYTHON_SERVICE_URL:http://localhost:8000}
+  forward-drift:
+    path: ${PYTHON_FORWARD_DRIFT_PATH:/api/forward-drift}
+    timeout-seconds: ${PYTHON_FORWARD_DRIFT_TIMEOUT:120}
+  sar-detect:
+    path: ${PYTHON_SAR_DETECT_PATH:/api/sar/detect}
+    preview-path: ${PYTHON_SAR_PREVIEW_PATH:/api/sar/preview}
+    timeout-seconds: ${PYTHON_SAR_TIMEOUT:120}
+  backtrack:
+    path: ${PYTHON_BACKTRACK_PATH:/api/backtrack}
+    timeout-seconds: ${PYTHON_BACKTRACK_TIMEOUT:180}
+  ais:
+    query-path: ${PYTHON_AIS_QUERY_PATH:/api/ais/query}
+    filter-path: ${PYTHON_AIS_FILTER_PATH:/api/ais/filter}
+    score-path: ${PYTHON_AIS_SCORE_PATH:/api/score-vessels}
+    availability-path: ${PYTHON_AIS_AVAILABILITY_PATH:/api/ais/availability}
+    timeout-seconds: ${PYTHON_AIS_TIMEOUT:180}
 
 management:
   endpoints:

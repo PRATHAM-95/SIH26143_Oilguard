@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Command Center v2 — hero case mock</title>
+<style>
+  :root {
+    --bg: #04070b;
+    --bg-elev: #070c13;
+    --panel: #0b1420;
+    --panel-2: #0e1d2b;
+    --panel-3: #12283a;
+    --inset: #060c14;
+    --line: #16242f;
+    --line-2: #22394c;
+    --line-3: #2f4d66;
+    --ink-0: #e9f1f8;
+    --ink-1: #9db0c2;
+    --ink-2: #5d7085;
+    --ink-3: #3d4c5c;
+    --accent: #38bdf8;
+    --accent-strong: #7dd3fc;
+    --ok: #2fd89a;
+    --warn: #f0b23f;
+    --danger: #f4575a;
+    --c-sar: #ff8a63;
+    --c-sar-look: #d0a35f;
+    --c-drift: #58e0b9;
+    --c-drift-line: #3aa896;
+    --c-source: #f0c05a;
+    --c-vessel: #7ad4ff;
+    --c-trail: #3c6a8a;
+    --c-footprint: #60a5cd;
+    --c-sat: #4f6c83;
+    --mono: 'Cascadia Mono','Cascadia Code',Consolas,'Roboto Mono',ui-monospace,monospace;
+    --sans: 'Segoe UI','Inter',Roboto,'Helvetica Neue',Arial,sans-serif;
+    --header-h: 52px;
+    --rail-w: 54px;
+    --stepper-h: 46px;
+    --dock-h: 176px;
+    --radius: 3px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink-0); font-family: var(--sans); font-size: 12.5px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+
+  .shell { display: grid; grid-template-rows: var(--header-h) 1fr; grid-template-columns: var(--rail-w) 1fr; height: 100%; width: 100%; }
+  .header { grid-column: 1 / -1; grid-row: 1; display: flex; align-items: center; gap: 18px; padding: 0 16px; background: linear-gradient(180deg,#0a121c,#070d14); border-bottom: 1px solid var(--line); }
+  .rail { grid-column: 1; grid-row: 2; border-right: 1px solid var(--line); background: var(--bg-elev); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0; }
+  .main { grid-column: 2; grid-row: 2; position: relative; min-width: 0; min-height: 0; display: flex; }
+
+  .brand { display: flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; color: var(--ink-0); }
+  .brand .dot { width: 9px; height: 9px; border-radius: 2px; background: var(--accent); box-shadow: 0 0 10px rgba(56,189,248,.8); }
+  .brand b { font-weight: 600; color: var(--accent-strong); }
+
+  .case-tag { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border: 1px solid var(--line-2); background: var(--panel); border-radius: 3px; font-family: var(--mono); font-size: 11px; color: var(--ink-1); }
+  .case-tag b { color: var(--ink-0); font-weight: 600; }
+  .case-tag .live { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px rgba(47,216,154,.9); }
+
+  .spacer { flex: 1; }
+
+  .prov-strip { display: flex; align-items: center; gap: 6px; }
+  .prov { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 3px; border: 1px solid var(--line-2); background: var(--panel); font-size: 10.5px; color: var(--ink-1); font-family: var(--mono); }
+  .prov .lbl { color: var(--ink-2); }
+  .prov .p { color: var(--ok); font-weight: 600; }
+  .prov .p.sim { color: var(--warn); }
+  .prov.cap { border-color: var(--line-3); }
+
+  .btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 3px; background: linear-gradient(180deg,#2ea9e8,#1f86c6); color: #04131e; font-weight: 700; font-size: 12px; font-family: var(--sans); border: 1px solid #3db4f0; box-shadow: 0 0 16px rgba(56,189,248,.35); cursor: pointer; }
+  .btn-primary .kbd { font-family: var(--mono); font-size: 10px; opacity: .75; border: 1px solid rgba(4,19,30,.4); border-radius: 3px; padding: 1px 5px; }
+
+  .rail .icon { width: 36px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 3px; color: var(--ink-2); border: 1px solid transparent; }
+  .rail .icon.on { color: var(--accent-strong); background: var(--panel-2); border-color: var(--line-3); box-shadow: inset 0 0 0 1px rgba(56,189,248,.25); }
+  .rail .icon svg { width: 17px; height: 17px; }
+
+  /* Map stage */
+  .map-wrap { position: relative; flex: 1; min-width: 0; background: #08131e; }
+  .map-wrap svg.basemap { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* Stepper floated over the map top */
+  .stepper { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 2px; padding: 7px 12px; background: rgba(11,20,32,.92); border: 1px solid var(--line-2); border-radius: 4px; box-shadow: var(--shadow-1, 0 4px 14px rgba(0,0,0,.4)); backdrop-filter: blur(3px); }
+  .step { display: inline-flex; align-items: center; gap: 7px; padding: 3px 8px; border-radius: 3px; color: var(--ink-2); font-size: 11px; white-space: nowrap; }
+  .step .mark { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--ink-3); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-family: var(--mono); color: var(--ink-3); }
+  .step.done { color: var(--ink-1); }
+  .step.done .mark { border-color: var(--ok); color: var(--ok); background: rgba(47,216,154,.1); }
+  .step.run { color: var(--ink-0); }
+  .step.run .mark { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,.16); box-shadow: 0 0 8px rgba(56,189,248,.5); }
+  .step.pend .mark { border-color: var(--ink-3); color: var(--ink-3); }
+  .step-arrow { color: var(--ink-3); font-size: 12px; margin: 0 2px; }
+
+  /* Hero readout on the map */
+  .hero { position: absolute; top: 12px; left: 14px; max-width: 340px; background: rgba(11,20,32,.92); border: 1px solid var(--line-2); border-left: 3px solid var(--c-source); border-radius: 4px; padding: 12px 14px; box-shadow: 0 6px 22px rgba(0,0,0,.45); }
+  .hero .k { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .hero .v { font-size: 19px; line-height: 1.2; margin-top: 3px; color: var(--ink-0); font-weight: 700; }
+  .hero .v .sub { display: block; font-size: 12px; color: var(--ink-1); font-weight: 500; margin-top: 3px; }
+  .hero .row { display: flex; gap: 6px; margin-top: 9px; align-items: baseline; font-family: var(--mono); font-size: 11px; color: var(--ink-1); flex-wrap: wrap; }
+  .hero .row b { color: var(--c-source); }
+
+  /* Verdict rail */
+  .rail-card { width: 306px; flex: 0 0 306px; margin: 0; border-left: 1px solid var(--line); background: var(--bg-elev); display: flex; flex-direction: column; position: relative; }
+  .card-scroll { flex: 1; overflow-y: auto; padding: 12px 12px 8px; }
+
+  .section-h { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); margin: 4px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .section-h:after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .cand { border: 1px solid var(--line); border-radius: 4px; background: var(--panel); padding: 10px 12px; margin-bottom: 8px; }
+  .cand.top { border-color: var(--c-source); box-shadow: 0 0 0 1px rgba(240,192,90,.35), 0 6px 18px rgba(0,0,0,.4); background: linear-gradient(180deg, rgba(240,192,90,.07), var(--panel)); }
+  .cand .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .cand .name { font-weight: 600; color: var(--ink-0); font-size: 12.5px; }
+  .cand .mmsi { font-family: var(--mono); font-size: 9.5px; color: var(--ink-2); }
+  .cand .tag { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 3px; border: 1px solid var(--line-2); color: var(--ink-2); white-space: nowrap; }
+  .cand.top .tag { color: var(--c-source); border-color: rgba(240,192,90,.5); }
+  .score { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .score .bar { flex: 1; height: 5px; border-radius: 3px; background: var(--inset); overflow: hidden; }
+  .score .bar > i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg,#44586d,#7ad4ff); }
+  .cand.top .score .bar > i { background: linear-gradient(90deg,#8a6a2a,#f0c05a); }
+  .score b { font-family: var(--mono); font-size: 11px; color: var(--ink-0); width: 34px; text-align: right; }
+  .score span { font-size: 9.5px; color: var(--ink-2); font-family: var(--mono); }
+  .cand .why { margin-top: 8px; font-size: 10.5px; color: var(--ink-1); display: flex; gap: 6px; flex-wrap: wrap; }
+  .cand .why .chip { border: 1px solid var(--line-2); background: var(--panel-2); border-radius: 3px; padding: 2px 7px; font-size: 9.5px; font-family: var(--mono); color: var(--ink-1); }
+
+  .verdict { border: 1px solid rgba(240,192,90,.4); border-radius: 4px; padding: 12px; margin-top: 12px; background: linear-gradient(180deg, rgba(240,192,90,.08), var(--panel)); }
+  .verdict .h { font-size: 10px; font-family: var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--c-source); }
+  .verdict .t { margin-top: 6px; font-size: 14px; font-weight: 700; color: var(--ink-0); line-height: 1.35; }
+  .verdict .note { margin-top: 6px; font-size: 10.5px; color: var(--ink-2); }
+
+  .prov-footer { border-top: 1px solid var(--line); padding: 9px 12px; background: var(--bg-elev); }
+  .prov-row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; font-size: 10.5px; color: var(--ink-1); }
+  .prov-row .d { display: flex; gap: 6px; align-items: center; }
+  .prov-row .d i { width: 7px; height: 7px; border-radius: 50%; }
+  .prov-row .s { font-family: var(--mono); font-size: 9.5px; }
+  .i.real { background: var(--ok); box-shadow: 0 0 6px rgba(47,216,154,.8); }
+  .i.sim { background: var(--warn); box-shadow: 0 0 6px rgba(240,179,63,.8); }
+  .i.off { background: var(--ink-3); }
+
+  /* Bottom timeline dock */
+  .dock { position: absolute; left: 0; right: 0; bottom: 0; height: var(--dock-h); border-top: 1px solid var(--line); background: rgba(7,12,19,.94); backdrop-filter: blur(4px); padding: 10px 16px 12px; }
+  .dock-h { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 8px; }
+  .dock-h .r { color: var(--ink-3); font-family: var(--mono); }
+  .timeline { display: flex; gap: 10px; }
+  .tick { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 4px; padding: 8px 10px; position: relative; overflow: hidden; }
+  .tick.done { border-color: var(--line-2); }
+  .tick.run { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(56,189,248,.35); }
+  .tick .h { font-size: 9px; font-family: var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .tick.run .h { color: var(--accent-strong); }
+  .tick .v { margin-top: 5px; font-size: 12px; font-weight: 600; color: var(--ink-0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tick .m { margin-top: 3px; font-size: 9.5px; color: var(--ink-2); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tick .bar { position: absolute; top: 0; left: 0; height: 2px; width: 100%; }
+  .tick.done .bar { background: linear-gradient(90deg, var(--ok), transparent); }
+  .tick.run .bar { background: linear-gradient(90deg, var(--accent), rgba(56,189,248,.2)); }
+
+  /* map furniture (from real app) */
+  .furn-coord { position: absolute; left: 14px; bottom: var(--dock-h); margin-bottom: 10px; font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: rgba(11,20,32,.85); border: 1px solid var(--line); border-radius: 3px; padding: 4px 8px; display: flex; gap: 10px; }
+  .furn-coord .z { color: var(--ink-3); }
+  .furn-nav { position: absolute; right: 14px; bottom: calc(var(--dock-h) + 10px); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .furn-nav .b { width: 28px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(11,20,32,.9); border: 1px solid var(--line-2); color: var(--ink-1); font-size: 13px; }
+  .furn-nav .b:first-child { border-radius: 3px 3px 0 0; }
+  .furn-nav .b:last-child { border-radius: 0 0 3px 3px; }
+  .furn-scale { position: absolute; left: 14px; bottom: calc(var(--dock-h) + 14px); width: 88px; height: 8px; }
+  .furn-scale .l { width: 100%; height: 2px; background: var(--ink-2); border-top: 1px solid var(--ink-2); border-bottom: 1px solid var(--ink-2); }
+  .furn-scale .lab { font-family: var(--mono); font-size: 8.5px; color: var(--ink-2); margin-top: 2px; }
+
+  .map-note { position: absolute; top: 12px; right: 14px; font-size: 10px; color: var(--ink-2); background: rgba(11,20,32,.75); border: 1px solid var(--line); border-radius: 3px; padding: 4px 9px; pointer-events: none; }
+
+  .mock-mini { position: absolute; left: 16px; bottom: calc(var(--dock-h) + 64px); font-size: 10px; font-family: var(--mono); color: var(--ink-3); pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============ HEADER ============ -->
+  <header class="header">
+    <div class="brand"><span class="dot"></span><b>OILSPILL&nbsp;·&nbsp;INTEL</b>&nbsp;<span style="color:var(--ink-2)">/ command</span></div>
+
+    <div class="case-tag"><span class="live"></span>LIVE&nbsp; <b>CASE&nbsp;SIH-26143-A</b>&nbsp; ·&nbsp; Arabian Sea shelf</div>
+
+    <div class="spacer"></div>
+
+    <div class="prov-strip">
+      <span class="prov cap"><span class="lbl">SAR</span><span class="p">REAL</span></span>
+      <span class="prov"><span class="lbl">WINDS</span><span class="p">OPEN-METEO</span></span>
+      <span class="prov"><span class="lbl">CURRENTS</span><span class="p">OPEN-METEO</span></span>
+      <span class="prov"><span class="lbl">AIS</span><span class="p sim">CONTROLLED</span></span>
+    </div>
+
+    <button class="btn-primary">▶ Start live challenge <span class="kbd">N</span></button>
+  </header>
+
+  <!-- ============ LEFT RAIL ============ -->
+  <aside class="rail">
+    <div class="icon on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="1"/><path d="M8 21h8M12 18v3M7 9l3 3-3 3M14 14h3"/></svg>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 12V5M12 12l4.5 4.5"/></svg>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c5-2 11-2 16 0"/><path d="M4 16c5-2 11-2 16 0"/><path d="M4 12c5-2 11-2 16 0"/></svg>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M3 12h18M5 5l14 14M19 5L5 19"/></svg>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l9 5v8l-9 5-9-5V8z"/></svg>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16M4 9h16M4 13h10M4 17h16"/></svg>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="map-wrap">
+
+      <svg class="basemap" viewBox="0 0 1200 660" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="ocean" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0a1826"/>
+            <stop offset="1" stop-color="#050c14"/>
+          </linearGradient>
+          <radialGradient id="slicksoft" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#ff8a63" stop-opacity="0.35"/>
+            <stop offset="1" stop-color="#ff8a63" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="srcsoft" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#f0c05a" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#f0c05a" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <rect width="1200" height="660" fill="url(#ocean)"/>
+
+        <!-- graticule -->
+        <g stroke="#0e2233" stroke-width="1">
+          <line x1="0" y1="120" x2="1200" y2="120"/><line x1="0" y1="230" x2="1200" y2="230"/>
+          <line x1="0" y1="340" x2="1200" y2="340"/><line x1="0" y1="450" x2="1200" y2="450"/>
+          <line x1="0" y1="560" x2="1200" y2="560"/>
+          <line x1="150" y1="0" x2="150" y2="660"/><line x1="300" y1="0" x2="300" y2="660"/>
+          <line x1="450" y1="0" x2="450" y2="660"/><line x1="600" y1="0" x2="600" y2="660"/>
+          <line x1="750" y1="0" x2="750" y2="660"/><line x1="900" y1="0" x2="900" y2="660"/>
+          <line x1="1050" y1="0" x2="1050" y2="660"/>
+        </g>
+
+        <!-- land: India west coast (right), Arabia (upper-left), Horn (lower-left) -->
+        <path d="M820 0 H1200 V660 H908 L900 620 L892 570 L862 540 L844 520 L830 496
+                 L822 468 L816 446 L820 420 L826 400 L830 376 L826 354 L818 330 L806 308
+                 L798 286 L796 262 L800 238 L806 216 L812 190 L820 164 L830 140
+                 L838 118 L846 98 L856 80 L864 62 L868 40 L870 20 Z"
+              fill="#0d1c2a" stroke="#16303f" stroke-width="1"/>
+        <!-- Sri Lanka -->
+        <path d="M872 470 L884 480 L872 516 L858 524 L848 514 L848 496 Z" fill="#0d1c2a" stroke="#16303f" stroke-width="1"/>
+        <!-- Arabia -->
+        <path d="M0 0 H150 L158 20 L168 44 L182 62 L200 74 L224 84 L252 92 L284 98
+                 L318 100 L336 96 L342 88 L338 74 L330 58 L322 44 L318 28 L320 10 Z"
+              fill="#0d1c2a" stroke="#16303f" stroke-width="1"/>
+        <!-- Horn of Africa -->
+        <path d="M0 660 L60 640 L120 610 L170 574 L200 540 L212 504 L212 470
+                 L206 448 L192 440 L172 452 L156 480 L0 560 Z"
+              fill="#0d1c2a" stroke="#16303f" stroke-width="1"/>
+
+        <!-- shipping lane (traffic orientation) -->
+        <path d="M40 40 C 300 140, 560 300, 860 470" fill="none" stroke="#163049" stroke-width="1.2" stroke-dasharray="3 7"/>
+
+        <!-- source region -->
+        <ellipse cx="470" cy="240" rx="78" ry="54" fill="url(#srcsoft)"/>
+        <path d="M470 200 A 40 36 0 1 1 469.9 200" fill="none" stroke="#f0c05a" stroke-width="1.6" opacity=".9" filter="url(#glow)"/>
+        <path d="M470 188 A 60 52 0 1 1 469.9 188" fill="none" stroke="#f0c05a" stroke-width="1" opacity=".45" stroke-dasharray="2 4"/>
+        <line x1="440" y1="214" x2="500" y2="214" stroke="#f0c05a" stroke-width="12" opacity=".06"/>
+
+        <!-- drift particles -->
+        <g fill="#58e0b9">
+          <circle cx="560" cy="300" r="2.4" opacity=".9"/><circle cx="590" cy="286" r="1.8" opacity=".7"/>
+          <circle cx="612" cy="302" r="2.8" opacity=".95"/><circle cx="640" cy="296" r="2" opacity=".7"/>
+          <circle cx="668" cy="312" r="2.3" opacity=".8"/><circle cx="694" cy="300" r="1.6" opacity=".6"/>
+          <circle cx="598" cy="326" r="2" opacity=".6"/><circle cx="632" cy="320" r="2.7" opacity=".9"/>
+          <circle cx="664" cy="338" r="1.8" opacity=".6"/><circle cx="704" cy="328" r="2.2" opacity=".75"/>
+          <circle cx="582" cy="262" r="1.7" opacity=".5"/><circle cx="560" cy="344" r="1.9" opacity=".55"/>
+        </g>
+        <!-- drift hull -->
+        <path d="M548 268 C 590 252, 668 268, 706 300 C 712 320, 668 348, 596 344 C 560 342, 538 316, 548 268 Z"
+              fill="none" stroke="#3aa896" stroke-width="1.2" stroke-dasharray="1 4" opacity=".8"/>
+
+        <!-- slick (observed spill / SAR) -->
+        <circle cx="612" cy="302" r="30" fill="url(#slicksoft)"/>
+        <path d="M588 292 c 10 -8 24 -8 34 2 c 8 8 6 20 -4 26 c -12 7 -28 2 -32 -10 c -3 -7 -1 -12 2 -18 Z"
+              fill="none" stroke="#ff8a63" stroke-width="1.7" filter="url(#glow)"/>
+        <text x="612" y="362" text-anchor="middle" fill="#ff8a63" font-size="9.5" font-family="var(--mono)">SLICK OBS · 04 SEP 13:40Z</text>
+
+        <!-- backtrack connectors: source -> slick -->
+        <path d="M470 240 C 520 262, 560 286, 596 300" fill="none" stroke="#f0c05a" stroke-width="1" stroke-dasharray="2 5" opacity=".6"/>
+
+        <!-- vessels (candidates on the lane) -->
+        <g filter="url(#glow)">
+          <circle cx="452" cy="208" r="4" fill="#f0c05a"/>
+          <circle cx="536" cy="268" r="3.2" fill="#7ad4ff" opacity=".85"/>
+          <circle cx="708" cy="324" r="3.2" fill="#7ad4ff" opacity=".85"/>
+          <circle cx="788" cy="376" r="3.4" fill="#7ad4ff"/>
+          <circle cx="862" cy="414" r="3" fill="#7ad4ff" opacity=".7"/>
+          <circle cx="948" cy="470" r="3.2" fill="#7ad4ff" opacity=".85"/>
+          <polygon points="448,200 458,204 448,208" fill="#f0c05a"/>
+        </g>
+        <!-- legend labels -->
+        <g fill="#9db0c2" font-size="9.5" font-family="var(--mono)">
+          <text x="452" y="192" text-anchor="middle">SOURCE</text>
+          <text x="536" y="252" text-anchor="middle" fill="#7ad4ff">MV SINGA · 0.44</text>
+          <text x="788" y="398" text-anchor="middle" fill="#7ad4ff">MV EME·BAY · 0.71</text>
+          <text x="948" y="492" text-anchor="middle">MV NELSON · 0.58</text>
+        </g>
+
+        <!-- SAR footprint edge (upper area) -->
+        <path d="M150 40 L 1050 40 L 1050 250 L 150 250 Z" fill="none" stroke="#60a5cd" stroke-width="1" stroke-dasharray="6 6" opacity=".35" transform="rotate(-14 600 145)"/>
+
+        <!-- compass -->
+        <g transform="translate(46,88)" opacity=".9">
+          <circle r="16" fill="#0b1420" stroke="#22394c"/>
+          <path d="M0-12 L4 0 L0 12 L-4 0 Z" fill="#7dd3fc"/>
+          <path d="M0-12 L0 12" stroke="#16242f"/>
+        </g>
+      </svg>
+
+      <!-- stepper -->
+      <div class="stepper">
+        <span class="step done"><span class="mark">✓</span>Spill</span><span class="step-arrow">›</span>
+        <span class="step done"><span class="mark">✓</span>Drift</span><span class="step-arrow">›</span>
+        <span class="step done"><span class="mark">✓</span>Source</span><span class="step-arrow">›</span>
+        <span class="step run"><span class="mark">●</span>Vessels</span><span class="step-arrow">›</span>
+        <span class="step pend"><span class="mark">5</span>Verdict</span>
+      </div>
+
+      <!-- hero readout -->
+      <div class="hero">
+        <div class="k">PROBABLE SOURCE REGION · backtracking</div>
+        <div class="v">14.2°N &nbsp;71.4°E<span class="sub">release ≈ 03 Sep 17:40Z ± 6h · 90% confidence</span></div>
+        <div class="row"><span>uncertainty <b>± 18 km</b></span><span>·</span><span>env <b>OPEN-METEO</b></span><span>·</span><span>ens <b>48/60 converged</b></span></div>
+      </div>
+
+      <div class="map-note">Select a spill, candidate, vessel or region to inspect it</div>
+
+      <!-- bottom timeline dock -->
+      <div class="dock">
+        <div class="dock-h"><span>Investigation timeline</span><span class="r">SIM CLOCK — 2026-09-04T18:20Z</span></div>
+        <div class="timeline">
+          <div class="tick done"><div class="bar"></div><div class="h">Observation</div><div class="v">Slick detected</div><div class="m">SAR · 04 SEP 13:40Z</div></div>
+          <div class="tick done"><div class="bar"></div><div class="h">Drift</div><div class="v">6 h advected</div><div class="m">OPEN-METEO · 500 parts</div></div>
+          <div class="tick done"><div class="bar"></div><div class="h">Backtrack</div><div class="v">Source region</div><div class="m">48 converged · ±18 km</div></div>
+          <div class="tick done"><div class="bar"></div><div class="h">AIS window</div><div class="v">7 ships near origin</div><div class="m">200 msg · 0.4% gaps</div></div>
+          <div class="tick run"><div class="bar"></div><div class="h">Vessel scoring</div><div class="v">Ranking 7 · 5 factors</div><div class="m">nearest-approach · course</div></div>
+          <div class="tick"><div class="bar"></div><div class="h">Candidate review</div><div class="v">Waiting</div><div class="m">manual confirmation</div></div>
+          <div class="tick"><div class="bar"></div><div class="h">Verdict</div><div class="v">Waiting</div><div class="m">evidence threshold</div></div>
+          <div class="tick"><div class="bar"></div><div class="h">Dossier</div><div class="v">Waiting</div><div class="m">print deliverable</div></div>
+        </div>
+      </div>
+
+      <!-- map furniture -->
+      <div class="furn-coord"><span>14.5110°N · 72.4010°E</span><span class="z">z5.6</span></div>
+      <div class="furn-scale"><div class="l"></div><div class="lab">100 km</div></div>
+      <div class="furn-nav"><div class="b">＋</div><div class="b">－</div></div>
+
+      <div class="mock-mini">STATIC MOCK · APPROVAL GATE · no interaction</div>
+    </div>
+
+    <!-- ============ VERDICT RAIL ============ -->
+    <div class="rail-card">
+      <div class="card-scroll">
+        <div class="section-h">AIS candidate ranking</div>
+
+        <div class="cand top">
+          <div class="head">
+            <div><div class="name">MV Emerald Bay</div><div class="mmsi">MMSI 441256700 · tanker · 254 m</div></div>
+            <span class="tag">TOP</span>
+          </div>
+          <div class="score"><span>nearest pass 2.1 km − 03 Sep 18:02Z</span><div class="bar"><i style="width:71%"></i></div><b>0.71</b></div>
+          <div class="why">
+            <span class="chip">IN SOURCE REGION</span><span class="chip">COURSE ∩ BACKTRACK</span><span class="chip">GAP 11 min</span>
+          </div>
+        </div>
+
+        <div class="cand">
+          <div class="head">
+            <div><div class="name">MV Nelson</div><div class="mmsi">MMSI 566001900 · container · 366 m</div></div>
+            <span class="tag">#2</span>
+          </div>
+          <div class="score"><span>nearest pass 6.8 km</span><div class="bar"><i style="width:58%"></i></div><b>0.58</b></div>
+          <div class="why"><span class="chip">COURSE ∩</span><span class="chip">GAP 41 min</span></div>
+        </div>
+
+        <div class="cand">
+          <div class="head">
+            <div><div class="name">MV Singa</div><div class="mmsi">MMSI 563032000 · bulk · 180 m</div></div>
+            <span class="tag">#3</span>
+          </div>
+          <div class="score"><span>nearest pass 9.4 km</span><div class="bar"><i style="width:44%"></i></div><b>0.44</b></div>
+          <div class="why"><span class="chip">ON LANE</span></div>
+        </div>
+
+        <div class="verdict">
+          <div class="h">PENDING · VESSEL SCORING ACTIVE</div>
+          <div class="t">Highest-ranked candidate &nbsp;—&nbsp; not yet a confirmed culprit</div>
+          <div class="note">Ranked candidates, never a verdict without evidence review. Source is a region, not a single point.</div>
+        </div>
+      </div>
+
+      <div class="prov-footer">
+        <div class="section-h" style="margin:0 0 6px">Provenance</div>
+        <div class="prov-row"><div class="d"><i class="i real"></i>Satellite SAR search</div><span class="s">REAL · Copernicus</span></div>
+        <div class="prov-row"><div class="d"><i class="i real"></i>Imagery overlay</div><span class="s">REAL · NASA GIBS</span></div>
+        <div class="prov-row"><div class="d"><i class="i real"></i>Wind + currents</div><span class="s">REAL · OPEN-METEO</span></div>
+        <div class="prov-row"><div class="d"><i class="i sim"></i>Vessel traffic (AIS)</div><span class="s">SIM · CONTROLLED</span></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

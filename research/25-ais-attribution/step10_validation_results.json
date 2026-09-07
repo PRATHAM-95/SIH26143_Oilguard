@@ -1,0 +1,250 @@
+{
+  "metadata": {
+    "experiment": "STEP10-ais-attribution-controlled-recovery",
+    "model_version": "ais-scoring-v1",
+    "generated_at": "2026-09-06T03:35:01.708194+00:00",
+    "seed": 26143,
+    "weights": {
+      "spatial": 0.25,
+      "temporal": 0.2,
+      "trajectory": 0.25,
+      "anomaly": 0.15,
+      "environmental": 0.15
+    },
+    "targets": {
+      "top1_gt": 0.7,
+      "top3_gt": 0.9
+    },
+    "note": "Controlled attributable scenarios. Ground truth is enclosed in the validation harness; the public AIS/attribution API path never sees it. AIS traffic is deterministic simulated (CONTROLLED), never presented as real."
+  },
+  "metrics": {
+    "scenario_count": 6,
+    "top1_rate": 1.0,
+    "top3_rate": 1.0,
+    "mean_mrr": 1.0,
+    "mean_margin": 0.1774,
+    "mean_reduction_ratio": 0.2528,
+    "mean_coverage": 1.0,
+    "expectation_satisfied": true,
+    "target_top1_gt_0_7": true,
+    "target_top3_gt_0_9": true
+  },
+  "scenarios": [
+    {
+      "scenario": "easy-tanker",
+      "label": "easy tanker through origin",
+      "difficulty": "easy",
+      "planted_mmsi": "419660001",
+      "expected_top1": "419660001",
+      "top1_hit": true,
+      "top3_hit": true,
+      "planted_rank": 1,
+      "mrr": 1.0,
+      "top_score": 0.7167,
+      "second_score": 0.4082,
+      "margin": 0.3085,
+      "decisive": true,
+      "conclusion": "candidate",
+      "reduction_ratio": 0.1667,
+      "coverage": 1.0,
+      "input_vessels": 6,
+      "candidates": 5,
+      "kept_in_recon": 5,
+      "top1_mmsi": "419660001",
+      "top_n_mmsi": [
+        "419660001",
+        "419660010",
+        "419660011"
+      ],
+      "meets_target_top1": true,
+      "meets_target_top3": true,
+      "meets_target_inconclusive": true,
+      "expectation_satisfied": true,
+      "source_state_seen": [
+        "CONTROLLED"
+      ],
+      "warnings": []
+    },
+    {
+      "scenario": "mid-cargo-maneuver",
+      "label": "mid cargo with maneuver",
+      "difficulty": "medium",
+      "planted_mmsi": "419660002",
+      "expected_top1": "419660002",
+      "top1_hit": true,
+      "top3_hit": true,
+      "planted_rank": 1,
+      "mrr": 1.0,
+      "top_score": 0.7117,
+      "second_score": 0.4946,
+      "margin": 0.2171,
+      "decisive": true,
+      "conclusion": "candidate",
+      "reduction_ratio": 0.2,
+      "coverage": 1.0,
+      "input_vessels": 5,
+      "candidates": 4,
+      "kept_in_recon": 4,
+      "top1_mmsi": "419660002",
+      "top_n_mmsi": [
+        "419660002",
+        "419660022",
+        "419660020"
+      ],
+      "meets_target_top1": true,
+      "meets_target_top3": true,
+      "meets_target_inconclusive": true,
+      "expectation_satisfied": true,
+      "source_state_seen": [
+        "CONTROLLED"
+      ],
+      "warnings": []
+    },
+    {
+      "scenario": "hard-trawler-loiter-gap",
+      "label": "hard: trawler loiter + AIS gap",
+      "difficulty": "hard",
+      "planted_mmsi": "419660003",
+      "expected_top1": "419660003",
+      "top1_hit": true,
+      "top3_hit": true,
+      "planted_rank": 1,
+      "mrr": 1.0,
+      "top_score": 0.6904,
+      "second_score": 0.4116,
+      "margin": 0.2788,
+      "decisive": true,
+      "conclusion": "candidate",
+      "reduction_ratio": 0.4,
+      "coverage": 1.0,
+      "input_vessels": 5,
+      "candidates": 3,
+      "kept_in_recon": 3,
+      "top1_mmsi": "419660003",
+      "top_n_mmsi": [
+        "419660003",
+        "419660030",
+        "419660031"
+      ],
+      "meets_target_top1": true,
+      "meets_target_top3": true,
+      "meets_target_inconclusive": true,
+      "expectation_satisfied": true,
+      "source_state_seen": [
+        "CONTROLLED"
+      ],
+      "warnings": []
+    },
+    {
+      "scenario": "distractor-rich-false-friend",
+      "label": "distractor-rich incl. false friend",
+      "difficulty": "hard",
+      "planted_mmsi": "419660004",
+      "expected_top1": "419660004",
+      "top1_hit": true,
+      "top3_hit": true,
+      "planted_rank": 1,
+      "mrr": 1.0,
+      "top_score": 0.7139,
+      "second_score": 0.4858,
+      "margin": 0.2281,
+      "decisive": true,
+      "conclusion": "candidate",
+      "reduction_ratio": 0.3333,
+      "coverage": 1.0,
+      "input_vessels": 6,
+      "candidates": 4,
+      "kept_in_recon": 4,
+      "top1_mmsi": "419660004",
+      "top_n_mmsi": [
+        "419660004",
+        "419660041",
+        "419660044"
+      ],
+      "meets_target_top1": true,
+      "meets_target_top3": true,
+      "meets_target_inconclusive": true,
+      "expectation_satisfied": true,
+      "source_state_seen": [
+        "CONTROLLED"
+      ],
+      "warnings": []
+    },
+    {
+      "scenario": "no-vessel-inconclusive",
+      "label": "no vessel -> inconclusive",
+      "difficulty": "medium",
+      "planted_mmsi": null,
+      "expected_top1": null,
+      "top1_hit": false,
+      "top3_hit": false,
+      "planted_rank": null,
+      "mrr": 0.0,
+      "top_score": 0.4334,
+      "second_score": 0.4189,
+      "margin": 0.0145,
+      "decisive": false,
+      "conclusion": "inconclusive",
+      "reduction_ratio": 0.25,
+      "coverage": 1.0,
+      "input_vessels": 4,
+      "candidates": 3,
+      "kept_in_recon": 3,
+      "top1_mmsi": "419660050",
+      "top_n_mmsi": [
+        "419660050",
+        "419660051",
+        "419660053"
+      ],
+      "meets_target_top1": true,
+      "meets_target_top3": true,
+      "meets_target_inconclusive": true,
+      "expectation_satisfied": true,
+      "source_state_seen": [
+        "CONTROLLED"
+      ],
+      "warnings": [
+        "top score 0.43 below the 0.45 confidence threshold \u2014 attribution is inconclusive",
+        "top margin 0.015 below 0.050 \u2014 ranking is not decisive"
+      ]
+    },
+    {
+      "scenario": "clean-traffic-control",
+      "label": "clean traffic control",
+      "difficulty": "control",
+      "planted_mmsi": null,
+      "expected_top1": null,
+      "top1_hit": false,
+      "top3_hit": false,
+      "planted_rank": null,
+      "mrr": 0.0,
+      "top_score": 0.3659,
+      "second_score": 0.3482,
+      "margin": 0.0177,
+      "decisive": false,
+      "conclusion": "inconclusive",
+      "reduction_ratio": 0.1667,
+      "coverage": 1.0,
+      "input_vessels": 6,
+      "candidates": 5,
+      "kept_in_recon": 5,
+      "top1_mmsi": "419660064",
+      "top_n_mmsi": [
+        "419660064",
+        "419660063",
+        "419660061"
+      ],
+      "meets_target_top1": true,
+      "meets_target_top3": true,
+      "meets_target_inconclusive": true,
+      "expectation_satisfied": true,
+      "source_state_seen": [
+        "CONTROLLED"
+      ],
+      "warnings": [
+        "top score 0.37 below the 0.45 confidence threshold \u2014 attribution is inconclusive",
+        "top margin 0.018 below 0.050 \u2014 ranking is not decisive"
+      ]
+    }
+  ]
+}

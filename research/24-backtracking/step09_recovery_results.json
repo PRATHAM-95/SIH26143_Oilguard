@@ -1,0 +1,252 @@
+{
+  "title": "Step 09 controlled forward->backward source-recovery experiment",
+  "model_version": "opendrift-1.14.11/openoil-backtrack",
+  "true_source": {
+    "lon": 71.9,
+    "lat": 18.6
+  },
+  "release_time": "2026-09-02T06:00:00Z",
+  "config": {
+    "ensemble_size": 5,
+    "particles_per_member": 50,
+    "forward_particles": 100,
+    "timestep_seconds": -900,
+    "seed": 20260902
+  },
+  "scenarios": [
+    {
+      "name": "still-water-6h",
+      "duration_hours": 6.0,
+      "currents": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "wind": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "observed_centroid": {
+        "lon": 71.899814,
+        "lat": 18.59922
+      },
+      "true_displacement_km": 0.0,
+      "source_error_km": 0.1,
+      "uncertainty_km": 0.92,
+      "mean_endpoint_distance_km": 0.76,
+      "std_endpoint_distance_km": 0.47,
+      "trajectory_agreement": 0.936,
+      "ensemble_stability": 1.0,
+      "source_concentration": "HIGH",
+      "source_region_contains_true": true,
+      "source_within_uncertainty_bounds": true,
+      "source_time_window": {
+        "earliest": "2026-09-02T06:00:00Z",
+        "latest": "2026-09-02T12:00:00Z",
+        "preferred": "2026-09-02T09:00:00Z"
+      },
+      "true_release_within_window": true,
+      "converged_members": 5,
+      "total_particles": 250,
+      "land_hits": 0,
+      "domain_exits": 0,
+      "warnings": [],
+      "tolerance_km": 10.0,
+      "passed": true
+    },
+    {
+      "name": "east-current-6h",
+      "duration_hours": 6.0,
+      "currents": {
+        "u": 0.5,
+        "v": 0.0
+      },
+      "wind": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "observed_centroid": {
+        "lon": 72.002143,
+        "lat": 18.599218
+      },
+      "true_displacement_km": 10.8,
+      "source_error_km": 0.22,
+      "uncertainty_km": 1.38,
+      "mean_endpoint_distance_km": 10.73,
+      "std_endpoint_distance_km": 1.07,
+      "trajectory_agreement": 0.896,
+      "ensemble_stability": 1.0,
+      "source_concentration": "HIGH",
+      "source_region_contains_true": false,
+      "source_within_uncertainty_bounds": true,
+      "source_time_window": {
+        "earliest": "2026-09-02T06:00:00Z",
+        "latest": "2026-09-02T12:00:00Z",
+        "preferred": "2026-09-02T09:00:00Z"
+      },
+      "true_release_within_window": true,
+      "converged_members": 5,
+      "total_particles": 250,
+      "land_hits": 0,
+      "domain_exits": 0,
+      "warnings": [],
+      "tolerance_km": 20.0,
+      "passed": true
+    },
+    {
+      "name": "ne-current-6h",
+      "duration_hours": 6.0,
+      "currents": {
+        "u": 0.4,
+        "v": 0.3
+      },
+      "wind": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "observed_centroid": {
+        "lon": 71.981692,
+        "lat": 18.657762
+      },
+      "true_displacement_km": 10.8,
+      "source_error_km": 0.17,
+      "uncertainty_km": 1.36,
+      "mean_endpoint_distance_km": 10.81,
+      "std_endpoint_distance_km": 1.08,
+      "trajectory_agreement": 0.9,
+      "ensemble_stability": 1.0,
+      "source_concentration": "HIGH",
+      "source_region_contains_true": false,
+      "source_within_uncertainty_bounds": true,
+      "source_time_window": {
+        "earliest": "2026-09-02T06:00:00Z",
+        "latest": "2026-09-02T12:00:00Z",
+        "preferred": "2026-09-02T09:00:00Z"
+      },
+      "true_release_within_window": true,
+      "converged_members": 5,
+      "total_particles": 250,
+      "land_hits": 0,
+      "domain_exits": 0,
+      "warnings": [],
+      "tolerance_km": 20.0,
+      "passed": true
+    },
+    {
+      "name": "sw-current-3h",
+      "duration_hours": 3.0,
+      "currents": {
+        "u": -0.3,
+        "v": -0.2
+      },
+      "wind": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "observed_centroid": {
+        "lon": 71.869491,
+        "lat": 18.579881
+      },
+      "true_displacement_km": 3.89,
+      "source_error_km": 0.18,
+      "uncertainty_km": 0.72,
+      "mean_endpoint_distance_km": 4.0,
+      "std_endpoint_distance_km": 0.54,
+      "trajectory_agreement": 0.908,
+      "ensemble_stability": 1.0,
+      "source_concentration": "HIGH",
+      "source_region_contains_true": true,
+      "source_within_uncertainty_bounds": true,
+      "source_time_window": {
+        "earliest": "2026-09-02T06:00:00Z",
+        "latest": "2026-09-02T09:00:00Z",
+        "preferred": "2026-09-02T07:30:00Z"
+      },
+      "true_release_within_window": true,
+      "converged_members": 5,
+      "total_particles": 250,
+      "land_hits": 0,
+      "domain_exits": 0,
+      "warnings": [],
+      "tolerance_km": 20.0,
+      "passed": true
+    },
+    {
+      "name": "wind-only-6h",
+      "duration_hours": 6.0,
+      "currents": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "wind": {
+        "u": 10.0,
+        "v": 0.0
+      },
+      "observed_centroid": {
+        "lon": 71.956079,
+        "lat": 18.599463
+      },
+      "true_displacement_km": 6.48,
+      "source_error_km": 3.8,
+      "uncertainty_km": 2.44,
+      "mean_endpoint_distance_km": 4.57,
+      "std_endpoint_distance_km": 2.53,
+      "trajectory_agreement": 0.936,
+      "ensemble_stability": 1.0,
+      "source_concentration": "MEDIUM",
+      "source_region_contains_true": false,
+      "source_within_uncertainty_bounds": true,
+      "source_time_window": {
+        "earliest": "2026-09-02T06:00:00Z",
+        "latest": "2026-09-02T12:00:00Z",
+        "preferred": "2026-09-02T09:00:00Z"
+      },
+      "true_release_within_window": true,
+      "converged_members": 5,
+      "total_particles": 250,
+      "land_hits": 0,
+      "domain_exits": 0,
+      "warnings": [],
+      "tolerance_km": 40.0,
+      "passed": true
+    },
+    {
+      "name": "east-current-12h",
+      "duration_hours": 12.0,
+      "currents": {
+        "u": 0.5,
+        "v": 0.0
+      },
+      "wind": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "observed_centroid": {
+        "lon": 72.104362,
+        "lat": 18.599389
+      },
+      "true_displacement_km": 21.6,
+      "source_error_km": 0.35,
+      "uncertainty_km": 2.4,
+      "mean_endpoint_distance_km": 21.46,
+      "std_endpoint_distance_km": 1.98,
+      "trajectory_agreement": 0.908,
+      "ensemble_stability": 1.0,
+      "source_concentration": "MEDIUM",
+      "source_region_contains_true": false,
+      "source_within_uncertainty_bounds": true,
+      "source_time_window": {
+        "earliest": "2026-09-02T06:00:00Z",
+        "latest": "2026-09-02T18:00:00Z",
+        "preferred": "2026-09-02T12:00:00Z"
+      },
+      "true_release_within_window": true,
+      "converged_members": 5,
+      "total_particles": 250,
+      "land_hits": 0,
+      "domain_exits": 0,
+      "warnings": [],
+      "tolerance_km": 30.0,
+      "passed": true
+    }
+  ]
+}

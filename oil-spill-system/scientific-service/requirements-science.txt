@@ -4,5 +4,16 @@
 #
 # Status (2 Sep 2026): verified installable & importable on:
 #   Windows 11, Python 3.12, no Docker required.
-opendrift==1.14.12
+#
+# Pinned to 1.14.11: this is the version verified on this machine and the
+# version whose behaviour the model-version strings report
+# ("opendrift-1.14.11/openoil-backtrack"). 1.14.12 would require re-verification
+# of the backward-mode behaviour (wind_drift_factor element property handling)
+# before pinning. See STEP_09_REPORT §20 limitation note.
+opendrift==1.14.11
 copernicusmarine>=2.4.1
+cdsapi>=0.7
+
+# Real environmental forcing (CMEMS currents + ERA5 wind)
+xarray>=2023.0
+netCDF4>=1.6

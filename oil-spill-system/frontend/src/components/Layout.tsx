@@ -1,22 +1,144 @@
-import { Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet } from 'react-router-dom'
+import { useHealthProbe } from '@/hooks/useHealthProbe'
+import { useConnectionStore } from '@/store/connectionStore'
+import { useInvestigationStore } from '@/store/investigationStore'
+import { StatusChip } from '@/components/Status'
+import {
+  BacktraceIcon,
+  CommandIcon,
+  DossierIcon,
+  RadarIcon,
+  RankIcon,
+  ShipIcon,
+} from '@/components/ui/Icon'
+
+const NAV = [
+  { to: '/', label: 'Command Center', icon: CommandIcon },
+  { to: '/simulation', label: 'Simulation', icon: ShipIcon },
+  { to: '/investigation', label: 'Investigation', icon: RadarIcon },
+  { to: '/backtracking', label: 'Backtracking', icon: BacktraceIcon },
+  { to: '/attribution', label: 'Attribution', icon: RankIcon },
+  { to: '/report', label: 'Report', icon: DossierIcon },
+]
+
+function UtcClock() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const t = window.setInterval(() => setNow(new Date()), 1000)
+    return () => window.clearInterval(t)
+  }, [])
+  const stamp = now.toISOString().slice(0, 19).replace('T', ' ')
+  return (
+    <div className="clock-readout" title="UTC (Zulu)">
+      {stamp} Z
+    </div>
+  )
+}
+
+function IncidentContext() {
+  const investigationId = useInvestigationStore((s) => s.investigationId)
+  const status = useInvestigationStore((s) => s.status)
+  if (!investigationId) {
+    return (
+      <div className="cmd-ctx">
+        <span className="cmd-ctx-label">Investigation</span>
+        <span className="cmd-ctx-value">—</span>
+      </div>
+    )
+  }
+  const short = investigationId.length > 16 ? `${investigationId.slice(0, 16)}…` : investigationId
+  const tone =
+    status === 'COMPLETED'
+      ? 'ok'
+      : status === 'FAILED' || status === 'CANCELLED'
+        ? 'danger'
+        : status === 'RUNNING'
+          ? 'run'
+          : status
+            ? 'warn'
+            : 'idle'
+  return (
+    <div className="cmd-ctx">
+      <span className="cmd-ctx-label">Investigation</span>
+      <span className="cmd-ctx-value">{short}</span>
+      <StatusChip tone={tone} label={status?.toUpperCase() ?? '—'}>
+        {status ?? '—'}
+      </StatusChip>
+    </div>
+  )
+}
+
+function HeaderStatus() {
+  const connections = useConnectionStore((s) => s.connections)
+
+  const tone =
+    connections.api === 'offline' ? 'danger' : connections.api === 'online' ? 'ok' : 'idle'
+
+  const label =
+    connections.api === 'offline'
+      ? 'API offline'
+      : connections.api === 'online'
+        ? 'Online'
+        : 'Connecting…'
+
+  return (
+    <div className="header-status">
+      <StatusChip tone={tone} label={label}>
+        {label}
+      </StatusChip>
+      <StatusChip tone={connections.mongo === 'offline' ? 'danger' : connections.mongo === 'online' ? 'ok' : 'idle'} label="Database">
+        Database
+      </StatusChip>
+      <StatusChip tone={connections.python === 'offline' ? 'warn' : connections.python === 'online' ? 'ok' : 'idle'} label="Scientific">
+        Scientific
+      </StatusChip>
+      <StatusChip tone={connections.websocket === 'online' ? 'ok' : 'idle'} label="Live updates">
+        Live
+      </StatusChip>
+      <UtcClock />
+      <NavLink className="header-link" to="/report">
+        <DossierIcon size={13} />
+        Dossier
+      </NavLink>
+    </div>
+  )
+}
 
 export default function Layout() {
+  useHealthProbe()
+
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header style={{
-        height: 48,
-        backgroundColor: '#0D1B2A',
-        borderBottom: '1px solid #1C6999',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 16px',
-        gap: 16,
-      }}>
-        <strong style={{ color: '#1C6999' }}>SIH26143</strong>
-        <span style={{ color: '#666' }}>|</span>
-        <span style={{ fontSize: 14 }}>Oil Spill Detection System</span>
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">
+            ◈
+          </span>
+          <span>
+            <div className="brand-name">MARITIME OIL SPILL INTELLIGENCE</div>
+            <div className="brand-sub">SIH 26143 · SYSTEM</div>
+          </span>
+        </div>
+        <IncidentContext />
+        <HeaderStatus />
       </header>
-      <main style={{ flex: 1, overflow: 'hidden' }}>
+      <nav className="tool-rail" aria-label="Primary">
+        {NAV.map(({ to, label, icon: RailIcon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === '/'}
+            title={label}
+            aria-label={label}
+            className={({ isActive }) => `rail-item${isActive ? ' active' : ''}`}
+          >
+            <RailIcon size={18} />
+          </NavLink>
+        ))}
+        <div className="rail-spacer" />
+      </nav>
+      <main className="app-main">
         <Outlet />
       </main>
     </div>
