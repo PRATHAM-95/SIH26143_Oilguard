@@ -17,13 +17,14 @@ Serves the frozen SYSTEM_SPEC §15.2 Python API:
 from __future__ import annotations
 
 import logging
+import os
 import time as _time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any, Dict
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 
 load_dotenv()
 
@@ -32,6 +33,8 @@ log = logging.getLogger("oilspill.main")
 from .drift.engine import (
     DRIFT_MODEL_VERSION,
     ForwardDriftEngine,
+    _openoil_model,
+    _time_varying_reader_class,
     list_valid_oil_types,
     resolve_oil_type,
 )
@@ -87,9 +90,63 @@ from .observability import instrument_app
 APP_VERSION = "0.5.0"
 APP_TITLE = "Oil Spill Scientific Service"
 
+# "Slow start, fast runtime": when SCIENTIFIC_PRELOAD != "0" the service warms
+# the heavy science stack (OpenDrift import + oil-type probe + reader subclass +
+# SAR fixture caches) inside the FastAPI lifespan, BEFORE it accepts traffic.
+# The first drift/backtrack/preview request then never pays the import cost.
+# If the stack is missing the warm-up degrades gracefully (logs a warning, keeps
+# the existing lazy path) so tooling/tests without OpenDrift still boot.
+_PRELOAD_DISABLED = os.getenv("SCIENTIFIC_PRELOAD", "1").strip() == "0"
+
+# Set to True as soon as the warm-up has run (or was skipped/degraded). Drives
+# /api/ready so launchers can health-gate traffic on a warm, ready service.
+_warm = False
+
+
+def _warm_fixture() -> None:
+    """Warm the deterministic SAR fixture caches (cheap) at boot."""
+    try:
+        from .sar.fixture import build_fixture_scene
+
+        build_fixture_scene()
+        log.info("sar fixture preloaded")
+    except Exception as exc:  # noqa: BLE001 - never block startup on the demos
+        log.warning("sar fixture preload failed: %s", exc)
+
+
+def _warm_startup() -> None:
+    """Eagerly load/import the heavy science components once, at boot time.
+
+    Every call here is functionally a no-op if OpenDrift is not installed
+    (they fall back to lazy ``(None, None)`` internally), but when it IS
+    installed the first science request goes from paying a 10-30s import to
+    an instant call.
+    """
+    global _warm
+    if _PRELOAD_DISABLED:
+        log.info("scientific-service preload disabled (SCIENTIFIC_PRELOAD=0); staying lazy")
+        _warm = True
+        return
+    t0 = _time.monotonic()
+    try:
+        _openoil_model()
+        _time_varying_reader_class()
+        oil_types = list(list_valid_oil_types())
+        _warm_fixture()
+        log.info(
+            "scientific-service warm-up done in %.1fs (%d oil types cached)",
+            _time.monotonic() - t0,
+            len(oil_types),
+        )
+    except Exception as exc:  # noqa: BLE001 - degraded warm start is still a start
+        log.warning("scientific-service warm-up degraded (%s); running lazy", exc)
+    finally:
+        _warm = True
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _warm_startup()
     yield
 
 
@@ -105,6 +162,19 @@ _engine = ForwardDriftEngine()
 @app.get("/health")
 def health() -> Dict[str, str]:
     return {"status": "UP", "service": "oil-spill-scientific-service", "version": APP_VERSION}
+
+
+@app.get("/api/ready")
+def ready(response: Response) -> Dict[str, Any]:
+    """Liveness-with-warmth gate for launchers/load balancers.
+
+    200 once the warm-up has finished, 503 while the heavy stack is still
+    being preloaded. Traffic should not be sent to this service before 200.
+    """
+    if not _warm:
+        response.status_code = 503
+        return {"status": "LOADING", "warm": False, "service": APP_TITLE}
+    return {"status": "UP", "warm": True, "service": APP_TITLE}
 
 
 @app.get("/api/environment/availability")

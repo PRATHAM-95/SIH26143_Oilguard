@@ -1,6 +1,8 @@
 spring:
   application:
     name: oil-spill-backend
+  lifecycle:
+    timeout-per-shutdown-phase: ${SPRING_SHUTDOWN_TIMEOUT:20s}
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017}
@@ -9,6 +11,7 @@ spring:
 
 server:
   port: ${SPRING_PORT:8082}
+  shutdown: graceful
 
 python:
   service:

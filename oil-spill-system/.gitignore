@@ -38,6 +38,7 @@ Thumbs.db
 logs/
 tmp/
 temp/
+.prod-pids.txt
 
 # Large data / models / weights
 *.nc
