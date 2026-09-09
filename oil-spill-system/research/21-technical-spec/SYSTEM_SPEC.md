@@ -315,7 +315,7 @@ The pipeline for Captain Mode is:
 | Database | MongoDB 7 | 7+ | GeoJSON support, flexible schema |
 | ML Runtime | ONNX Runtime | 1.17+ | Fast inference, no GPU needed |
 | Oil Model | OpenDrift + OpenOil | 1.12+ | GPL-2.0, validated, backward mode |
-| Container | Docker + Docker Compose | 24+ | Consistent dev/demo environments |
+| Runners | Local process launchers (`npm run dev`, `start-stack.ps1`) | All services run locally, no containers |
 
 ### 4.3 Service Responsibilities
 
@@ -1612,10 +1612,10 @@ These are **development targets**, not guaranteed results.
 
 ```
 01. Architecture freeze                  ← WE ARE HERE (this document)
-02. Repository/infrastructure setup      ← Git repo, Docker Compose, CI
+02. Repository/infrastructure setup      ← Git repo, service launchers, CI
 03. Frontend shell                       ← React + Vite + MapLibre + Tailwind
 04. Spring Boot backend                  ← Project structure, controllers
-05. MongoDB setup                        ← Collections, indexes, Docker
+05. MongoDB setup                        ← Collections, indexes, local/Atlas
 06. WebSocket infrastructure             ← STOMP/SockJS setup
 07. Captain Mode — vessel management     ← Vessel CRUD, movement, display
 08. Captain Mode — spill trigger         ← Spill event creation
@@ -1651,9 +1651,9 @@ These are **development targets**, not guaranteed results.
 |-----------|------|------------|
 | CMEMS API registration | May take 24-48h | Register early; fallback to OSCAR |
 | CDS API (ERA5) registration | May take 24-48h | Register early; fallback to Open-Meteo |
-| OpenDrift installation | Complex dependencies | Use Docker; test early |
+| OpenDrift installation | Complex dependencies | Use pinned wheels (`opendrift==1.14.11`); test early |
 | Sentinel-1 data access | Copernicus Data Space may throttle | Use pre-loaded demo images |
-| MongoDB | Version compatibility | Use Docker, pin version |
+| MongoDB | Version compatibility | Use local MongoDB 7 or Atlas; pin version |
 
 ### 22.2 Technical Risks
 
@@ -1714,7 +1714,7 @@ These are **development targets**, not guaranteed results.
 |-----------|--------|-------|
 | Frontend (React+MapLibre) | READY | Well-understood, reference repos exist |
 | Spring Boot backend | READY | Standard REST/WebSocket, team expertise |
-| MongoDB | READY | Docker, standard schema |
+| MongoDB | READY | Local MongoDB 7 or Atlas, standard schema |
 | WebSocket events | READY | STOMP/SockJS, well-defined events |
 | Captain Mode — vessel mgmt | READY | CRUD + movement, straightforward |
 | Captain Mode — spill trigger | READY | Event creation + forward drift |
@@ -1756,13 +1756,13 @@ STEP 02: Repository and infrastructure setup
 
 Specifically:
 1. Create Git repository with proper structure
-2. Create Docker Compose with 4 services (frontend, backend, python-service, mongodb)
+2. Wire the services to run locally (frontend `:3000`, backend `:8082`, python-service `:8000`, MongoDB) via the root launchers
 3. Create Spring Boot project skeleton (controllers, models, config)
 4. Create Python FastAPI project skeleton (endpoints, OpenDrift integration)
 5. Create React + Vite project skeleton (MapLibre, deck.gl, Tailwind)
 6. Verify MongoDB connectivity
 7. Verify WebSocket connectivity
-8. Verify Python→OpenDrift import works in Docker
+8. Verify Python→OpenDrift import works locally
 
 **Do not start this yet — wait for specification approval.**
 
@@ -1790,7 +1790,7 @@ Specifically:
 
 1. **ML model actual accuracy** on demo SAR data — must be experimentally verified
 2. **Backtracking accuracy** for specific demo scenarios — must be tested
-3. **OpenDrift installation** in Docker — may require troubleshooting
+3. **OpenDrift installation** — may require troubleshooting (pinned 1.14.11 wheels verified)
 4. **CMEMS/ERA5 API availability** during demo — registration + network dependent
 5. **AIS simulation realism** — needs validation against real vessel patterns
 6. **Ensemble parameter ranges** — wind drift factor, diffusion coefficients need tuning
@@ -1807,7 +1807,7 @@ Specifically:
 
 **Step 02: Repository and infrastructure setup**
 - Git repo with monorepo structure
-- Docker Compose (4 services)
+- Local service launchers (`npm run dev`, `start-stack.ps1`)
 - Spring Boot project skeleton
 - Python FastAPI project skeleton
 - React + Vite project skeleton

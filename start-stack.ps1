@@ -28,6 +28,17 @@ function Wait-Port([int]$port, [int]$timeoutSec = 45) {
     return $false
 }
 
+function Get-DotenvValue([string]$file, [string]$name) {
+    if (-not (Test-Path -LiteralPath $file)) { return $null }
+    foreach ($line in Get-Content -LiteralPath $file) {
+        if ($line -match "^$([regex]::Escape($name))=(.*)$") {
+            $val = $matches[1].Trim()
+            if ($val) { return $val }
+        }
+    }
+    return $null
+}
+
 Write-Host "=============================================================" -ForegroundColor Cyan
 Write-Host " SIH26143 — OIL SPILL SYSTEM  (full stack, one terminal)"       -ForegroundColor Cyan
 Write-Host "=============================================================" -ForegroundColor Cyan
@@ -36,13 +47,21 @@ if (-not (Test-Path -LiteralPath $VENV_PY)) { Write-Host "VENV MISSING: $VENV_PY
 if (-not (Test-Path -LiteralPath $JAR))    { Write-Host "JAR MISSING: $JAR (run: mvn -q clean package -DskipTests in backend/)" -ForegroundColor Red; exit 1 }
 
 # --- 1. Mongo -----------------------------------------------------------
-$mongo = Get-NetTCPConnection -LocalPort 27017 -State Listen -ErrorAction SilentlyContinue
-if (-not $mongo) {
-    Write-Host "`n[1/4] Starting MongoDB on :27017 ..." -ForegroundColor Green
-    Start-Process mongod -ArgumentList '--dbpath', (Join-Path $env:TEMP 'opencode\mongo-data') -WindowStyle Hidden
-    if (-not (Wait-Port 27017)) { Write-Host "Mongo did not come up." -ForegroundColor Yellow }
+# If MONGODB_URI points at a remote cluster (Atlas), no local mongod is needed.
+$onlineUri = $env:MONGODB_URI
+if (-not $onlineUri) { $onlineUri = Get-DotenvValue (Join-Path $ROOT 'oil-spill-system\.env') 'MONGODB_URI' }
+$useOnlineMongo = [bool]$onlineUri -and $onlineUri -notmatch '^mongodb(\+srv)?://(localhost|127\.0\.0\.1)(:|/)'
+if ($useOnlineMongo) {
+    Write-Host "`n[1/4] Using ONLINE MongoDB ($onlineUri) — no local mongod required" -ForegroundColor Green
 } else {
-    Write-Host "`n[1/4] MongoDB already running on :27017" -ForegroundColor Green
+    $mongo = Get-NetTCPConnection -LocalPort 27017 -State Listen -ErrorAction SilentlyContinue
+    if (-not $mongo) {
+        Write-Host "`n[1/4] Starting local MongoDB on :27017 ..." -ForegroundColor Green
+        Start-Process mongod -ArgumentList '--dbpath', (Join-Path $env:TEMP 'opencode\mongo-data') -WindowStyle Hidden
+        if (-not (Wait-Port 27017)) { Write-Host "Local Mongo did not come up — set MONGODB_URI in .env to use online MongoDB." -ForegroundColor Yellow }
+    } else {
+        Write-Host "`n[1/4] Local MongoDB already running on :27017" -ForegroundColor Green
+    }
 }
 
 # --- 2. Scientific service (FastAPI) ------------------------------------

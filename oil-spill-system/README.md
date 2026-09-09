@@ -2,7 +2,7 @@
 
 The complete installation, configuration, verification and operations guide for the
 `frontend` (React), `backend` (Spring Boot) and `scientific-service` (FastAPI + OpenDrift)
-stack. Everything here is written to work on a **fresh clone** — no Docker required.
+stack. Everything here is written to work on a **fresh clone** with only the local toolchain.
 
 > If you only want the pitch-level picture, see the repository **[landing page](../README.md)**.
 
@@ -60,10 +60,10 @@ Linux/macOS with equivalent commands):
 | **Java** | JDK 17 | Backend runtime |
 | **Maven** | 3.9+ | Backend build (`mvn`) |
 | **Python** | 3.12 | Scientific service |
-| **MongoDB** | 7.x local, or any Atlas M0 cluster | Persistence |
+| **MongoDB** | Optional — an online Atlas cluster is recommended (no local install needed; §4) | Persistence |
 
 > Java 17 is the pom-configured target. Maven will build and run with a newer
-> JDK, but 17 is what is verified. **No Docker, GDAL compilation or native
+> JDK, but 17 is what is verified. **No GDAL compilation or native
 > toolchain is required** — the OpenDrift stack installs from wheels.
 
 ---
@@ -87,7 +87,35 @@ your shell after editing, and **never commit it**.
 
 ## 4. Database — MongoDB
 
-### Option A — local MongoDB (simplest)
+### Option A — MongoDB Atlas (online, recommended — no local MongoDB)
+
+Developers connect to a shared online cluster so **nothing needs to run on your
+machine**:
+
+1. Every developer creates a free M0 cluster at <https://cloud.mongodb.com> (or
+   the team uses one shared cluster).
+2. Create a **database user** (e.g. `oilspill`) with a strong password — use a
+   dedicated DB user, not the org/project admin.
+3. Add each developer's IP (or the CIDR) to the network access list. For
+   short-lived office/home IPs, use `0.0.0.0/0` only on a throwaway demo cluster.
+4. In **Atlas > Database > your cluster > Connect > Drivers**, copy the
+   connection string, e.g.:
+
+   ```dotenv
+   MONGODB_URI=mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
+   MONGODB_DATABASE=oilspill
+   ```
+
+5. Paste into `oil-spill-system/.env`. The launchers
+   (`start-stack.ps1` / `start-stack-visible.ps1`) detect a remote
+   `MONGODB_URI` and **skip starting local MongoDB** entirely.
+
+> Note: `ai.mongodb.com` is MongoDB's **Embeddings/Reranking (AI) API**, and the
+> `al-...` **model API key** you can create in Atlas is only a Bearer token for
+> `/v1/embeddings` — it is **not** a database credential. Storage always comes
+> from `MONGODB_URI` above.
+
+### Option B — local MongoDB (fallback)
 
 1. Install MongoDB Community Server (`mongod` on your PATH).
 2. Create a data folder and start the daemon:
@@ -97,20 +125,8 @@ your shell after editing, and **never commit it**.
    # mongod --dbpath ./data/mongodb        # Linux / macOS
    ```
 
-3. Nothing to configure — the backend defaults to `mongodb://localhost:27017`
-   with database `oilspill`. Confirm with `mongosh --eval "db.runCommand({ ping: 1 })"`.
-
-### Option B — MongoDB Atlas (hosted)
-
-1. Create a free M0 cluster at <https://www.mongodb.com/atlas>.
-2. Create a database user, allowlist your IP, and copy the URI:
-   `mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority`.
-3. Set it in `.env`:
-
-   ```dotenv
-   MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
-   MONGODB_DATABASE=oilspill
-   ```
+3. Set `MONGODB_URI=mongodb://localhost:27017` in `.env` (or unset it; the
+   backend falls back to this default automatically).
 
 Either option is fine; the backend health endpoint reports which one it reached
 (`"mongodb": "UP"`).
@@ -315,13 +331,56 @@ powershell -ExecutionPolicy Bypass -File .\start-stack.ps1
 > paths (VS Code's bundled JRE, `C:\nvm4w\nodejs`, a temp Mongo `--dbpath`).
 > On other machines prefer the three-terminal manual flow in §5.
 
+### Root `npm` launcher (one terminal, all services)
+
+A root `package.json` (repository level, alongside `start-stack.ps1`) provides
+cross-platform one-command launches that **do not** require a prebuilt jar:
+
+```powershell
+npm install                      # once, at the repo root (installs `concurrently`)
+npm run dev                      # one terminal: sci(:8000) + backend(:8082) + frontend(:3000)
+```
+
+- `npm run dev` runs the three services in parallel with color-coded, prefixed
+  logs in a single terminal; `Ctrl+C` stops all of them. Assumes MongoDB is
+  already running (same as the manual flow in §5).
+- `npm run stack` / `npm run stack:visible` wrap the two PowerShell launchers
+  above.
+- The three-terminal manual flow in §5 remains fully supported — this is purely
+  additive.
+
+### Production server (gunicorn + UvicornWorker)
+
+For staging/production (NOT `npm run dev`), run the scientific service behind
+gunicorn with multiple workers and `--preload` so the heavy OpenDrift import
+is shared across all workers (see `scientific-service/gunicorn.conf.py`):
+
+```powershell
+cd scientific-service
+python -m gunicorn -c gunicorn.conf.py app.main:app
+```
+
+Environment knobs (all optional, sensible defaults in `gunicorn.conf.py`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `GUNICORN_WORKERS` | `min(cpu_count, 4)` | Number of async Uvicorn workers |
+| `GUNICORN_TIMEOUT` | `600` (10 min) | Request timeout (matches max simulation length) |
+| `GUNICORN_MAX_REQUESTS` | `200` | Recycle workers after this many requests |
+| `GUNICORN_MAX_REQUESTS_JITTER` | `20` | Jitter to avoid thundering herd |
+| `GUNICORN_LOG_LEVEL` | `info` | Log level (`debug`, `info`, `warning`, `error`) |
+| `ENV_FIELD_CACHE_TTL_SECONDS` | `1800` | TTL for cached real CMEMS/ERA5 fields |
+
+Dev auto-reload is intentionally left on the single-uvicorn dev flow in `npm run dev`; gunicorn is
+only for serving at scale behind a reverse proxy.
+
 ---
 
 ## 11. Troubleshooting
 
 | Symptom | Cause / fix |
 |---|---|
-| `Api health` reports `"mongodb": "DOWN"` | Mongo not running — start `mongod` (§4), or set a valid `MONGODB_URI` |
+| `Api health` reports `"mongodb": "DOWN"` | `MONGODB_URI` not set in `.env` — set it to an online Atlas cluster (§4), or start a local `mongod` |
 | Backend returns `ConnectException` to Python | Science service not on `:8000`; verify `PYTHON_SERVICE_URL` and §7 ping |
 | Browser console `CORS` errors | Access from an origin outside the allowlist (`http://localhost:3000`, `http://127.0.0.1:3000`, `http://localhost:4173`). Open via `localhost`, and don't rely on a `[::1]` origin |
 | `curl` `POST` returns 400 `Unexpected character 'r'` | Shell mangled `--data '{"a":1}'` inline JSON. Use a data file: `curl -H "Content-Type: application/json" --data @payload.json ...` |
@@ -347,10 +406,15 @@ production-ward; before a real deployment, do the following:
   incidents, attribution runs) hold the full investigation trail. Enable
   backups/point-in-time recovery and monitor disk.
 - **Health & metrics** — Spring Boot Actuator exposes `health,info`
-  (`/actuator/health`); FastAPI exposes `/health`. Wire both into an uptime probe.
+  (`/actuator/health`); FastAPI exposes `/health` and (when
+  `prometheus-fastapi-instrumentator` is installed) `/metrics` with a histogram
+  of request duration per route. Wire both into an uptime probe or Prometheus
+  scrape target.
 - **Sizing & concurrency** — investigation executor threads (concurrency 2,
   claim-until 600s, `recoverStaleInvestigations` sweep) are tuned for a single
-  node. Scale Mongo, then split the Python science service horizontally.
+  node. Scale Mongo, then split the Python science service horizontally. The
+  gunicorn scientific-service config (`gunicorn.conf.py`) supports env-driven
+  worker count, request recycling, and timeouts.
 - **Model pinning** — the science stack is pinned (`opendrift==1.14.11`) and
   reports `model_version` strings in every response for auditability. Bump
   versions deliberately, and re-run the controlled-recovery validation suite

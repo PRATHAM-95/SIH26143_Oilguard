@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oilspill.app.backtrack.BacktrackingRepository;
 import com.oilspill.app.backtrack.BacktrackingResult;
+import com.oilspill.app.config.ScienceMetrics;
 import com.oilspill.app.simulation.Simulation;
 import com.oilspill.app.simulation.SimulationRepository;
 import com.oilspill.app.spill.SpillEvent;
 import com.oilspill.app.spill.SpillEventRepository;
 import com.oilspill.app.websocket.SimulationEvent;
 import com.oilspill.app.websocket.SimulationEventBroadcaster;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,14 @@ public class AttributionService {
     private final AttributionRepository attributionRepository;
     private final WebClient pythonWebClient;
     private final SimulationEventBroadcaster broadcaster;
+
+    /** Optional (null in unit tests): Micrometer timing for the python calls. */
+    private ScienceMetrics scienceMetrics;
+
+    @Autowired(required = false)
+    public void setScienceMetrics(ScienceMetrics scienceMetrics) {
+        this.scienceMetrics = scienceMetrics;
+    }
 
     @Value("${python.ais.query-path:/api/ais/query}")
     private String aisQueryPath;
@@ -146,7 +156,9 @@ public class AttributionService {
                 queryBody.put("seed", request.getSeed().intValue());
             }
 
-            ResponseEntity<JsonNode> queryResp = postJson(aisQueryPath, queryBody);
+            ResponseEntity<JsonNode> queryResp = scienceMetrics == null
+                    ? postJson(aisQueryPath, queryBody)
+                    : scienceMetrics.time("ais-query", () -> postJson(aisQueryPath, queryBody));
             JsonNode query = requirePayload(queryResp, "AIS query");
             JsonNode tracks = query.path("tracks");
             Map<String, Object> querySummary = new HashMap<>();
@@ -173,7 +185,9 @@ public class AttributionService {
             filterBody.put("maxGapMin", maxGapMin);
             filterBody.put("tracks", tracks);
 
-            ResponseEntity<JsonNode> filterResp = postJson(aisFilterPath, filterBody);
+            ResponseEntity<JsonNode> filterResp = scienceMetrics == null
+                    ? postJson(aisFilterPath, filterBody)
+                    : scienceMetrics.time("ais-filter", () -> postJson(aisFilterPath, filterBody));
             JsonNode filter = requirePayload(filterResp, "AIS filter");
             JsonNode candidates = filter.path("candidates");
 
@@ -212,7 +226,9 @@ public class AttributionService {
                 scoreBody.put("environment", env);
             }
 
-            ResponseEntity<JsonNode> scoreResp = postJson(aisScorePath, scoreBody);
+            ResponseEntity<JsonNode> scoreResp = scienceMetrics == null
+                    ? postJson(aisScorePath, scoreBody)
+                    : scienceMetrics.time("ais-score", () -> postJson(aisScorePath, scoreBody));
             JsonNode score = requirePayload(scoreResp, "vessel scoring");
 
             ent.setConclusion(score.path("conclusion").asText("inconclusive"));
@@ -275,11 +291,17 @@ public class AttributionService {
      */
     public Map<String, Object> listProviders() {
         try {
-            ResponseEntity<JsonNode> resp = pythonWebClient.get()
-                    .uri(aisAvailabilityPath)
-                    .retrieve()
-                    .toEntity(JsonNode.class)
-                    .block(Duration.ofSeconds(aisTimeoutSeconds));
+            ResponseEntity<JsonNode> resp = scienceMetrics == null
+                    ? pythonWebClient.get()
+                            .uri(aisAvailabilityPath)
+                            .retrieve()
+                            .toEntity(JsonNode.class)
+                            .block(Duration.ofSeconds(aisTimeoutSeconds))
+                    : scienceMetrics.time("ais-availability", () -> pythonWebClient.get()
+                            .uri(aisAvailabilityPath)
+                            .retrieve()
+                            .toEntity(JsonNode.class)
+                            .block(Duration.ofSeconds(aisTimeoutSeconds)));
             if (resp != null && resp.getBody() != null) {
                 return MAPPER.convertValue(resp.getBody(), Map.class);
             }

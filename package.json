@@ -1,0 +1,16 @@
+{
+  "name": "oil-spill-stack",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "concurrently -n sci,backend,frontend -c blue,green,magenta -k \"npm:dev:sci\" \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:sci": "cd oil-spill-system\\scientific-service && .venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000",
+    "dev:backend": "cd oil-spill-system\\backend && mvn spring-boot:run",
+    "dev:frontend": "cd oil-spill-system\\frontend && npm run dev",
+    "stack": "powershell -ExecutionPolicy Bypass -File start-stack.ps1",
+    "stack:visible": "powershell -ExecutionPolicy Bypass -File start-stack-visible.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

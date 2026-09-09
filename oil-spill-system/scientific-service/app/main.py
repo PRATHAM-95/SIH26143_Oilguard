@@ -82,6 +82,7 @@ from .models.ais import (
     ScoreVesselsRequest,
     ScoreVesselsResponse,
 )
+from .observability import instrument_app
 
 APP_VERSION = "0.5.0"
 APP_TITLE = "Oil Spill Scientific Service"
@@ -93,6 +94,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION, lifespan=lifespan)
+
+instrument_app(app)
 
 # Engine is stateless and thread-safe to construct per call; keep one shared
 # instance for config reuse, constructing OpenOil inside each run() call.

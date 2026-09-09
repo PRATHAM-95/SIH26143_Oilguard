@@ -13,6 +13,11 @@ server:
 python:
   service:
     url: ${PYTHON_SERVICE_URL:http://localhost:8000}
+    connect-timeout-seconds: ${PYTHON_CONNECT_TIMEOUT:5}
+    response-timeout-seconds: ${PYTHON_RESPONSE_TIMEOUT:300}
+    max-connections: ${PYTHON_MAX_CONNECTIONS:200}
+    max-idle-time-seconds: ${PYTHON_MAX_IDLE_TIME:60}
+    max-life-seconds: ${PYTHON_MAX_LIFE:300}
   forward-drift:
     path: ${PYTHON_FORWARD_DRIFT_PATH:/api/forward-drift}
     timeout-seconds: ${PYTHON_FORWARD_DRIFT_TIMEOUT:120}
@@ -34,4 +39,20 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus,metrics
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+investigation:
+  executor:
+    concurrency: ${INVESTIGATION_CONCURRENCY:2}

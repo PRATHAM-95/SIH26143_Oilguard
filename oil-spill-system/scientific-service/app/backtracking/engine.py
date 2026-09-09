@@ -27,6 +27,7 @@ from ..drift.engine import (
     _TimeVaryingConstantReader,
     _resolve_forcing_provider,
 )
+from ..observability import observe
 from ..models.forward_drift import CurrentForcing, WindForcing
 
 log = logging.getLogger("oilspill.backtracking.engine")
@@ -117,6 +118,7 @@ class BacktrackResult:
     warnings: List[str] = field(default_factory=list)
 
 
+@observe("backtrack")
 def run_backtrack_ensemble(
     slick_lon: float,
     slick_lat: float,

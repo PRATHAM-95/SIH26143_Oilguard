@@ -14,6 +14,7 @@ CONTROLLED forcing, labelling the run accordingly.
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from functools import lru_cache
 from typing import Optional
 
 import numpy as np
@@ -25,6 +26,15 @@ from .contract import (
     EnvironmentProviderError,
     EnvironmentSample,
 )
+
+try:  # optional runtime dependency (see requirements.txt)
+    from cachetools import TTLCache as _TTLCache
+
+    _REAL_FIELD_CACHE: "Optional[_TTLCache]" = _TTLCache(
+        maxsize=64, ttl=int(float(__import__("os").environ.get("ENV_FIELD_CACHE_TTL_SECONDS", "1800")))
+    )
+except Exception:  # pragma: no cover - cachetools optional
+    _REAL_FIELD_CACHE = None
 
 # Tests monkeypatch these module functions to inject synthetic xarray datasets
 # without touching the network. Imports are deferred so the module stays
@@ -324,6 +334,16 @@ class CMEMSProvider(EnvironmentProvider):
                 "Use CONTROLLED environment instead."
             )
         end_time = start_time + timedelta(hours=duration_hours)
+        key = (
+            "CMEMS",
+            _cache_time(start_time),
+            _cache_time(end_time),
+            float(latitude),
+            float(longitude),
+            time_step_seconds,
+        )
+        if _REAL_FIELD_CACHE is not None and key in _REAL_FIELD_CACHE:
+            return _REAL_FIELD_CACHE[key]
         ds = _cmems_open(
             dataset_id=cfg.cmems_dataset_id,
             variables=["uo", "vo"],
@@ -332,9 +352,12 @@ class CMEMSProvider(EnvironmentProvider):
             start=start_time,
             end=end_time,
         )
-        return _field_from_currents(
+        field = _field_from_currents(
             ds, latitude, longitude, start_time, duration_hours, time_step_seconds
         )
+        if _REAL_FIELD_CACHE is not None:
+            _REAL_FIELD_CACHE[key] = field
+        return field
 
 
 class ERA5Provider(EnvironmentProvider):
@@ -399,6 +422,16 @@ class ERA5Provider(EnvironmentProvider):
         tmp = tempfile.mkstemp(suffix=".nc")
         os.close(tmp[0])
         target = tmp[1]
+        key = (
+            "ERA5",
+            _cache_time(start_dt),
+            float(latitude),
+            float(longitude),
+            duration_hours,
+            tuple(hours),
+        )
+        if _REAL_FIELD_CACHE is not None and key in _REAL_FIELD_CACHE:
+            return _REAL_FIELD_CACHE[key]
         try:
             _era5_retrieve(request, target)
             try:
@@ -409,15 +442,27 @@ class ERA5Provider(EnvironmentProvider):
                 raise EnvironmentProviderError(
                     f"ERA5 NetCDF could not be read: {type(exc).__name__}: {exc}"
                 ) from exc
-            return _field_from_wind(
+            field = _field_from_wind(
                 ds, latitude, longitude, start_dt, duration_hours, time_step_seconds
             )
+            if _REAL_FIELD_CACHE is not None:
+                _REAL_FIELD_CACHE[key] = field
+            return field
         finally:
             if os.path.exists(target):
                 try:
                     os.remove(target)
                 except OSError:  # pragma: no cover
                     pass
+
+
+def _cache_time(dt: datetime) -> str:
+    """Stable UTC string key component for a datetime (naive or aware)."""
+    from datetime import timezone as _tz
+
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(_tz.utc).replace(tzinfo=None)
+    return dt.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 def resolve_provider(source: Optional[str] = None) -> EnvironmentProvider:

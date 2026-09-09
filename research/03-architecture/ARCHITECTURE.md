@@ -43,7 +43,7 @@
 | Database | MongoDB 7 | GeoJSON support, flexible schema |
 | ML Runtime | ONNX Runtime | Fast inference, no GPU needed |
 | Oil Model | OpenDrift + OpenOil | GPL-2.0, validated, backward mode |
-| Container | Docker + Docker Compose | Consistent dev/demo environments |
+| Running | Local launchers (`npm run dev`, `start-stack.ps1`) | Three services run locally, no containers |
 
 ## Performance Requirements
 | Component | Target |

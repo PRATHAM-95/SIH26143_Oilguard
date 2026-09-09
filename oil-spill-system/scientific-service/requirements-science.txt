@@ -3,7 +3,7 @@
 # reliable and this heavier stack can be upgraded/isolated independently.
 #
 # Status (2 Sep 2026): verified installable & importable on:
-#   Windows 11, Python 3.12, no Docker required.
+#   Windows 11, Python 3.12 (local install, wheels only).
 #
 # Pinned to 1.14.11: this is the version verified on this machine and the
 # version whose behaviour the model-version strings report

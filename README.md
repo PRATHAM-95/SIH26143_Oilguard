@@ -63,7 +63,7 @@ This project is a production-minded answer to those three questions: a **detect 
                               │  drift · backtrack · SAR · AIS    │
                               │  environment providers            │
                               └───────┬──────────────────────────┘
-                                      │  in-process, no Docker required
+                                      │  in-process, no containers
                               OpenDrift/OpenOil  +  numpy/xarray/netCDF4
 ```
 

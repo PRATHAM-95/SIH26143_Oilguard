@@ -81,19 +81,9 @@ POST /score-vessels
 - Python -> OpenDrift: Direct Python import
 - Python -> Copernicus/ERA5: HTTP API calls
 
-## Docker Setup
-```yaml
-services:
-  backend:
-    build: ./backend
-    ports: ["8080:8080"]
-  python-service:
-    build: ./python-service
-    ports: ["8000:8000"]
-  mongodb:
-    image: mongo:7
-    ports: ["27017:27017"]
-  frontend:
-    build: ./frontend
-    ports: ["3000:3000"]
-```
+## Local Run
+Services run locally without containers (see the top-level `README.md` §5 and
+the root `npm run dev` / `start-stack.ps1` launchers):
+- Frontend (Vite) on `:3000`, proxying `/api` and `/ws` to the backend
+- Backend (Spring Boot) on `:8082`, calling the scientific service over HTTP
+- Scientific service (FastAPI + OpenDrift) on `:8000`, served by uvicorn/gunicorn

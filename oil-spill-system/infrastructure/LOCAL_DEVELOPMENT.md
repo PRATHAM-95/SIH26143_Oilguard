@@ -1,5 +1,5 @@
 # =============================================
-# SIH26143 — Local Development (no Docker)
+# SIH26143 — Local Development
 #
 # Environment setup per service + wiring between them.
 # =============================================
@@ -26,20 +26,29 @@ Spring Boot (port 8082)
 | FastAPI         | 8000 |
 | MongoDB         | 27017 |
 
-## MongoDB Atlas setup (recommended for hosted DB)
+## MongoDB Atlas setup — online (recommended: no local MongoDB)
+
+Developers point at a shared **online** cluster, so nothing runs on the machine:
 
 1. Create a free M0 cluster at https://www.mongodb.com/atlas
 2. Create a database user (e.g. `oilspill`) and note the password
-3. Allow network access (IP allowlist) for your machine
+3. Allow network access (IP allowlist) for each developer's machine
 4. Copy the connection string:
    `mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority`
 5. Set it in your `.env`:
    `MONGODB_URI=mongodb+srv://...`
    `MONGODB_DATABASE=oilspill`
 
-### Fallback: local MongoDB (already detected on this machine)
+`start-stack.ps1` / `start-stack-visible.ps1` detect a remote `MONGODB_URI` and
+**skip starting local MongoDB**.
 
-A MongoDB Server service is running locally at `mongodb://localhost:27017`.
+> `ai.mongodb.com` is MongoDB's **AI Embeddings/Reranking API** — an `al-...`
+> model key from Atlas authenticates `/v1/embeddings` calls only. It is NOT a
+> database credential; storage comes from `MONGODB_URI` above.
+
+### Fallback: local MongoDB
+
+A MongoDB Server service may be running locally at `mongodb://localhost:27017`.
 To use it instead of Atlas, set:
 
 ```
@@ -52,7 +61,7 @@ Spring Boot will connect to whichever URI is configured. Verify with
 
 ## OpenDrift / OpenOil scientific stack — status
 
-- Opendrift 1.14.12 installs cleanly on Windows 11 + Python 3.12 (no Docker, no GDAL compilation issues).
+- Opendrift 1.14.12 installs cleanly on Windows 11 + Python 3.12 (no GDAL compilation issues).
 - Verified imports:
   - `from opendrift.models.openoil import OpenOil`
   - `from opendrift.readers import reader_netCDF_CF_generic`

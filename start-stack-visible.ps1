@@ -42,6 +42,17 @@ function Wait-Port([int]$port, [int]$timeoutSec = 60) {
     return $false
 }
 
+function Get-DotenvValue([string]$file, [string]$name) {
+    if (-not (Test-Path -LiteralPath $file)) { return $null }
+    foreach ($line in Get-Content -LiteralPath $file) {
+        if ($line -match "^$([regex]::Escape($name))=(.*)$") {
+            $val = $matches[1].Trim()
+            if ($val) { return $val }
+        }
+    }
+    return $null
+}
+
 Write-Host "=============================================================" -ForegroundColor Cyan
 Write-Host " SIH26143 - OIL SPILL SYSTEM (visible terminals per service)" -ForegroundColor Cyan
 Write-Host "=============================================================" -ForegroundColor Cyan
@@ -51,15 +62,24 @@ if (-not (Test-Path -LiteralPath $JAR))    { Write-Host "JAR MISSING: $JAR (run:
 if (-not (Test-Path -LiteralPath $JAVA))   { Write-Host "JAVA MISSING: $JAVA" -ForegroundColor Red; exit 1 }
 
 Write-Host "`nStopping existing listeners on 27017 / 8000 / 8082 / 3000 ..." -ForegroundColor Yellow
-Stop-Port 27017; Stop-Port 8000; Stop-Port 8082; Stop-Port 3000
+# Online MongoDB (MONGODB_URI in env or .env pointing at a remote cluster) has no local mongod to stop.
+$onlineUri = $env:MONGODB_URI
+if (-not $onlineUri) { $onlineUri = Get-DotenvValue (Join-Path $ROOT 'oil-spill-system\.env') 'MONGODB_URI' }
+$useOnlineMongo = [bool]$onlineUri -and $onlineUri -notmatch '^mongodb(\+srv)?://(localhost|127\.0\.0\.1)(:|/)'
+if (-not $useOnlineMongo) { Stop-Port 27017 }
+Stop-Port 8000; Stop-Port 8082; Stop-Port 3000
 
 # --- 1. Mongo ---
-Write-Host "`n[1/4] Opening MONGO terminal (log window: mongo)" -ForegroundColor Green
-Start-Process powershell -WorkingDirectory $env:TEMP -WindowStyle Normal -ArgumentList @(
-    '-NoExit', '-Command',
-    ("Write-Host 'Mongo on :27017' -ForegroundColor Cyan; mongod --dbpath '{0}'" -f $MONGO_DB)
-)
-if (Wait-Port 27017 60) { Write-Host "      Mongo UP on :27017" -ForegroundColor Green } else { Write-Host "      Mongo FAILED" -ForegroundColor Red }
+if ($useOnlineMongo) {
+    Write-Host "`n[1/4] Using ONLINE MongoDB ($onlineUri) — no local mongod required" -ForegroundColor Green
+} else {
+    Write-Host "`n[1/4] Opening MONGO terminal (log window: mongo)" -ForegroundColor Green
+    Start-Process powershell -WorkingDirectory $env:TEMP -WindowStyle Normal -ArgumentList @(
+        '-NoExit', '-Command',
+        ("Write-Host 'Mongo on :27017' -ForegroundColor Cyan; mongod --dbpath '{0}'" -f $MONGO_DB)
+    )
+    if (Wait-Port 27017 60) { Write-Host "      Mongo UP on :27017" -ForegroundColor Green } else { Write-Host "      Mongo FAILED" -ForegroundColor Red }
+}
 
 # --- 2. Scientific service ---
 Write-Host "[2/4] Opening SCIENTIFIC terminal (uvicorn :8000)" -ForegroundColor Green

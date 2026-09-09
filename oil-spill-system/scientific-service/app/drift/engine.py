@@ -21,6 +21,7 @@ import logging
 import time as _time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone, tzinfo
+from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -32,6 +33,7 @@ from ..environment.providers import (
     ERA5Provider,
 )
 from ..environment.config import get_environment_config
+from ..observability import observe as _observe
 from ..models.forward_drift import (
     CurrentForcing,
     DriftRunMetadata,
@@ -71,28 +73,60 @@ GENERIC_CRUDE_MAPPING = {
 
 MODEL_DEFAULT_TIMESTEP_SECONDS = 900  # 15 minutes per spec §8.2.
 
-try:  # allow import even when OpenOil is not installed (tests, tooling).
-    from opendrift.models.openoil import OpenOil
-except Exception:  # pragma: no cover - import-time guard
-    OpenOil = None  # type: ignore
 
-try:  # reader_constant is used to build the forcing reader for OpenDrift.
-    from opendrift.readers import reader_constant
-except Exception:  # pragma: no cover - tooling/tests without OpenDrift
-    reader_constant = None  # type: ignore
+@lru_cache(maxsize=1)
+def _load_opendrift():
+    """Lazily resolve the OpenDrift model + reader classes (first call only).
+
+    Importing ``opendrift`` at module scope pulls in xarray / netCDF4 /
+    matplotlib / scipy, which makes the FastAPI process take tens of seconds to
+    boot. Resolving it lazily keeps ``/health`` and all non-science endpoints
+    responsive immediately; the heavy import happens once on the first science
+    call and is then reusable for the process lifetime. Missing OpenDrift is
+    tolerated (tests / tooling) by returning ``(None, None)``.
+    """
+    try:
+        from opendrift.models.openoil import OpenOil
+        from opendrift.readers import reader_constant
+
+        return OpenOil, reader_constant.Reader
+    except Exception:  # pragma: no cover - tooling/tests without OpenDrift
+        return None, None
 
 
+def _openoil_model():
+    """Return the lazily-loaded ``OpenOil`` model class (or ``None``)."""
+    return _load_opendrift()[0]
+
+
+def _reader_constant_module():
+    """Return the lazily-loaded OpenDrift ``reader_constant.Reader`` class (or ``None``).
+
+    (Historically named for the module it wraps; it now returns the ``Reader``
+    class so callers can subclass/instantiate it directly.)
+    """
+    return _load_opendrift()[1]
+
+
+@lru_cache(maxsize=1)
 def list_valid_oil_types() -> List[str]:
-    """Return the valid ADIOS oil types known to the installed OpenOil."""
-    if OpenOil is None:
+    """Return the valid ADIOS oil types known to the installed OpenOil.
+
+    Cached: probing ``OpenOil.oiltypes`` is comparatively expensive and the
+    result cannot change for a process lifetime. The backend calls this on
+    nearly every request to resolve the default ``GENERIC CRUDE`` oil type.
+    """
+    model = _openoil_model()
+    if model is None:
         return []
     try:
-        probe = OpenOil(weathering_model="noaa")
+        probe = model(weathering_model="noaa")
         return sorted(str(t) for t in probe.oiltypes)
     except Exception:
         return []
 
 
+@lru_cache(maxsize=256)
 def resolve_oil_type(requested: str) -> str:
     """Map the requested oil type to a valid ADIOS entry or raise ValueError."""
     raw = requested.strip()
@@ -272,8 +306,8 @@ class ForwardDriftEngine:
         cr = _TimeVaryingConstantReader(field)
         o.add_reader([cr])
 
-    def run(
-        self,
+    @_observe("forward-drift")
+    def run(self,
         origin_lat: float,
         origin_lon: float,
         start_time: datetime,
@@ -287,7 +321,8 @@ class ForwardDriftEngine:
     ) -> ForwardDriftResponse:
         """Execute a forward-drift run and return the §15.2 response."""
         t0 = _time.monotonic()
-        if OpenOil is None:
+        model = _openoil_model()
+        if model is None:
             raise RuntimeError("OpenOil is not importable on this host.")
 
         # Normalize tz-aware API timestamps (ISO with Z / +offset) to a
@@ -335,7 +370,7 @@ class ForwardDriftEngine:
             else:
                 raise
 
-        o = OpenOil(weathering_model="noaa")
+        o = model(weathering_model="noaa")
         self._configure(o, field)
         o.seed_elements(
             lon=origin_lon,
@@ -408,63 +443,81 @@ class ForwardDriftEngine:
         )
 
 
-class _TimeVaryingConstantReader(reader_constant.Reader):
-    """OpenDrift reader that yields normalized forcing that varies with time.
+@lru_cache(maxsize=1)
+def _time_varying_reader_class():
+    """Build the time-varying constant reader subclass once (lazy).
 
-    Subclasses OpenDrift's own ``reader_constant.Reader`` so OpenDrift accepts
-    it as a genuine Reader, while overriding ``get_variables`` to return the
-    current/wind components for the sample nearest each queried integration
-    step. Spatially it stays horizontally-uniform (matching the MVP contract,
-    which evaluates the point at the spill origin). For a CONTROLLED field (all
-    samples equal) the result is identical to the previous single constant
-    reader.
+    The subclass must inherit from OpenDrift's ``reader_constant.Reader``,
+    which may not be importable until OpenDrift is loaded. The class is
+    created on first use (after the lazy OpenDrift import) and cached.
     """
+    Reader = _reader_constant_module()
+    if Reader is None:
+        return None
 
-    def __init__(self, field: EnvironmentField) -> None:
-        if not field.samples:
-            raise EnvironmentProviderError("environment field has no samples")
-        super().__init__(
-            {
-                "x_sea_water_velocity": 0.0,
-                "y_sea_water_velocity": 0.0,
-                "x_wind": 0.0,
-                "y_wind": 0.0,
-                "land_binary_mask": 0,
-            }
-        )
-        self._samples = list(field.samples)
-        self.name = "time_varying_constant_reader"
+    class _Impl(Reader):
+        def __init__(self, field: EnvironmentField) -> None:
+            if not field.samples:
+                raise EnvironmentProviderError("environment field has no samples")
+            super().__init__(
+                {
+                    "x_sea_water_velocity": 0.0,
+                    "y_sea_water_velocity": 0.0,
+                    "x_wind": 0.0,
+                    "y_wind": 0.0,
+                    "land_binary_mask": 0,
+                }
+            )
+            self._samples = list(field.samples)
+            self.name = "time_varying_constant_reader"
 
-    def get_variables(self, requestedVariables, time=None, x=None, y=None, z=None):
-        samples = self._samples
-        i = self._idx(time)
-        s = samples[min(i, len(samples) - 1)]
-        shape = np.asarray(x).shape
-        variables = {"time": time, "x": x, "y": y, "z": z}
-        for var in requestedVariables:
-            if var == "x_sea_water_velocity":
-                val = s.u_current
-            elif var == "y_sea_water_velocity":
-                val = s.v_current
-            elif var == "x_wind":
-                val = s.u_wind
-            elif var == "y_wind":
-                val = s.v_wind
-            elif var == "land_binary_mask":
-                val = 0.0
-            else:
-                val = 0.0
-            variables[var] = np.full(shape, float(val), dtype=float)
-        return variables
+        def get_variables(self, requestedVariables, time=None, x=None, y=None, z=None):
+            samples = self._samples
+            i = self._idx(time)
+            s = samples[min(i, len(samples) - 1)]
+            shape = np.asarray(x).shape
+            variables = {"time": time, "x": x, "y": y, "z": z}
+            for var in requestedVariables:
+                if var == "x_sea_water_velocity":
+                    val = s.u_current
+                elif var == "y_sea_water_velocity":
+                    val = s.v_current
+                elif var == "x_wind":
+                    val = s.u_wind
+                elif var == "y_wind":
+                    val = s.v_wind
+                elif var == "land_binary_mask":
+                    val = 0.0
+                else:
+                    val = 0.0
+                variables[var] = np.full(shape, float(val), dtype=float)
+            return variables
 
-    def _idx(self, time) -> int:
-        samples = self._samples
-        if time is None or len(samples) <= 1:
-            return 0
-        target = _ts_to_unix(time)
-        axis = np.asarray([_ts_to_unix(s.timestamp) for s in samples], dtype=float)
-        i = int(np.searchsorted(axis, target, side="right") - 1)
-        return max(0, min(len(samples) - 1, i))
+        def _idx(self, time) -> int:
+            samples = self._samples
+            if time is None or len(samples) <= 1:
+                return 0
+            target = _ts_to_unix(time)
+            axis = np.asarray([_ts_to_unix(s.timestamp) for s in samples], dtype=float)
+            i = int(np.searchsorted(axis, target, side="right") - 1)
+            return max(0, min(len(samples) - 1, i))
+
+    _Impl.__name__ = "_TimeVaryingConstantReader"
+    _Impl.__qualname__ = "_TimeVaryingConstantReader"
+    return _Impl
+
+
+def _TimeVaryingConstantReader(field: EnvironmentField):
+    """Return a time-varying constant OpenDrift reader for ``field``.
+
+    Backwards-compatible factory for the former ``_TimeVaryingConstantReader``
+    class (still constructed as ``_TimeVaryingConstantReader(field)``); the
+    underlying subclass is now built lazily after the first OpenDrift import.
+    """
+    cls = _time_varying_reader_class()
+    if cls is None:
+        raise EnvironmentProviderError("OpenDrift reader_constant unavailable on this host.")
+    return cls(field)
 
 
 def _ts_to_unix(dt: datetime) -> float:
@@ -476,9 +529,11 @@ def _ts_to_unix(dt: datetime) -> float:
 
 def _reader_from_sample(sample):
     """Build a constant OpenDrift reader from a normalized environment sample."""
-    from opendrift.readers import reader_constant
+    Reader = _reader_constant_module()
+    if Reader is None:
+        raise EnvironmentProviderError("OpenDrift reader_constant unavailable on this host.")
 
-    return reader_constant.Reader(
+    return Reader(
         {
             "x_sea_water_velocity": sample.u_current,
             "y_sea_water_velocity": sample.v_current,

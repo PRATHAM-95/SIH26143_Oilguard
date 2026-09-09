@@ -31,6 +31,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.oilspill.app.config.ScienceMetrics;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -84,6 +86,14 @@ public class InvestigationExecutor {
     private ExecutorService executorService;
     private final Set<String> inFlight = ConcurrentHashMap.newKeySet();
     private final Set<String> cancelRequested = ConcurrentHashMap.newKeySet();
+
+    /** Optional (null in unit tests): Micrometer timing for the python probe. */
+    private ScienceMetrics scienceMetrics;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    public void setScienceMetrics(ScienceMetrics scienceMetrics) {
+        this.scienceMetrics = scienceMetrics;
+    }
 
     @Value("${python.env-probe.path:/health}")
     private String envProbePath = "/health";
@@ -435,11 +445,19 @@ public class InvestigationExecutor {
 
     private void runEnvironmentProbe(InvestigationStage stage) {
         try {
-            pythonWebClient.get()
-                    .uri(envProbePath)
-                    .retrieve()
-                    .toBodilessEntity()
-                    .block(Duration.ofSeconds(10));
+            if (scienceMetrics == null) {
+                pythonWebClient.get()
+                        .uri(envProbePath)
+                        .retrieve()
+                        .toBodilessEntity()
+                        .block(Duration.ofSeconds(10));
+            } else {
+                scienceMetrics.time("env-probe", () -> pythonWebClient.get()
+                        .uri(envProbePath)
+                        .retrieve()
+                        .toBodilessEntity()
+                        .block(Duration.ofSeconds(10)));
+            }
         } catch (Exception e) {
             throw new StageExecutionException("scientific service unreachable: " + e.getMessage());
         }

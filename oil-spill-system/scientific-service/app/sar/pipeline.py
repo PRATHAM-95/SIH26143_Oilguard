@@ -29,6 +29,7 @@ from .detectors.classical import ClassicalDarkSpotDetector
 from .detectors.onnx import OnnxSegmentationDetector
 from .fixture import make_land_mask
 from .scenes import SarSourceError, resolve_source
+from ..observability import observe
 
 OBSERVATION_MODEL_VERSION = "1.0.0"
 
@@ -204,6 +205,7 @@ class SarPipeline:
         return warns
 
 
+@observe("sar-detect")
 def process_observation(
     source: Optional[str] = None,
     detector: Optional[str] = None,

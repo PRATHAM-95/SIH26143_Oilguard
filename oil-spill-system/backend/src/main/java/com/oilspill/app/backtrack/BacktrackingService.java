@@ -2,12 +2,14 @@ package com.oilspill.app.backtrack;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oilspill.app.config.ScienceMetrics;
 import com.oilspill.app.simulation.Simulation;
 import com.oilspill.app.simulation.SimulationRepository;
 import com.oilspill.app.spill.SpillEvent;
 import com.oilspill.app.spill.SpillEventRepository;
 import com.oilspill.app.websocket.SimulationEvent;
 import com.oilspill.app.websocket.SimulationEventBroadcaster;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,14 @@ public class BacktrackingService {
     private final BacktrackingRepository backtrackingRepository;
     private final WebClient pythonWebClient;
     private final SimulationEventBroadcaster broadcaster;
+
+    /** Optional (null in unit tests): Micrometer timing for the python call. */
+    private ScienceMetrics scienceMetrics;
+
+    @Autowired(required = false)
+    public void setScienceMetrics(ScienceMetrics scienceMetrics) {
+        this.scienceMetrics = scienceMetrics;
+    }
 
     @Value("${python.backtrack.path:/api/backtrack}")
     private String backtrackPath;
@@ -150,12 +160,9 @@ public class BacktrackingService {
             body.put("currents", forcingOrEmpty(request.getCurrents()));
             body.put("wind", forcingOrEmpty(request.getWind()));
 
-            ResponseEntity<JsonNode> result = pythonWebClient.post()
-                    .uri(backtrackPath)
-                    .bodyValue(body)
-                    .retrieve()
-                    .toEntity(JsonNode.class)
-                    .block(Duration.ofSeconds(backtrackTimeoutSeconds));
+            ResponseEntity<JsonNode> result = scienceMetrics == null
+                    ? callPython(body)
+                    : scienceMetrics.time("backtrack", () -> callPython(body));
 
             JsonNode payload = result == null ? null : result.getBody();
             if (payload == null || !payload.has("status")) {
@@ -204,6 +211,15 @@ public class BacktrackingService {
         return backtrackingRepository.findBySimulationId(simulationId).stream()
                 .map(this::entityToResponse)
                 .toList();
+    }
+
+    private ResponseEntity<JsonNode> callPython(Map<String, Object> body) {
+        return pythonWebClient.post()
+                .uri(backtrackPath)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(JsonNode.class)
+                .block(Duration.ofSeconds(backtrackTimeoutSeconds));
     }
 
     private BacktrackingResult populateFromPayload(BacktrackingResult ent, JsonNode payload) {

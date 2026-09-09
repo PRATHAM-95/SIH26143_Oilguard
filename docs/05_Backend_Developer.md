@@ -91,7 +91,7 @@ def drift_job(incident_id: str, job_id: str):
 
 Frontend polls `/api/jobs/{id}` every ~2 s. Keep heavy science in the **subprocess** so a crash never kills the API.
 
-> 🪟 **Windows reality check:** `pip install opendrift` on native Windows often fights (GDAL/Fiona wheels). Options that work: dedicated conda env, WSL, or Docker. Isolating via subprocess means you can even point to a venv's python explicitly: `[venv_python, "scripts/run_drift.py", ...]`.
+> 🪟 **Windows reality check:** `pip install opendrift` on native Windows often fights (GDAL/Fiona wheels). Options that work: dedicated conda env or WSL. Isolating via subprocess means you can even point to a venv's python explicitly: `[venv_python, "scripts/run_drift.py", ...]`.
 
 ## 🤖 Serving the ML Model
 

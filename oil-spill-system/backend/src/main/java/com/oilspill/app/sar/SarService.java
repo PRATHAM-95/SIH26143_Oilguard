@@ -2,10 +2,12 @@ package com.oilspill.app.sar;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oilspill.app.config.ScienceMetrics;
 import com.oilspill.app.simulation.Simulation;
 import com.oilspill.app.simulation.SimulationRepository;
 import com.oilspill.app.websocket.SimulationEvent;
 import com.oilspill.app.websocket.SimulationEventBroadcaster;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,14 @@ public class SarService {
     private final WebClient pythonWebClient;
     private final SimulationEventBroadcaster broadcaster;
     private final ObjectMapper objectMapper;
+
+    /** Optional (null in unit tests): Micrometer timing for the python call. */
+    private ScienceMetrics scienceMetrics;
+
+    @Autowired(required = false)
+    public void setScienceMetrics(ScienceMetrics scienceMetrics) {
+        this.scienceMetrics = scienceMetrics;
+    }
 
     @Value("${python.sar-detect.path:/api/sar/detect}")
     private String sarDetectPath;
@@ -95,12 +105,9 @@ public class SarService {
             body.put("detector", detector);
             body.put("max_candidates", maxCandidates);
 
-            ResponseEntity<JsonNode> result = pythonWebClient.post()
-                    .uri(sarDetectPath)
-                    .bodyValue(body)
-                    .retrieve()
-                    .toEntity(JsonNode.class)
-                    .block(Duration.ofSeconds(sarTimeoutSeconds));
+            ResponseEntity<JsonNode> result = scienceMetrics == null
+                    ? callPython(body)
+                    : scienceMetrics.time("sar-detect", () -> callPython(body));
 
             JsonNode payload = result == null ? null : result.getBody();
             if (payload == null || !payload.has("observation_id")) {
@@ -154,6 +161,15 @@ public class SarService {
     public List<SarObservation> listObservations(String simulationId) {
         requireSimulation(simulationId);
         return sarObservationRepository.findBySimulationId(simulationId);
+    }
+
+    private ResponseEntity<JsonNode> callPython(Map<String, Object> body) {
+        return pythonWebClient.post()
+                .uri(sarDetectPath)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(JsonNode.class)
+                .block(Duration.ofSeconds(sarTimeoutSeconds));
     }
 
     private SarObservation persist(String simulationId, String observationId,

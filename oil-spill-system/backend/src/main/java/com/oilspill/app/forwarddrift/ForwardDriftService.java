@@ -1,12 +1,14 @@
 package com.oilspill.app.forwarddrift;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.oilspill.app.config.ScienceMetrics;
 import com.oilspill.app.simulation.Simulation;
 import com.oilspill.app.simulation.SimulationRepository;
 import com.oilspill.app.spill.SpillEvent;
 import com.oilspill.app.spill.SpillEventRepository;
 import com.oilspill.app.websocket.SimulationEvent;
 import com.oilspill.app.websocket.SimulationEventBroadcaster;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,14 @@ public class ForwardDriftService {
     private final ForwardDriftRepository forwardDriftRepository;
     private final WebClient pythonWebClient;
     private final SimulationEventBroadcaster broadcaster;
+
+    /** Optional (null in unit tests): Micrometer timing for the python call. */
+    private ScienceMetrics scienceMetrics;
+
+    @Autowired(required = false)
+    public void setScienceMetrics(ScienceMetrics scienceMetrics) {
+        this.scienceMetrics = scienceMetrics;
+    }
 
     @Value("${python.forward-drift.path:/api/forward-drift}")
     private String forwardDriftPath;
@@ -120,12 +130,9 @@ public class ForwardDriftService {
             body.put("particleCount", particleCount);
             body.put("environmentSource", environmentSource);
 
-            ResponseEntity<JsonNode> result = pythonWebClient.post()
-                    .uri(forwardDriftPath)
-                    .bodyValue(body)
-                    .retrieve()
-                    .toEntity(JsonNode.class)
-                    .block(Duration.ofSeconds(forwardDriftTimeoutSeconds));
+            ResponseEntity<JsonNode> result = scienceMetrics == null
+                    ? callPython(body)
+                    : scienceMetrics.time("forward-drift", () -> callPython(body));
 
             JsonNode payload = result == null ? null : result.getBody();
             if (payload == null || !payload.has("particles")) {
@@ -169,6 +176,15 @@ public class ForwardDriftService {
             err.put("status", "failed");
             return err;
         }
+    }
+
+    private ResponseEntity<JsonNode> callPython(Map<String, Object> body) {
+        return pythonWebClient.post()
+                .uri(forwardDriftPath)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(JsonNode.class)
+                .block(Duration.ofSeconds(forwardDriftTimeoutSeconds));
     }
 
     private ForwardDriftResult persistRun(String simulationId, String spillEventId, String driftRunId,
