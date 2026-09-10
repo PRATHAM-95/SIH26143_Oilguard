@@ -32,6 +32,11 @@ import { useInvestigationConnection } from '@/hooks/useInvestigationConnection'
 /** Live reflection of the Captain Mode simulation, read from the shared store. */
 function CaptainSimulationPanel() {
   const simulationId = useSimulationStore((s) => s.simulationId)
+  const status = useSimulationStore((s) => s.status)
+  const clock = useSimulationStore((s) => s.clock)
+  const vesselCount = useSimulationStore((s) => s.vessels.length)
+  const hasSpill = useSimulationStore((s) => s.spill?.spillEventId != null)
+  const provenance = useSimulationStore((s) => s.drift.environmentSource)
   if (!simulationId) {
     return (
       <Panel title="Captain simulation">
@@ -39,11 +44,6 @@ function CaptainSimulationPanel() {
       </Panel>
     )
   }
-  const status = useSimulationStore((s) => s.status)
-  const clock = useSimulationStore((s) => s.clock)
-  const vesselCount = useSimulationStore((s) => s.vessels.length)
-  const hasSpill = useSimulationStore((s) => s.spill?.spillEventId != null)
-  const provenance = useSimulationStore((s) => s.drift.environmentSource)
 
   return (
     <Panel title="Captain simulation" right={<ProvenancePill value={provenance ?? 'CONTROLLED'} />}>
