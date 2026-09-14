@@ -83,13 +83,13 @@ function ReportSection({ id, title, record }: { id: string; title: string; recor
   )
 }
 
-/** Sticky section navigation — jump chips for the twelve report sections. */
+/** Sticky section navigation — jump links for the twelve report sections. */
 function SectionNav() {
   return (
     <nav className="report-nav" aria-label="Report sections">
       {SECTION_ORDER.map((key) => (
         <a key={key} className="report-nav-chip" href={`#report-section-${key}`}>
-          {key.split('_')[1].replace(/_/g, ' ')}
+          {SECTION_LABEL[key]}
         </a>
       ))}
     </nav>
@@ -141,18 +141,31 @@ function DossierHeader({ investigationId }: { investigationId: string | null }) 
     <div className="dossier-hero">
       <div className="dossier-hero-main">
         <span className="eyebrow">Incident Dossier</span>
-        <h1 className="dossier-hero-title">Marine Oil Spill <span>Forensic Report</span></h1>
-        <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
-          <StatusChip tone={status === 'COMPLETED' ? 'ok' : status ? 'warn' : 'idle'} label={status ?? 'Not started'}>
+        <h1 className="dossier-hero-title">
+          Marine Oil Spill{' '}
+          <span>Forensic Report</span>
+        </h1>
+        <div className="row" style={{ gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
+          <StatusChip
+            tone={status === 'COMPLETED' ? 'ok' : status ? 'warn' : 'idle'}
+            label={status ?? 'Not started'}
+          >
             {status ?? 'Not started'}
           </StatusChip>
-          {investigationId ? <span className="mono text-faint">{investigationId}</span> : null}
-          {params?.seed ? <span className="mono text-faint">seed {params.seed}</span> : null}
+          {investigationId ? (
+            <span className="text-mono text-faint" style={{ fontSize: 10.5 }}>{investigationId}</span>
+          ) : null}
+          {params?.seed ? (
+            <span className="text-mono text-faint" style={{ fontSize: 10.5 }}>seed {params.seed}</span>
+          ) : null}
         </div>
       </div>
       <div className="dossier-hero-note">
-        <span className="text-dim">SD 26-0143 · Indian Ocean maritime lane</span>
-        <span className="text-faint">Report aggregated from the recorded investigation state. Every figure carries provenance — controlled/demo data is always labelled.</span>
+        <span className="text-dim">SD 26-0143 · Indian Ocean maritime lane</span>
+        <span className="text-faint">
+          Report aggregated from the recorded investigation state.
+          Every figure carries provenance — controlled/demo data is always labelled.
+        </span>
       </div>
     </div>
   )
@@ -264,46 +277,50 @@ export default function Report() {
   }, [simulationId, loadedId])
 
   return (
-    <div className="app-main--scroll dossier-page">
+    <div className="app-main--scroll">
       <div className="dossier-wrap">
-        <DossierHeader investigationId={loadedId} />
-        <SectionNav />
-        <div className="dossier-grid">
-          <div className="report-sections">
-            {error ? (
-              <Panel title="Report">
-                <EmptyState label="Report unavailable" hint={error} />
-              </Panel>
-            ) : report ? (
-              SECTION_ORDER.map((key) => (
-                <ReportSection key={key} id={key} title={SECTION_LABEL[key]} record={report[key]} />
-              ))
-            ) : (
-              <Panel title="Report">
-                <EmptyState
-                  label="No completed investigation"
-                  hint="Run an investigation on the Investigation page, then return here."
-                />
-              </Panel>
-            )}
-          </div>
-          <div className="dossier-side">
-            <VerdictCard />
-            <ProvenancePanel />
-            <GroundTruth />
-            <Panel title="Reading this report">
-              <div className="stack">
+        <div className="dossier">
+          <DossierHeader investigationId={loadedId} />
+          <SectionNav />
+          <div className="dossier-grid">
+            <div className="report-sections">
+              {error ? (
+                <div className="report-section report-section--wide">
+                  <EmptyState
+                    label="Report unavailable"
+                    hint={error}
+                  />
+                </div>
+              ) : report ? (
+                SECTION_ORDER.map((key) => (
+                  <ReportSection key={key} id={key} title={SECTION_LABEL[key]} record={report[key]} />
+                ))
+              ) : (
+                <div className="report-section report-section--wide">
+                  <EmptyState
+                    label="No completed investigation available"
+                    hint="Run an investigation from the Investigation workspace, then return here to view the forensic report."
+                  />
+                </div>
+              )}
+            </div>
+            <div className="dossier-side">
+              <VerdictCard />
+              <ProvenancePanel />
+              <GroundTruth />
+              {/* Reading note */}
+              <div style={{ padding: '10px 0', borderTop: '1px solid var(--line)' }}>
                 <Disclaimer>
                   Scores are composite likelihoods for the search window and are{' '}
                   <strong>not probabilities</strong>. A <strong>ranked candidate</strong> is
                   never a confirmed culprit.
                 </Disclaimer>
-                <div className="text-faint" style={{ fontSize: '10.5px', lineHeight: 1.4 }}>
+                <p className="text-faint" style={{ fontSize: '10.5px', lineHeight: 1.4, margin: '8px 0 0' }}>
                   Sections reflect the stages recorded during the investigation run; stages that
-                  did not produce data report "Not available" rather than guesses.
-                </div>
+                  did not produce data report “Not available” rather than guesses.
+                </p>
               </div>
-            </Panel>
+            </div>
           </div>
         </div>
       </div>

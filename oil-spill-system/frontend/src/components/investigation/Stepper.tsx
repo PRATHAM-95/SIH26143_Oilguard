@@ -59,6 +59,9 @@ export function InvestigationStepper() {
   const stages = useInvestigationStore((s) => s.stages)
   const status = useInvestigationStore((s) => s.status)
   const progress = useInvestigationStore((s) => s.progress)
+  const focusedStageId = useInvestigationStore((s) => s.focusedStageId)
+  const setFocusedStageId = useInvestigationStore((s) => s.setFocusedStageId)
+  const retry = useInvestigationStore((s) => s.retry)
 
   return (
     <div className="stepper" aria-label="Investigation stages">
@@ -66,14 +69,24 @@ export function InvestigationStepper() {
         {STAGE_ORDER.map((id, i) => {
           const step = stages.find((s) => s.stageId === id)
           const stat = step?.status ?? 'pending'
+          const failed = stat === 'failed' || stat === 'skipped' || stat === 'unavailable'
           return (
             <Fragment key={id}>
               {i > 0 ? <li className="stepper-link" aria-hidden="true" /> : null}
-              <li className={`stepper-node stepper-node--${stat}`} data-stage={id}>
-                <span className="stepper-node-mark" aria-hidden="true">
-                  {stageSymbol(stat)}
-                </span>
-                <span className="stepper-node-label">{STAGE_LABEL[id] ?? id}</span>
+              <li className="stepper-node" data-stage={id}>
+                <button
+                  type="button"
+                  className={`stepper-node-btn stepper-node--${stat}${focusedStageId === id ? ' stepper-node--focused' : ''}`}
+                  aria-current={stat === 'running' ? 'step' : undefined}
+                  aria-label={`${STAGE_LABEL[id] ?? id} — ${stat}`}
+                  title={`${STAGE_LABEL[id] ?? id} — ${stat}${failed ? ' (click to retry)' : ' (show in ledger)'}`}
+                  onClick={() => void (failed ? retry(id) : setFocusedStageId(focusedStageId === id ? null : id))}
+                >
+                  <span className="stepper-node-mark" aria-hidden="true">
+                    {stageSymbol(stat)}
+                  </span>
+                  <span className="stepper-node-label">{STAGE_LABEL[id] ?? id}</span>
+                </button>
               </li>
             </Fragment>
           )

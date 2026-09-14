@@ -1,6 +1,6 @@
 import MapView, { MapFurniture } from '@/components/map/MapView'
 import { MapLayersPanel } from '@/components/ui/MapLayersPanel'
-import { Panel, KeyValue, EmptyState } from '@/components/ui/Panel'
+import { KeyValue, EmptyState } from '@/components/ui/Panel'
 import { Button } from '@/components/ui/Button'
 import { StatusChip } from '@/components/Status'
 import { ProvenancePill } from '@/components/ui/primitives'
@@ -271,20 +271,29 @@ export default function Simulation() {
       dock={<CaptainDock />}
       rail={
         <div className="rail-stack-inner">
-          {hasSelection ? <ContextualPanel /> : <OverviewIntel />}
-          <Panel title="Vessel selection">
+          {hasSelection ? <ContextualPanel /> : (
+            <section className="rail-section" aria-label="Overview">
+              <h3 className="rail-section-title">Overview</h3>
+              <OverviewIntel />
+            </section>
+          )}
+
+          <section className="rail-section" aria-label="Vessel selection">
+            <h3 className="rail-section-title">Vessel</h3>
             <VesselSelector />
-          </Panel>
-          <Panel title="Vessel details">
             <VesselDetails />
-          </Panel>
-          <Panel title="Spill event">
+          </section>
+
+          <section className="rail-section" aria-label="Spill event">
+            <h3 className="rail-section-title">Spill event</h3>
             <SpillPanel />
-          </Panel>
+          </section>
+
           {drift.status !== 'idle' && (
-            <Panel title="Forward oil drift">
+            <section className="rail-section" aria-label="Forward oil drift">
+              <h3 className="rail-section-title">Forward oil drift</h3>
               <DriftPanel />
-            </Panel>
+            </section>
           )}
         </div>
       }

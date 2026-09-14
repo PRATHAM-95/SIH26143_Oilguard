@@ -72,33 +72,28 @@ function IncidentContext() {
 function HeaderStatus() {
   const connections = useConnectionStore((s) => s.connections)
 
-  const tone =
+  const apiTone =
     connections.api === 'offline' ? 'danger' : connections.api === 'online' ? 'ok' : 'idle'
-
-  const label =
-    connections.api === 'offline'
-      ? 'API offline'
-      : connections.api === 'online'
-        ? 'Online'
-        : 'Connecting…'
+  const mongoTone =
+    connections.mongo === 'offline' ? 'danger' : connections.mongo === 'online' ? 'ok' : 'idle'
+  const pythonTone =
+    connections.python === 'offline' ? 'warn' : connections.python === 'online' ? 'ok' : 'idle'
+  const wsTone = connections.websocket === 'online' ? 'ok' : 'idle'
 
   return (
     <div className="header-status">
-      <StatusChip tone={tone} label={label}>
-        {label}
-      </StatusChip>
-      <StatusChip tone={connections.mongo === 'offline' ? 'danger' : connections.mongo === 'online' ? 'ok' : 'idle'} label="Database">
-        Database
-      </StatusChip>
-      <StatusChip tone={connections.python === 'offline' ? 'warn' : connections.python === 'online' ? 'ok' : 'idle'} label="Scientific">
-        Scientific
-      </StatusChip>
-      <StatusChip tone={connections.websocket === 'online' ? 'ok' : 'idle'} label="Live updates">
-        Live
-      </StatusChip>
+      {/* Health cluster */}
+      <div className="header-health" aria-label="System health">
+        <StatusChip tone={apiTone} label="API">API</StatusChip>
+        <StatusChip tone={mongoTone} label="DB">DB</StatusChip>
+        <StatusChip tone={pythonTone} label="SCI">SCI</StatusChip>
+      </div>
+      <span className="header-sep" aria-hidden="true" />
+      {/* Operational cluster */}
+      <StatusChip tone={wsTone} label="Live updates">LIVE</StatusChip>
       <UtcClock />
       <NavLink className="header-link" to="/report">
-        <DossierIcon size={13} />
+        <DossierIcon size={12} />
         Dossier
       </NavLink>
     </div>

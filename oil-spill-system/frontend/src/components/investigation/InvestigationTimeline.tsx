@@ -70,6 +70,7 @@ export function InvestigationTimeline() {
                 role="listitem"
                 className={`inv-node inv-node--${stat}${focusedStageId === id ? ' inv-node--focused' : ''}`}
                 title={`${STAGE_LABEL[id] ?? id} — ${stat}${failed ? ' (click to retry)' : ''}`}
+                aria-label={`${STAGE_LABEL[id] ?? id} — ${stat}${failed ? '. Click to retry.' : '. Click to show in ledger.'}`}
                 aria-current={stat === 'running' ? 'step' : undefined}
                 onClick={() => {
                   if (failed) {

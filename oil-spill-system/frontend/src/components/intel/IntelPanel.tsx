@@ -154,20 +154,20 @@ export function OverviewIntel() {
       }
     >
       <IntelSection label="Operating picture">
-        <div className="stat-grid">
-          <div className="stat">
+        <div className="stat-list">
+          <div className="stat-row">
             <span className="stat-label">Simulation</span>
             <span className="stat-value">{simId ? simId.slice(0, 10) + '…' : '—'}</span>
           </div>
-          <div className="stat">
+          <div className="stat-row">
             <span className="stat-label">Sim clock</span>
             <span className="stat-value stat--accent">{clockLabel}</span>
           </div>
-          <div className="stat">
+          <div className="stat-row">
             <span className="stat-label">Fleet</span>
             <span className="stat-value">{vessels.length} vessels</span>
           </div>
-          <div className="stat">
+          <div className="stat-row">
             <span className="stat-label">Spill event</span>
             <span className="stat-value">{spill?.spillEventId ? 'released' : 'none'}</span>
           </div>
@@ -256,8 +256,8 @@ export function OverviewIntel() {
       ) : null}
 
       <IntelSection label="Data sources">
-        <div className="stat-grid">
-          <div className="stat">
+        <div className="stat-list">
+          <div className="stat-row">
             <span className="stat-label">SAR</span>
             <span className={`stat-value ${sar.provenance === 'UNAVAILABLE' ? 'stat--warn' : sar.provenance ? 'stat--ok' : ''}`}>
               {sar.candidates.length > 0
@@ -267,15 +267,15 @@ export function OverviewIntel() {
                   : 'not run'}
             </span>
           </div>
-          <div className="stat">
+          <div className="stat-row">
             <span className="stat-label">Currents</span>
             <span className="stat-value">{env.status === 'available' ? 'online' : env.status === 'awaiting' ? 'no data' : 'no data'}</span>
           </div>
-          <div className="stat">
+          <div className="stat-row">
             <span className="stat-label">Wind</span>
             <span className="stat-value">{wind.status === 'available' ? 'online' : 'no data'}</span>
           </div>
-          <div className="stat">
+          <div className="stat-row">
             <span className="stat-label">AIS</span>
             <span className="stat-value">{ranked.length > 0 ? `${ranked.length} ranked` : 'no data'}</span>
           </div>

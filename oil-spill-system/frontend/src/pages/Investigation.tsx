@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import MapView, { MapFurniture } from '@/components/map/MapView'
-import { Panel, KeyValue, EmptyState } from '@/components/ui/Panel'
+import { KeyValue, EmptyState } from '@/components/ui/Panel'
 import { MapLayersPanel } from '@/components/ui/MapLayersPanel'
 import { RankBadge, ScoreBar, ProvenancePill, Disclaimer } from '@/components/ui/primitives'
 import { MissionWorkspace } from '@/components/workspace/MissionWorkspace'
@@ -41,22 +41,18 @@ function StageDetail() {
   )
 
   return (
-    <Panel title="Stage ledger" flush>
-      <div className="stack" style={{ maxHeight: 420, overflowY: 'auto' }}>
-        {ordered.map((stage) => (
-          <StageRow
-            key={stage.stageId}
-            stage={stage}
-            focused={focusedStageId === stage.stageId}
-          />
-        ))}
-        {stages.length === 0 ? (
-          <div style={{ padding: 8 }}>
-            <EmptyState label="No stages yet" hint="Start the investigation to fill the ledger." />
-          </div>
-        ) : null}
-      </div>
-    </Panel>
+    <div className="stack" style={{ maxHeight: 380, overflowY: 'auto' }}>
+      {ordered.map((stage) => (
+        <StageRow
+          key={stage.stageId}
+          stage={stage}
+          focused={focusedStageId === stage.stageId}
+        />
+      ))}
+      {stages.length === 0 ? (
+        <EmptyState label="No stages yet" hint="Start the investigation to fill the ledger." />
+      ) : null}
+    </div>
   )
 }
 
@@ -96,26 +92,24 @@ function CandidateRanking() {
   if (ranked.length === 0) return null
 
   return (
-    <Panel title="Candidate ranking" flush>
-      <div className="stack" style={{ padding: 8, gap: 6 }}>
-        {ranked.map((c) => (
-          <div key={c.rank} className="evidence-row">
-            <RankBadge rank={c.rank} />
-            <div style={{ flex: 1 }}>
-              <div className="evidence-label">{c.name ?? 'Unnamed vessel'}</div>
-              <ScoreBar
-                label="Composite score"
-                value={c.score}
-                display={c.score != null ? `${(c.score * 100).toFixed(1)}%` : '—'}
-              />
-            </div>
+    <div className="stack" style={{ gap: 6 }}>
+      {ranked.map((c) => (
+        <div key={c.rank} className="evidence-row">
+          <RankBadge rank={c.rank} />
+          <div style={{ flex: 1 }}>
+            <div className="evidence-label">{c.name ?? 'Unnamed vessel'}</div>
+            <ScoreBar
+              label="Composite score"
+              value={c.score}
+              display={c.score != null ? `${(c.score * 100).toFixed(1)}%` : '—'}
+            />
           </div>
-        ))}
-        <Disclaimer>
-          Ranked <strong>candidates</strong>, ordered by composite likelihood — a ranking is not a declaration of cause.
-        </Disclaimer>
-      </div>
-    </Panel>
+        </div>
+      ))}
+      <Disclaimer>
+        Ranked <strong>candidates</strong>, ordered by composite likelihood — a ranking is not a declaration of cause.
+      </Disclaimer>
+    </div>
   )
 }
 
@@ -127,81 +121,66 @@ function Result() {
   const revealMetrics = useInvestigationStore((s) => s.reveal)
   const lastReveal = useInvestigationStore((s) => s.lastReveal)
 
+  if (status !== 'COMPLETED') {
+    return (
+      <EmptyState
+        label={status === 'CREATED' || status === 'RUNNING' ? 'Investigation in progress' : 'No investigation yet'}
+        hint={status === null ? 'Start an investigation to see the conclusion.' : undefined}
+      />
+    )
+  }
+
   return (
-    <Panel title="Conclusion" flush>
-      {status !== 'COMPLETED' ? (
-        <div style={{ padding: 8 }}>
-          <EmptyState
-            label={status === 'CREATED' || status === 'RUNNING' ? 'Investigation in progress' : 'No investigation yet'}
-            hint={status === null ? 'Start an investigation to see the conclusion.' : undefined}
-          />
+    <div className="stack">
+      <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <span className="field-label">Conclusion</span>
+        <span className={`status-chip ${conclusion?.status === 'candidate' ? 'status-chip--ok' : 'status-chip--warn'}`}>
+          {conclusion?.status ?? '—'}
+        </span>
+      </div>
+      {conclusion?.candidate && typeof conclusion.candidate === 'object' ? (
+        <KeyValue label="Highest-ranked candidate" value={String(conclusion.candidate.mmsi ?? conclusion.candidate.name ?? '—')} />
+      ) : null}
+      {conclusion?.topScore != null ? (
+        <ScoreBar label="Top score" value={conclusion.topScore} display={`${(conclusion.topScore * 100).toFixed(1)}%`} />
+      ) : null}
+      {conclusion?.margin != null ? (
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <span className="field-label">Margin</span>
+          <span className={conclusion.decisive === false ? 'text-warn' : 'text-dim'}>
+            {(conclusion.margin * 100).toFixed(1)}%{conclusion.decisive === false ? ' · not decisive' : ''}
+          </span>
         </div>
-      ) : (
-        <div className="stack" style={{ padding: 8 }}>
-          <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-            <span className="field-label">Conclusion</span>
-            <span className={`status-chip ${conclusion?.status === 'candidate' ? 'status-chip--ok' : 'status-chip--warn'}`}>
-              {conclusion?.status ?? '—'}
-            </span>
-          </div>
-          {conclusion?.candidate && typeof conclusion.candidate === 'object' ? (
-            <KeyValue label="Highest-ranked candidate" value={String(conclusion.candidate.mmsi ?? conclusion.candidate.name ?? '—')} />
-          ) : null}
-          {conclusion?.topScore != null ? (
-            <ScoreBar label="Top score" value={conclusion.topScore} display={`${(conclusion.topScore * 100).toFixed(1)}%`} />
-          ) : null}
-          {conclusion?.margin != null ? (
-            <div className="row" style={{ justifyContent: 'space-between' }}>
-              <span className="field-label">Margin</span>
-              <span className={conclusion.decisive === false ? 'text-warn' : 'text-dim'}>
-                {(conclusion.margin * 100).toFixed(1)}%{conclusion.decisive === false ? ' · not decisive' : ''}
-              </span>
-            </div>
-          ) : null}
-          {conclusion?.aggregation ? (
-            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="field-label">Provenance</span>
-              <ProvenancePill value={conclusion.aggregation} />
-            </div>
-          ) : null}
-          {conclusion?.reason ? (
-            <div className="text-faint" style={{ fontSize: '10.5px' }}>
-              {conclusion.reason}
-            </div>
-          ) : null}
-          {errors.length > 0 ? (
-            <div className="text-danger">
-              {errors.map((e) => (
-                <div key={e}>{e}</div>
-              ))}
-            </div>
-          ) : null}
-          {warnings.length > 0 ? (
-            <div className="text-faint">
-              {warnings.map((w) => (
-                <div key={w}>⚠ {w}</div>
-              ))}
-            </div>
-          ) : null}
-          {revealMetrics.revealed && lastReveal ? (
-            <>
-              <KeyValue
-                label="Position error"
-                value={`${lastReveal.positionError_km?.toFixed(2) ?? '—'} km`}
-              />
-              <KeyValue
-                label="Time error"
-                value={lastReveal.timeError_min != null ? `${lastReveal.timeError_min.toFixed(0)} min` : '—'}
-              />
-              <KeyValue
-                label="Attribution correct"
-                value={lastReveal.attributionCorrect ? 'yes' : 'no'}
-              />
-            </>
-          ) : null}
+      ) : null}
+      {conclusion?.aggregation ? (
+        <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="field-label">Provenance</span>
+          <ProvenancePill value={conclusion.aggregation} />
         </div>
-      )}
-    </Panel>
+      ) : null}
+      {conclusion?.reason ? (
+        <div className="text-faint" style={{ fontSize: '10.5px' }}>
+          {conclusion.reason}
+        </div>
+      ) : null}
+      {errors.length > 0 ? (
+        <div className="text-danger">
+          {errors.map((e) => (<div key={e}>{e}</div>))}
+        </div>
+      ) : null}
+      {warnings.length > 0 ? (
+        <div className="text-faint">
+          {warnings.map((w) => (<div key={w}>⚠ {w}</div>))}
+        </div>
+      ) : null}
+      {revealMetrics.revealed && lastReveal ? (
+        <>
+          <KeyValue label="Position error" value={`${lastReveal.positionError_km?.toFixed(2) ?? '—'} km`} />
+          <KeyValue label="Time error" value={lastReveal.timeError_min != null ? `${lastReveal.timeError_min.toFixed(0)} min` : '—'} />
+          <KeyValue label="Attribution correct" value={lastReveal.attributionCorrect ? 'yes' : 'no'} />
+        </>
+      ) : null}
+    </div>
   )
 }
 
@@ -210,30 +189,28 @@ function ProvenancePanel() {
   const params = useInvestigationStore((s) => s.params)
 
   return (
-    <Panel title="Provenance & Parameters">
-      <div className="stack">
-        <KeyValue label="Aggregation" value={provenance?.aggregation ?? '—'} />
-        <ProvenancePill value={provenance?.aggregation ?? null} />
-        {provenance?.perStage
-          ? Object.entries(provenance.perStage).map(([stageId, p]) => (
-              <KeyValue key={stageId} label={STAGE_LABEL[stageId] ?? stageId} value={p} />
-            ))
-          : null}
-        {params ? (
-          <details>
-            <summary className="text-faint">Runtime parameters</summary>
-            <ul style={{ margin: 0, paddingLeft: 16, fontSize: '10.5px' }}>
-              <li>SAR: {params.sarSource} · {params.sarDetector}</li>
-              <li>Backtrack ensemble: {params.backtrackEnsembleSize} × {params.backtrackParticlesPerMember} · {params.backtrackDurationHours}h</li>
-              <li>Forward drift: {params.forwardDriftParticleCount} particles · {params.forwardDriftDurationHours}h</li>
-              <li>Environment: {params.environmentSource}</li>
-              <li>AIS: {params.aisSource} · r={params.radiusKm} km · gap={params.maxGapMin} min</li>
-              <li>Seed: {params.seed}</li>
-            </ul>
-          </details>
-        ) : null}
-      </div>
-    </Panel>
+    <div className="stack">
+      <KeyValue label="Aggregation" value={provenance?.aggregation ?? '—'} />
+      <ProvenancePill value={provenance?.aggregation ?? null} />
+      {provenance?.perStage
+        ? Object.entries(provenance.perStage).map(([stageId, p]) => (
+            <KeyValue key={stageId} label={STAGE_LABEL[stageId] ?? stageId} value={p} />
+          ))
+        : null}
+      {params ? (
+        <details>
+          <summary className="text-faint">Runtime parameters</summary>
+          <ul style={{ margin: 0, paddingLeft: 16, fontSize: '10.5px' }}>
+            <li>SAR: {params.sarSource} · {params.sarDetector}</li>
+            <li>Backtrack ensemble: {params.backtrackEnsembleSize} × {params.backtrackParticlesPerMember} · {params.backtrackDurationHours}h</li>
+            <li>Forward drift: {params.forwardDriftParticleCount} particles · {params.forwardDriftDurationHours}h</li>
+            <li>Environment: {params.environmentSource}</li>
+            <li>AIS: {params.aisSource} · r={params.radiusKm} km · gap={params.maxGapMin} min</li>
+            <li>Seed: {params.seed}</li>
+          </ul>
+        </details>
+      ) : null}
+    </div>
   )
 }
 
@@ -327,25 +304,61 @@ export default function Investigation() {
       dock={<InvestigationTimeline />}
       rail={
         <div className="rail-stack-inner">
-          {hasSelection ? <ContextualPanel /> : <OverviewIntel />}
-          <StageDetail />
-          <InvestigationPipeline compact />
-          <CandidateRanking />
-          <Panel title="Evidence Chain">
+          {hasSelection ? <ContextualPanel /> : (
+            <section className="rail-section" aria-label="Intelligence">
+              <h3 className="rail-section-title">Overview</h3>
+              <OverviewIntel />
+            </section>
+          )}
+
+          <section className="rail-section" aria-label="Stage ledger">
+            <h3 className="rail-section-title">Stage ledger</h3>
+            <StageDetail />
+          </section>
+
+          {!status ? (
+            <section className="rail-section" aria-label="Investigation pipeline">
+              <h3 className="rail-section-title">Pipeline</h3>
+              <InvestigationPipeline />
+            </section>
+          ) : null}
+
+          <section className="rail-section" aria-label="Candidate ranking">
+            <h3 className="rail-section-title">Candidate ranking</h3>
+            <CandidateRanking />
+          </section>
+
+          <section className="rail-section" aria-label="Evidence">
+            <h3 className="rail-section-title">Evidence chain</h3>
             <EvidenceChain />
-          </Panel>
-          <Result />
-          <Panel title="Stage recovery">
+          </section>
+
+          <section className="rail-section" aria-label="Conclusion">
+            <h3 className="rail-section-title">Conclusion</h3>
+            <Result />
+          </section>
+
+          <section className="rail-section" aria-label="Provenance">
+            <h3 className="rail-section-title">Provenance</h3>
+            <ProvenancePanel />
+          </section>
+
+          <section className="rail-section" aria-label="Data sources">
+            <h3 className="rail-section-title">Data sources</h3>
+            <SarObservationPanel simulationId={simulationId} />
+          </section>
+
+          <section className="rail-section" aria-label="Stage recovery">
+            <h3 className="rail-section-title">Stage recovery</h3>
             <div className="stack">
               <RetryStage stageId="detection" />
               <RetryStage stageId="backtracking" />
               <RetryStage stageId="forward_drift" />
               <RetryStage stageId="attribution" />
             </div>
-          </Panel>
-          <ProvenancePanel />
-          <SarObservationPanel simulationId={simulationId} />
-          <div style={{ padding: '4px 6px 10px' }}>
+          </section>
+
+          <div style={{ padding: '10px 12px' }}>
             <Disclaimer>
               Every layer above reflects the recorded investigation state; demo/controlled provenance is always labelled.
             </Disclaimer>

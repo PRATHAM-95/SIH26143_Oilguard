@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import MapView, { MapFurniture } from '@/components/map/MapView'
 import { MapLayersPanel } from '@/components/ui/MapLayersPanel'
-import { Panel, KeyValue, EmptyState } from '@/components/ui/Panel'
-import { ProvenancePill, Disclaimer } from '@/components/ui/primitives'
+import { KeyValue, EmptyState } from '@/components/ui/Panel'
+import { Disclaimer } from '@/components/ui/primitives'
 import { LayersIcon } from '@/components/ui/Icon'
 import { MissionWorkspace } from '@/components/workspace/MissionWorkspace'
 import { ContextualPanel } from '@/components/workspace/ContextualPanel'
@@ -39,14 +39,12 @@ function CaptainSimulationPanel() {
   const provenance = useSimulationStore((s) => s.drift.environmentSource)
   if (!simulationId) {
     return (
-      <Panel title="Captain simulation">
-        <EmptyState label="No simulation running" hint="Start a live challenge to seed the scenario." />
-      </Panel>
+      <EmptyState label="No simulation running" hint="Start a live challenge to seed the scenario." />
     )
   }
 
   return (
-    <Panel title="Captain simulation" right={<ProvenancePill value={provenance ?? 'CONTROLLED'} />}>
+    <div>
       <KeyValue label="Simulation" value={simulationId.slice(0, 18) + '…'} />
       <KeyValue label="Status" value={status ?? '—'} />
       <KeyValue
@@ -55,7 +53,8 @@ function CaptainSimulationPanel() {
       />
       <KeyValue label="Vessels" value={vesselCount} />
       <KeyValue label="Spill event" value={hasSpill ? 'released' : 'none'} />
-    </Panel>
+      {provenance ? <KeyValue label="Environment" value={provenance} /> : null}
+    </div>
   )
 }
 
@@ -64,16 +63,14 @@ function IncidentPanel() {
   const spill = useSimulationStore((s) => s.spill)
   if (incident.status === 'none') {
     return (
-      <Panel title="Incident">
-        <EmptyState
-          label={spill?.incidentId ? 'Incident detected — pipeline ready' : 'No incident yet'}
-          hint="The released slick creates the detected incident the investigation traces."
-        />
-      </Panel>
+      <EmptyState
+        label={spill?.incidentId ? 'Incident detected — pipeline ready' : 'No incident yet'}
+        hint="The released slick creates the detected incident the investigation traces."
+      />
     )
   }
   return (
-    <Panel title="Incident">
+    <div>
       <KeyValue label="Status" value={incident.status} />
       <KeyValue label="Observation" value={incident.observation} />
       {incident.location ? (
@@ -89,7 +86,7 @@ function IncidentPanel() {
           value={`${(incident.detectionConfidence * 100).toFixed(0)}%`}
         />
       ) : null}
-    </Panel>
+    </div>
   )
 }
 
@@ -215,22 +212,38 @@ export default function CommandCenter() {
       }
       rail={
         <div className="rail-stack-inner">
-          {hasSelection ? (
-            <ContextualPanel />
-          ) : (
-            <Panel title="Candidate vessels">
-              <CandidateRail />
-            </Panel>
-          )}
-          <Panel title="Evidence Chain">
+          {/* SITUATION */}
+          <section className="rail-section" aria-label="Situation">
+            <h3 className="rail-section-title">Situation</h3>
+            <CaptainSimulationPanel />
+          </section>
+
+          {/* INVESTIGATION */}
+          <section className="rail-section" aria-label="Investigation">
+            <h3 className="rail-section-title">Investigation</h3>
             <EvidenceChain />
-          </Panel>
-          <Panel title="SAR observation">
+          </section>
+
+          {/* INCIDENT */}
+          <section className="rail-section" aria-label="Incident">
+            <h3 className="rail-section-title">Incident</h3>
+            <IncidentPanel />
+          </section>
+
+          {/* VESSEL CANDIDATES / CONTEXTUAL */}
+          <section className="rail-section" aria-label="Candidate vessels">
+            <h3 className="rail-section-title">Candidate vessels</h3>
+            {hasSelection ? <ContextualPanel /> : <CandidateRail />}
+          </section>
+
+          {/* DATA SOURCES */}
+          <section className="rail-section" aria-label="Data sources">
+            <h3 className="rail-section-title">Data sources</h3>
             <SarObservationPanel simulationId={simulationId} />
-          </Panel>
-          <CaptainSimulationPanel />
-          <IncidentPanel />
-          <div style={{ padding: '4px 4px 10px' }}>
+          </section>
+
+          {/* Provenance footer */}
+          <div style={{ padding: '10px 12px' }}>
             <Disclaimer>
               Live pipeline — every provenance label reflects the data actually used; nothing is
               fabricated or dressed up as real.
