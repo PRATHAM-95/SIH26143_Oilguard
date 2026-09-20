@@ -173,13 +173,13 @@ function OriginView() {
 function AisView({ focus }: { focus: SelectionFocus }) {
   const stages = useInvestigationStore((s) => s.stages)
   const conclusion = useInvestigationStore((s) => s.conclusion)
-  const candidate = focus.candidate ?? null
-  if (!candidate) return <div className="text-faint">Candidate data not available.</div>
-
   const ranked = useMemo(() => {
     const raw = stages.find((s) => s.stageId === 'attribution')?.summary?.rankedVessels
     return Array.isArray(raw) ? (raw as { rank: number; score: number }[]) : []
   }, [stages])
+
+  const candidate = focus.candidate ?? null
+  if (!candidate) return <div className="text-faint">Candidate data not available.</div>
 
   const first = ranked[0]
   const margin =

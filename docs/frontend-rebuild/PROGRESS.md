@@ -45,8 +45,58 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
 - **Strict Provenance Labeling**: In adherence to the honesty principle, all components will incorporate standardized status badges (`Live`, `Controlled`, `Simulated`, `Unavailable`, `Awaiting acquisition`).
 
 ### Next Steps: Milestone M1 (Foundations)
-- Install targeted styling packages for M1-M2 (`@tailwindcss/vite`, Radix primitives, Lucide icons, Sonner, Fontsource).
-- Create `docs/frontend-rebuild/DESIGN_PLAN.md` with tokens, font hierarchy, and ASCII layout wireframes.
-- Build design system foundation under `src/ui/design-system/`.
-- Replace bloated `src/index.css` with clean Tailwind v4 stylesheet.
-- Build foundational `AppShell.tsx` and verify green build and map coexistence.
+- COMPLETED on 2026-09-21.
+
+---
+
+## Milestone M1: Design System & Foundations (COMPLETED)
+
+- **Completed On**: 2026-09-21
+- **Branch**: `frontend-rebuild`
+- **Goal**: Establish core design system tokens, self-hosted fonts, design primitives, motion tokens, and base layout shell while maintaining full backward compatibility with legacy pages via CSS layers.
+
+### What Was Done
+1. **Design Plan (`docs/frontend-rebuild/DESIGN_PLAN.md`)**:
+   - Detailed specification for the "Instrument at Sea" nautical chart visual metaphor.
+   - Defined color tokens (`abyss`, `trench`, `deck`, `chartline`, `foam`, `mist`, `dim`, `sonar`, `ok`, `warn`, `danger`, `gradient-sheen`).
+   - Defined typographic roles for Schibsted Grotesk (UI/Headings), Newsreader (Dossier narrative), and JetBrains Mono (technical readouts).
+   - Created ASCII wireframes for all 7 routes (`/`, `/simulation`, `/investigation`, `/backtracking`, `/attribution`, `/report`, `/welcome`).
+   - Audited the architecture against all 15 anti-patterns from MASTER_BRIEF §6.5.
+2. **ESLint Flat Configuration Setup (Amendment 4)**:
+   - Configured `eslint.config.js` using ESLint flat config with `@eslint/js`, `typescript-eslint`, and `eslint-plugin-react-hooks`.
+   - Fixed conditional `useMemo` in `ContextualPanel.tsx`.
+   - Confirmed `npm run lint` passes cleanly with **0 errors and 0 warnings**.
+3. **Tailwind CSS v4 & Legacy CSS Coexistence (Amendment 2)**:
+   - Configured `@tailwindcss/vite` plugin in `vite.config.ts`.
+   - Encapsulated legacy styles inside `@layer legacy` in `src/index.css`.
+   - Guaranteed canvas sizing and pointer event propagation for MapLibre GL and Deck.gl.
+4. **Self-Hosted Variable Fonts**:
+   - Installed and imported `@fontsource-variable/schibsted-grotesk`, `@fontsource-variable/newsreader`, `@fontsource-variable/jetbrains-mono` in `src/main.tsx`. Zero CDN dependencies.
+5. **Design System Primitives (`src/ui/design-system/`)**:
+   - `tokens.ts`: Color constants, provenance definitions, typography tokens.
+   - `ProvenanceLabel.tsx` (Amendment 1): Small text with an inline status dot (`● Live`, `○ Simulated`), strictly eliminating rounded chip/pill capsules.
+   - `StatusBadge.tsx`: Clean monospace operational state badge with pulse indicators.
+   - `Button.tsx`: Accessible CVA button component (`primary`, `secondary`, `outline`, `ghost`, `danger`).
+   - `Panel.tsx`: Restrained hairline surface container with subtle tonal depth.
+   - `Tooltip.tsx`: Radix-based keyboard accessible tooltip.
+6. **Motion Tokens (`src/ui/motion/tokens.ts`)**:
+   - Defined micro (120ms), UI (220ms), layout (380ms), and cinematic (850ms) tokens, springs, and `prefersReducedMotion()` utility.
+7. **Foundational Layout Shell (`src/ui/shell/AppShell.tsx`)**:
+   - Spatial layout component for Command Spine, Operational Bar, and Workspace viewport.
+8. **Port Investigation (Amendment 6)**:
+   - Diagnosed that port 3000 was held by PID 31964 and port 3001 was held by PID 8164 (earlier background node/vite processes), causing Vite to auto-increment to port 3002.
+   - Verified that active dev server and browser testing run on `http://localhost:3002/`.
+9. **Visual & Browser QA**:
+   - Verified MapLibre GL and Deck.gl rendering via browser automation. Zero WebGL crashes, 0 JS errors.
+   - Captured and archived screenshots at 1920x1080, 1440x900, 1280x800, and 768x1024 in `docs/frontend-rebuild/screenshots/M1/`.
+10. **Build Verification**:
+    - `npm run build` compiled successfully in 6.60s with all font woff2 assets bundled.
+
+### Next Steps: Milestone M2 (Command Center)
+- Rebuild `/` Command Center into an authentic map-first theater.
+- Build live Graticule frame displaying dynamic viewport lat/long coordinates.
+- Implement Command Spine with brand emblem, route shortcuts, UTC Zulu clock, and service health dots.
+- Implement Operational Bar with case reference, status indicators, and Ctrl+K Command Palette (`cmdk`).
+- Build interactive 8-stage Flightpath rail with stage state transitions.
+- Build collapsible Layer Drawer and Contextual Console.
+
