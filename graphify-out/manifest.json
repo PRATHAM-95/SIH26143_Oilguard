@@ -1,0 +1,1526 @@
+{
+  ".agents/skills/ui-ux-pro-max/scripts/core.py": {
+    "mtime": 1789905145.632111,
+    "seen": 1789929350.970801,
+    "ast_hash": "a1ec0e82db8146ba46a6941f6017c8a1",
+    "semantic_hash": "a1ec0e82db8146ba46a6941f6017c8a1"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/design_system.py": {
+    "mtime": 1789905145.6331468,
+    "seen": 1789929350.9708056,
+    "ast_hash": "70692061482010156ab94bb1cb24ed61",
+    "semantic_hash": "70692061482010156ab94bb1cb24ed61"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/reasoning_contract.py": {
+    "mtime": 1789905145.6331468,
+    "seen": 1789929350.9708076,
+    "ast_hash": "653e45c1072a3662322d66a81c89d548",
+    "semantic_hash": "653e45c1072a3662322d66a81c89d548"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/search.py": {
+    "mtime": 1789905145.6331468,
+    "seen": 1789929350.9708085,
+    "ast_hash": "0998767ebe8de2d056a9cdfa91e68b71",
+    "semantic_hash": "0998767ebe8de2d056a9cdfa91e68b71"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/google-api.json": {
+    "mtime": 1789905145.6350963,
+    "seen": 1789929350.9708097,
+    "ast_hash": "acedfec7aee587a0065e307a8b2f132a",
+    "semantic_hash": "acedfec7aee587a0065e307a8b2f132a"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/google-catalog.json": {
+    "mtime": 1789905145.6350963,
+    "seen": 1789929350.9708107,
+    "ast_hash": "2e660fd742966d40dab168ed519c977d",
+    "semantic_hash": "2e660fd742966d40dab168ed519c977d"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/google-metadata.json": {
+    "mtime": 1789905145.6360996,
+    "seen": 1789929350.9708116,
+    "ast_hash": "79a378691078056fc266904e68ca1f38",
+    "semantic_hash": "79a378691078056fc266904e68ca1f38"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/google-overrides.json": {
+    "mtime": 1789905145.6360996,
+    "seen": 1789929350.9708123,
+    "ast_hash": "511f348199c83cdc4e5f10ff6e3efcd7",
+    "semantic_hash": "511f348199c83cdc4e5f10ff6e3efcd7"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/phosphor-core.json": {
+    "mtime": 1789905145.6360996,
+    "seen": 1789929350.9708138,
+    "ast_hash": "fe4fdaccc9f1c1072a61045de5f31c94",
+    "semantic_hash": "fe4fdaccc9f1c1072a61045de5f31c94"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/phosphor-package.json": {
+    "mtime": 1789905145.6375272,
+    "seen": 1789929350.9708152,
+    "ast_hash": "423791591c1f81a9afe0668d3c8ad549",
+    "semantic_hash": "423791591c1f81a9afe0668d3c8ad549"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/phosphor-react-exports.json": {
+    "mtime": 1789905145.6375272,
+    "seen": 1789929350.9708166,
+    "ast_hash": "1a9f76802073ab9c19741026089a1519",
+    "semantic_hash": "1a9f76802073ab9c19741026089a1519"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/catalogs/phosphor-react-package.json": {
+    "mtime": 1789905145.6375272,
+    "seen": 1789929350.9708183,
+    "ast_hash": "2e0d66bcbe622e1edbfbbcd49f681ef0",
+    "semantic_hash": "2e0d66bcbe622e1edbfbbcd49f681ef0"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/relevance-baseline.json": {
+    "mtime": 1789905145.6385393,
+    "seen": 1789929350.9708195,
+    "ast_hash": "bd4d728882b6027257a4b88486bcc849",
+    "semantic_hash": "bd4d728882b6027257a4b88486bcc849"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/relevance-cases.json": {
+    "mtime": 1789905145.6385393,
+    "seen": 1789929350.970821,
+    "ast_hash": "a8f0c47e5e96ac2cf7efb2c7c49f52e9",
+    "semantic_hash": "a8f0c47e5e96ac2cf7efb2c7c49f52e9"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/fixtures/relevance-thresholds.json": {
+    "mtime": 1789905145.6395316,
+    "seen": 1789929350.9708223,
+    "ast_hash": "a7c8d87e196aea3e04e1e91a72cfee28",
+    "semantic_hash": "a7c8d87e196aea3e04e1e91a72cfee28"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_catalog_refresh.py": {
+    "mtime": 1789905145.6395316,
+    "seen": 1789929350.9708238,
+    "ast_hash": "fbf0e330d0f949e1a6ab72b5e6ef9083",
+    "semantic_hash": "fbf0e330d0f949e1a6ab72b5e6ef9083"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_catalog_summary_line_endings.py": {
+    "mtime": 1789905145.6395316,
+    "seen": 1789929350.9708247,
+    "ast_hash": "8a5e4bdde1e3f2acabfbe7a5a908f382",
+    "semantic_hash": "8a5e4bdde1e3f2acabfbe7a5a908f382"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py": {
+    "mtime": 1789905145.640531,
+    "seen": 1789929350.970826,
+    "ast_hash": "1ff514f53f20f2fb0239e15ce9a1d7c5",
+    "semantic_hash": "1ff514f53f20f2fb0239e15ce9a1d7c5"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_core_data_quality.py": {
+    "mtime": 1789905145.6415322,
+    "seen": 1789929350.970827,
+    "ast_hash": "ba36618da592989e75420cbb0d7ac13c",
+    "semantic_hash": "ba36618da592989e75420cbb0d7ac13c"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_data_contracts.py": {
+    "mtime": 1789905145.6415322,
+    "seen": 1789929350.9708278,
+    "ast_hash": "03e87e8ffa0c20f42fb342c5038a8f6f",
+    "semantic_hash": "03e87e8ffa0c20f42fb342c5038a8f6f"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_design_system_mode.py": {
+    "mtime": 1789905145.6415322,
+    "seen": 1789929350.9708285,
+    "ast_hash": "7c4e908b250f8ff3a5675644b2d98095",
+    "semantic_hash": "7c4e908b250f8ff3a5675644b2d98095"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_design_system_stack.py": {
+    "mtime": 1789905145.642531,
+    "seen": 1789929350.9708292,
+    "ast_hash": "e70276086496f6c075b2bae176288133",
+    "semantic_hash": "e70276086496f6c075b2bae176288133"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_native_desktop_stack_freshness.py": {
+    "mtime": 1789905145.6435065,
+    "seen": 1789929350.9708307,
+    "ast_hash": "6a6d508927e50e80b8b84151be43f1c9",
+    "semantic_hash": "6a6d508927e50e80b8b84151be43f1c9"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_relevance_evaluator.py": {
+    "mtime": 1789905145.6435065,
+    "seen": 1789929350.9708314,
+    "ast_hash": "f976384d686802fd2ea0ae806965c38d",
+    "semantic_hash": "f976384d686802fd2ea0ae806965c38d"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_skill_script_paths.py": {
+    "mtime": 1789905145.6440146,
+    "seen": 1789929350.970832,
+    "ast_hash": "430fb0f2e1790c05baa93622a753a61c",
+    "semantic_hash": "430fb0f2e1790c05baa93622a753a61c"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_style_taxonomy.py": {
+    "mtime": 1789905145.6440146,
+    "seen": 1789929350.9708328,
+    "ast_hash": "00df6840db7177e5e1c17745db356bf6",
+    "semantic_hash": "00df6840db7177e5e1c17745db356bf6"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_text_layout_resilience.py": {
+    "mtime": 1789905145.6440146,
+    "seen": 1789929350.970834,
+    "ast_hash": "3db737530578556a377d542c6fc910c1",
+    "semantic_hash": "3db737530578556a377d542c6fc910c1"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/tests/test_web_stack_freshness.py": {
+    "mtime": 1789905145.6450217,
+    "seen": 1789929350.9708347,
+    "ast_hash": "58922d6447b94b0ad9869408fd9c6562",
+    "semantic_hash": "58922d6447b94b0ad9869408fd9c6562"
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/validate_data.py": {
+    "mtime": 1789905145.6450217,
+    "seen": 1789929350.9708354,
+    "ast_hash": "e26c33d4272866a8b1e67dc228a39bc2",
+    "semantic_hash": "e26c33d4272866a8b1e67dc228a39bc2"
+  },
+  "docs/enrich_s3.py": {
+    "mtime": 1789021096.194186,
+    "seen": 1789929350.9708362,
+    "ast_hash": "438f8f32a286b767d03f5fd052722340",
+    "semantic_hash": "438f8f32a286b767d03f5fd052722340"
+  },
+  "docs/fill_deck.py": {
+    "mtime": 1789021096.195185,
+    "seen": 1789929350.9708369,
+    "ast_hash": "1fdb4891d594c1da504966066ffbead2",
+    "semantic_hash": "1fdb4891d594c1da504966066ffbead2"
+  },
+  "oil-spill-system/backend/pom.xml": {
+    "mtime": 1789021096.1981876,
+    "seen": 1789929350.970838,
+    "ast_hash": "77e4cd2fbfe4b624d6af0e0f6927687a",
+    "semantic_hash": "77e4cd2fbfe4b624d6af0e0f6927687a"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/OilSpillApplication.java": {
+    "mtime": 1789021096.1991851,
+    "seen": 1789929350.9708388,
+    "ast_hash": "5db02275ca53f9efe21ee25ec13bf203",
+    "semantic_hash": "5db02275ca53f9efe21ee25ec13bf203"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/attribution/AttributionController.java": {
+    "mtime": 1789021096.2001855,
+    "seen": 1789929350.9708395,
+    "ast_hash": "ddc0ed0109ec2c3776f95dc8e5b363d8",
+    "semantic_hash": "ddc0ed0109ec2c3776f95dc8e5b363d8"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/attribution/AttributionRepository.java": {
+    "mtime": 1789021096.2001855,
+    "seen": 1789929350.9708402,
+    "ast_hash": "d00815d3d67ad68bac0b0c239ddf3b33",
+    "semantic_hash": "d00815d3d67ad68bac0b0c239ddf3b33"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/attribution/AttributionRequest.java": {
+    "mtime": 1789021096.2011876,
+    "seen": 1789929350.970841,
+    "ast_hash": "333043b30a38d8aa1c6d16f1f8a805cc",
+    "semantic_hash": "333043b30a38d8aa1c6d16f1f8a805cc"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/attribution/AttributionRun.java": {
+    "mtime": 1789021096.2011876,
+    "seen": 1789929350.9708416,
+    "ast_hash": "42c1a96415b6f9ee17a053f69a06b660",
+    "semantic_hash": "42c1a96415b6f9ee17a053f69a06b660"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/attribution/AttributionService.java": {
+    "mtime": 1789021096.2021923,
+    "seen": 1789929350.9708426,
+    "ast_hash": "a478e801d39f81b6f53263e77c705da8",
+    "semantic_hash": "a478e801d39f81b6f53263e77c705da8"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/backtrack/BacktrackingRepository.java": {
+    "mtime": 1789021096.2031968,
+    "seen": 1789929350.970843,
+    "ast_hash": "e907b50af542ba18e4224f1d72580edb",
+    "semantic_hash": "e907b50af542ba18e4224f1d72580edb"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/backtrack/BacktrackingRequest.java": {
+    "mtime": 1789021096.2031968,
+    "seen": 1789929350.9708438,
+    "ast_hash": "a31a6734dfe195cdd3a1d00bb26e82c9",
+    "semantic_hash": "a31a6734dfe195cdd3a1d00bb26e82c9"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/backtrack/BacktrackingResult.java": {
+    "mtime": 1789021096.204193,
+    "seen": 1789929350.9708447,
+    "ast_hash": "8f74b5f67764d5a28f9a40b2d571fedf",
+    "semantic_hash": "8f74b5f67764d5a28f9a40b2d571fedf"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/backtrack/BacktrackingService.java": {
+    "mtime": 1789021096.2051928,
+    "seen": 1789929350.9708455,
+    "ast_hash": "8433788808bd320ea9e7cf45bccaefbe",
+    "semantic_hash": "8433788808bd320ea9e7cf45bccaefbe"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/config/DotenvLoader.java": {
+    "mtime": 1789021096.2061954,
+    "seen": 1789929350.9708462,
+    "ast_hash": "4eeb20e0b06443f2727f1e61874461d4",
+    "semantic_hash": "4eeb20e0b06443f2727f1e61874461d4"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/config/HealthController.java": {
+    "mtime": 1789021096.2061954,
+    "seen": 1789929350.9708476,
+    "ast_hash": "1aa20fb92ca9c330a97f32d7dd535204",
+    "semantic_hash": "1aa20fb92ca9c330a97f32d7dd535204"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/config/PythonClientConfig.java": {
+    "mtime": 1789021096.2061954,
+    "seen": 1789929350.9708483,
+    "ast_hash": "895dc054827d251254c1e66f26941aa7",
+    "semantic_hash": "895dc054827d251254c1e66f26941aa7"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/config/ScienceMetrics.java": {
+    "mtime": 1789021096.2061954,
+    "seen": 1789929350.970849,
+    "ast_hash": "35002659feab78d232e8482801fc218f",
+    "semantic_hash": "35002659feab78d232e8482801fc218f"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/config/WebCorsConfig.java": {
+    "mtime": 1789021096.2071934,
+    "seen": 1789929350.9708498,
+    "ast_hash": "73b8122d553add34036885597dd71de3",
+    "semantic_hash": "73b8122d553add34036885597dd71de3"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/environment/EnvironmentController.java": {
+    "mtime": 1789021096.2071934,
+    "seen": 1789929350.9708505,
+    "ast_hash": "2ec1aca7a2a55e64e8acfcd66a8239d6",
+    "semantic_hash": "2ec1aca7a2a55e64e8acfcd66a8239d6"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/environment/EnvironmentService.java": {
+    "mtime": 1789021096.2071934,
+    "seen": 1789929350.9708514,
+    "ast_hash": "aaa774e01734f86228e8f91dcc9c5a0c",
+    "semantic_hash": "aaa774e01734f86228e8f91dcc9c5a0c"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/forwarddrift/ForwardDriftRepository.java": {
+    "mtime": 1789021096.2081916,
+    "seen": 1789929350.9708521,
+    "ast_hash": "f09bcb10932ee0cc9555482ef54e455f",
+    "semantic_hash": "f09bcb10932ee0cc9555482ef54e455f"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/forwarddrift/ForwardDriftRequest.java": {
+    "mtime": 1789021096.2081916,
+    "seen": 1789929350.9708529,
+    "ast_hash": "143bda03c47b9dc13bc15d2887c5c934",
+    "semantic_hash": "143bda03c47b9dc13bc15d2887c5c934"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/forwarddrift/ForwardDriftResult.java": {
+    "mtime": 1789021096.2081916,
+    "seen": 1789929350.9708536,
+    "ast_hash": "8f344bcd56f67b147670080d2b78c194",
+    "semantic_hash": "8f344bcd56f67b147670080d2b78c194"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/forwarddrift/ForwardDriftService.java": {
+    "mtime": 1789021096.209191,
+    "seen": 1789929350.9708543,
+    "ast_hash": "78ebb92e9a2de6d502725392571909e4",
+    "semantic_hash": "78ebb92e9a2de6d502725392571909e4"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/geo/Navigate.java": {
+    "mtime": 1789021096.209191,
+    "seen": 1789929350.9708552,
+    "ast_hash": "7c8f57c7643f1c598b4ec406ef8771bd",
+    "semantic_hash": "7c8f57c7643f1c598b4ec406ef8771bd"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/groundtruth/GroundTruth.java": {
+    "mtime": 1789021096.210193,
+    "seen": 1789929350.970856,
+    "ast_hash": "c013e55ce690a3834dac690130451617",
+    "semantic_hash": "c013e55ce690a3834dac690130451617"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/groundtruth/GroundTruthRepository.java": {
+    "mtime": 1789021096.210193,
+    "seen": 1789929350.9708567,
+    "ast_hash": "43b76d3ef8190dd0742238e03f7a1c28",
+    "semantic_hash": "43b76d3ef8190dd0742238e03f7a1c28"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/incident/Incident.java": {
+    "mtime": 1789021096.2111938,
+    "seen": 1789929350.9708574,
+    "ast_hash": "f58a2c9c5ca266c66f47bb5510ad3db6",
+    "semantic_hash": "f58a2c9c5ca266c66f47bb5510ad3db6"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/incident/IncidentController.java": {
+    "mtime": 1789021096.2111938,
+    "seen": 1789929350.970858,
+    "ast_hash": "4ac054e210ff27cac84dec32e3d08123",
+    "semantic_hash": "4ac054e210ff27cac84dec32e3d08123"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/incident/IncidentRepository.java": {
+    "mtime": 1789021096.2122002,
+    "seen": 1789929350.970859,
+    "ast_hash": "36fc3ca52b397425552ebcd20e9a5768",
+    "semantic_hash": "36fc3ca52b397425552ebcd20e9a5768"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/Conclusion.java": {
+    "mtime": 1789021096.2122002,
+    "seen": 1789929350.9708598,
+    "ast_hash": "2bea7ac52a5e975d180becd585f38769",
+    "semantic_hash": "2bea7ac52a5e975d180becd585f38769"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/Evidence.java": {
+    "mtime": 1789021096.2122002,
+    "seen": 1789929350.9708602,
+    "ast_hash": "e213cbbcbb79fd3dfcd44f6ba5336e3a",
+    "semantic_hash": "e213cbbcbb79fd3dfcd44f6ba5336e3a"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/Investigation.java": {
+    "mtime": 1789021096.213199,
+    "seen": 1789929350.9708612,
+    "ast_hash": "40259344fd649b4b95d4e00c774fb37d",
+    "semantic_hash": "40259344fd649b4b95d4e00c774fb37d"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationController.java": {
+    "mtime": 1789021096.213199,
+    "seen": 1789929350.970862,
+    "ast_hash": "07218ea1a9782705a8c2a8890e28f894",
+    "semantic_hash": "07218ea1a9782705a8c2a8890e28f894"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationEvent.java": {
+    "mtime": 1789021096.213199,
+    "seen": 1789929350.9708626,
+    "ast_hash": "913d2c5bc638a435f1b8a9f2eb00facc",
+    "semantic_hash": "913d2c5bc638a435f1b8a9f2eb00facc"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationEventBroadcaster.java": {
+    "mtime": 1789021096.2141986,
+    "seen": 1789929350.9708633,
+    "ast_hash": "e65e1ce675a50d41f273346926d159b6",
+    "semantic_hash": "e65e1ce675a50d41f273346926d159b6"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationExecutor.java": {
+    "mtime": 1789021096.2141986,
+    "seen": 1789929350.970864,
+    "ast_hash": "5cf89779c4e86aa11ec8c7c530067a6c",
+    "semantic_hash": "5cf89779c4e86aa11ec8c7c530067a6c"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationParams.java": {
+    "mtime": 1789021096.215197,
+    "seen": 1789929350.970865,
+    "ast_hash": "9bc2b256de60c37196757f78dfee2e02",
+    "semantic_hash": "9bc2b256de60c37196757f78dfee2e02"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationRepository.java": {
+    "mtime": 1789021096.215197,
+    "seen": 1789929350.9708657,
+    "ast_hash": "084039f12ecec51d5e0dfadd2c0a9cfc",
+    "semantic_hash": "084039f12ecec51d5e0dfadd2c0a9cfc"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationService.java": {
+    "mtime": 1789021096.215197,
+    "seen": 1789929350.9708662,
+    "ast_hash": "8f0d3af47dd3ca8c7d19b5742a883fac",
+    "semantic_hash": "8f0d3af47dd3ca8c7d19b5742a883fac"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationStage.java": {
+    "mtime": 1789021096.215197,
+    "seen": 1789929350.9708672,
+    "ast_hash": "0ce5dc77649a3f48e10d3c395ff5792c",
+    "semantic_hash": "0ce5dc77649a3f48e10d3c395ff5792c"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationStatus.java": {
+    "mtime": 1789021096.2161975,
+    "seen": 1789929350.9708676,
+    "ast_hash": "0a1c6e9bbfa414b53e44737ae1183ad7",
+    "semantic_hash": "0a1c6e9bbfa414b53e44737ae1183ad7"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/InvestigationWebSocketHandler.java": {
+    "mtime": 1789021096.2161975,
+    "seen": 1789929350.9708686,
+    "ast_hash": "2a22a14065c876714880b1eddbb1984d",
+    "semantic_hash": "2a22a14065c876714880b1eddbb1984d"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/Provenance.java": {
+    "mtime": 1789021096.2172022,
+    "seen": 1789929350.9708698,
+    "ast_hash": "8e552c5b47044305fa651502847d7b5a",
+    "semantic_hash": "8e552c5b47044305fa651502847d7b5a"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/RetryRequest.java": {
+    "mtime": 1789021096.2172022,
+    "seen": 1789929350.9708707,
+    "ast_hash": "303088e7af82d5b5aa00d9384e80cda5",
+    "semantic_hash": "303088e7af82d5b5aa00d9384e80cda5"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/RevealMetrics.java": {
+    "mtime": 1789021096.2172022,
+    "seen": 1789929350.9708714,
+    "ast_hash": "09e1fb32f869fcc7f5c9fbb12cca20ae",
+    "semantic_hash": "09e1fb32f869fcc7f5c9fbb12cca20ae"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/StageIds.java": {
+    "mtime": 1789021096.2182014,
+    "seen": 1789929350.9708726,
+    "ast_hash": "1267eac961924d660bb12432e67045d0",
+    "semantic_hash": "1267eac961924d660bb12432e67045d0"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/StageStatus.java": {
+    "mtime": 1789021096.2192,
+    "seen": 1789929350.9708734,
+    "ast_hash": "771c78f0fbce600ffe50d31c57bbee44",
+    "semantic_hash": "771c78f0fbce600ffe50d31c57bbee44"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/investigation/StartInvestigationRequest.java": {
+    "mtime": 1789021096.2192,
+    "seen": 1789929350.970874,
+    "ast_hash": "1378b1cc74b90b1516686cfbcf66e0c5",
+    "semantic_hash": "1378b1cc74b90b1516686cfbcf66e0c5"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/sar/SarDetectRequest.java": {
+    "mtime": 1789021096.2202015,
+    "seen": 1789929350.9708748,
+    "ast_hash": "52f73eeefe3aa0db059b493e31a3c31b",
+    "semantic_hash": "52f73eeefe3aa0db059b493e31a3c31b"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/sar/SarObservation.java": {
+    "mtime": 1789021096.2202015,
+    "seen": 1789929350.970876,
+    "ast_hash": "c80f01c359c94c22e3ce9efb34f70bc2",
+    "semantic_hash": "c80f01c359c94c22e3ce9efb34f70bc2"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/sar/SarObservationRepository.java": {
+    "mtime": 1789021096.2212,
+    "seen": 1789929350.970877,
+    "ast_hash": "a91ce1395c2518a3b2797920fded5ef8",
+    "semantic_hash": "a91ce1395c2518a3b2797920fded5ef8"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/sar/SarService.java": {
+    "mtime": 1789021096.2212,
+    "seen": 1789929350.9708776,
+    "ast_hash": "99c1c9ad75229c39f8c14f0c488aafeb",
+    "semantic_hash": "99c1c9ad75229c39f8c14f0c488aafeb"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/AdvanceTimeRequest.java": {
+    "mtime": 1789021096.2222,
+    "seen": 1789929350.9708784,
+    "ast_hash": "42bf19adcefc80a3573dfff498493be0",
+    "semantic_hash": "42bf19adcefc80a3573dfff498493be0"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/CreateSimulationRequest.java": {
+    "mtime": 1789021096.223204,
+    "seen": 1789929350.9708793,
+    "ast_hash": "c22925e404d7426f98a5cb31978a1dac",
+    "semantic_hash": "c22925e404d7426f98a5cb31978a1dac"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/Region.java": {
+    "mtime": 1789021096.223204,
+    "seen": 1789929350.97088,
+    "ast_hash": "2cf16b294e0198ac2f2b159f2ae7451c",
+    "semantic_hash": "2cf16b294e0198ac2f2b159f2ae7451c"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/Simulation.java": {
+    "mtime": 1789021096.2242017,
+    "seen": 1789929350.9708812,
+    "ast_hash": "b26578d85b66af7367388ca5d59267af",
+    "semantic_hash": "b26578d85b66af7367388ca5d59267af"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/SimulationController.java": {
+    "mtime": 1789021096.2242017,
+    "seen": 1789929350.970883,
+    "ast_hash": "147e244664518dc914ef42719e08472e",
+    "semantic_hash": "147e244664518dc914ef42719e08472e"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/SimulationRepository.java": {
+    "mtime": 1789021096.2242017,
+    "seen": 1789929350.9708836,
+    "ast_hash": "fe40ab323a8bb1b46df2321ebd31124e",
+    "semantic_hash": "fe40ab323a8bb1b46df2321ebd31124e"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/SimulationService.java": {
+    "mtime": 1789021096.2251987,
+    "seen": 1789929350.9708843,
+    "ast_hash": "fad22dbe81401dba1a4f95f63972e47d",
+    "semantic_hash": "fad22dbe81401dba1a4f95f63972e47d"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/simulation/SimulationStatus.java": {
+    "mtime": 1789021096.2251987,
+    "seen": 1789929350.970885,
+    "ast_hash": "f0ab23a9eb21409c318c0bfd2fe9e1b5",
+    "semantic_hash": "f0ab23a9eb21409c318c0bfd2fe9e1b5"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/spill/SpillEvent.java": {
+    "mtime": 1789021096.2251987,
+    "seen": 1789929350.970886,
+    "ast_hash": "513e104ac56ce37891ef1ef4962505bd",
+    "semantic_hash": "513e104ac56ce37891ef1ef4962505bd"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/spill/SpillEventRepository.java": {
+    "mtime": 1789021096.2261999,
+    "seen": 1789929350.970887,
+    "ast_hash": "7daaa2d10e6c74339ba3868506900365",
+    "semantic_hash": "7daaa2d10e6c74339ba3868506900365"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/spill/SpillRequest.java": {
+    "mtime": 1789021096.2271988,
+    "seen": 1789929350.9708874,
+    "ast_hash": "380f835fd5006ed99cb315db9a9b0de6",
+    "semantic_hash": "380f835fd5006ed99cb315db9a9b0de6"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/vessel/GeoPoint.java": {
+    "mtime": 1789021096.2271988,
+    "seen": 1789929350.9708884,
+    "ast_hash": "e3eaefcbab64b79f4976df9f950c3f41",
+    "semantic_hash": "e3eaefcbab64b79f4976df9f950c3f41"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/vessel/MoveVesselRequest.java": {
+    "mtime": 1789021096.2271988,
+    "seen": 1789929350.9708893,
+    "ast_hash": "70774a4f5eabe8ffe34dedf8731e764c",
+    "semantic_hash": "70774a4f5eabe8ffe34dedf8731e764c"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/vessel/TrackPoint.java": {
+    "mtime": 1789021096.2281983,
+    "seen": 1789929350.97089,
+    "ast_hash": "32ca82ee6e88af72ba90932765fe9635",
+    "semantic_hash": "32ca82ee6e88af72ba90932765fe9635"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/vessel/Vessel.java": {
+    "mtime": 1789021096.2281983,
+    "seen": 1789929350.9708908,
+    "ast_hash": "d83592123c47b331aef54f12cd625f5b",
+    "semantic_hash": "d83592123c47b331aef54f12cd625f5b"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/vessel/VesselRepository.java": {
+    "mtime": 1789021096.2281983,
+    "seen": 1789929350.9708915,
+    "ast_hash": "05c6c6d39076ce849670e48f4d79278e",
+    "semantic_hash": "05c6c6d39076ce849670e48f4d79278e"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/websocket/SimulationEvent.java": {
+    "mtime": 1789021096.2281983,
+    "seen": 1789929350.9708922,
+    "ast_hash": "d71c97a06da2c3b423b00f8d1a6f074f",
+    "semantic_hash": "d71c97a06da2c3b423b00f8d1a6f074f"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/websocket/SimulationEventBroadcaster.java": {
+    "mtime": 1789021096.2297015,
+    "seen": 1789929350.9708934,
+    "ast_hash": "523de40ba280d15ccf1095675b2f9bf0",
+    "semantic_hash": "523de40ba280d15ccf1095675b2f9bf0"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/websocket/SimulationWebSocketHandler.java": {
+    "mtime": 1789021096.2297015,
+    "seen": 1789929350.970894,
+    "ast_hash": "2eda761bc5593f7a30b21459f15fa215",
+    "semantic_hash": "2eda761bc5593f7a30b21459f15fa215"
+  },
+  "oil-spill-system/backend/src/main/java/com/oilspill/app/websocket/WebSocketConfig.java": {
+    "mtime": 1789021096.2297015,
+    "seen": 1789929350.9708948,
+    "ast_hash": "15dee0163ca00bd535bf590f063c6e43",
+    "semantic_hash": "15dee0163ca00bd535bf590f063c6e43"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/attribution/AttributionServiceTest.java": {
+    "mtime": 1789021096.2322226,
+    "seen": 1789929350.9708955,
+    "ast_hash": "d4fd3626b49dfc003a8b250c8c4d4b77",
+    "semantic_hash": "d4fd3626b49dfc003a8b250c8c4d4b77"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/backtrack/BacktrackingServiceTest.java": {
+    "mtime": 1789021096.2332225,
+    "seen": 1789929350.9708965,
+    "ast_hash": "b13ff1384ec8d13a63ca4cc546d8c70a",
+    "semantic_hash": "b13ff1384ec8d13a63ca4cc546d8c70a"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/forwarddrift/ForwardDriftServiceTest.java": {
+    "mtime": 1789021096.2332225,
+    "seen": 1789929350.9708977,
+    "ast_hash": "30e075fb81ad23cf81cafadbd31d31b8",
+    "semantic_hash": "30e075fb81ad23cf81cafadbd31d31b8"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/geo/NavigateTest.java": {
+    "mtime": 1789021096.2342227,
+    "seen": 1789929350.9708984,
+    "ast_hash": "8462fcb7f2ebf35ae75ef77a4d56d46d",
+    "semantic_hash": "8462fcb7f2ebf35ae75ef77a4d56d46d"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/investigation/InvestigationExecutorTest.java": {
+    "mtime": 1789021096.2352228,
+    "seen": 1789929350.970899,
+    "ast_hash": "a7a1693772be5f758de47ec7f17e8393",
+    "semantic_hash": "a7a1693772be5f758de47ec7f17e8393"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/investigation/InvestigationServiceTest.java": {
+    "mtime": 1789021096.2352228,
+    "seen": 1789929350.9709,
+    "ast_hash": "2c7d5b6297d526160ee75c4835c6956e",
+    "semantic_hash": "2c7d5b6297d526160ee75c4835c6956e"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/investigation/ProvenanceTest.java": {
+    "mtime": 1789021096.2362225,
+    "seen": 1789929350.9709008,
+    "ast_hash": "eaeb60877afb2ac1c88e55054b527e94",
+    "semantic_hash": "eaeb60877afb2ac1c88e55054b527e94"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/sar/SarServiceTest.java": {
+    "mtime": 1789021096.2372239,
+    "seen": 1789929350.9709015,
+    "ast_hash": "5236c06f4818d49171faf93d107a2f4b",
+    "semantic_hash": "5236c06f4818d49171faf93d107a2f4b"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/simulation/SimulationControllerTest.java": {
+    "mtime": 1789021096.2382264,
+    "seen": 1789929350.9709022,
+    "ast_hash": "fae1fbc1adcdf27d833016999b0e0458",
+    "semantic_hash": "fae1fbc1adcdf27d833016999b0e0458"
+  },
+  "oil-spill-system/backend/src/test/java/com/oilspill/app/simulation/SimulationServiceTest.java": {
+    "mtime": 1789021096.2382264,
+    "seen": 1789929350.9709032,
+    "ast_hash": "cf44790ade3cbb9127255a52ed4b43b4",
+    "semantic_hash": "cf44790ade3cbb9127255a52ed4b43b4"
+  },
+  "oil-spill-system/frontend/package.json": {
+    "mtime": 1789021096.2412238,
+    "seen": 1789929350.9709039,
+    "ast_hash": "f010da0b62872a5ac72b6d554799df0e",
+    "semantic_hash": "f010da0b62872a5ac72b6d554799df0e"
+  },
+  "oil-spill-system/frontend/src/App.tsx": {
+    "mtime": 1789021096.2412238,
+    "seen": 1789929350.9709046,
+    "ast_hash": "b8663dfce01f44ddd0d0ec61369c7a93",
+    "semantic_hash": "b8663dfce01f44ddd0d0ec61369c7a93"
+  },
+  "oil-spill-system/frontend/src/components/Layout.tsx": {
+    "mtime": 1789924253.8868737,
+    "seen": 1789929350.9709053,
+    "ast_hash": "817758cc05353140a08c05699fbe97d3",
+    "semantic_hash": "817758cc05353140a08c05699fbe97d3"
+  },
+  "oil-spill-system/frontend/src/components/Status.tsx": {
+    "mtime": 1789920496.1498308,
+    "seen": 1789929350.9709063,
+    "ast_hash": "494822af9f4dbc1abcaeaff002ae6fe7",
+    "semantic_hash": "494822af9f4dbc1abcaeaff002ae6fe7"
+  },
+  "oil-spill-system/frontend/src/components/attribution/AttributionMap.tsx": {
+    "mtime": 1789021096.2432227,
+    "seen": 1789929350.9709072,
+    "ast_hash": "02a1f77e38d1dd1b472594d8f31c0aa6",
+    "semantic_hash": "02a1f77e38d1dd1b472594d8f31c0aa6"
+  },
+  "oil-spill-system/frontend/src/components/backtracking/BacktrackingMap.tsx": {
+    "mtime": 1789021096.2432227,
+    "seen": 1789929350.970908,
+    "ast_hash": "d935df34e458cf669cd4be89ee3c3269",
+    "semantic_hash": "d935df34e458cf669cd4be89ee3c3269"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/ChallengeRunner.ts": {
+    "mtime": 1789021096.2452254,
+    "seen": 1789929350.9709086,
+    "ast_hash": "38b28dca21591a90819f90a50ab6feb5",
+    "semantic_hash": "38b28dca21591a90819f90a50ab6feb5"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/ContextualConsole.tsx": {
+    "mtime": 1789924659.2458327,
+    "seen": 1789929350.9709094,
+    "ast_hash": "64d627edc0edb51da19cc26389163c04",
+    "semantic_hash": "64d627edc0edb51da19cc26389163c04"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/FlightpathRail.tsx": {
+    "mtime": 1789924204.010892,
+    "seen": 1789929350.9709103,
+    "ast_hash": "2501ec7c574e0fa26baee40284c9be43",
+    "semantic_hash": "2501ec7c574e0fa26baee40284c9be43"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/LayerControlDrawer.tsx": {
+    "mtime": 1789924218.537318,
+    "seen": 1789929350.970911,
+    "ast_hash": "0a4635a854b6773b535d80f41d16b1d1",
+    "semantic_hash": "0a4635a854b6773b535d80f41d16b1d1"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/LayerInspector.tsx": {
+    "mtime": 1789921952.269046,
+    "seen": 1789929350.9709117,
+    "ast_hash": "549f76944737d9d0d89c4b96badb24d8",
+    "semantic_hash": "549f76944737d9d0d89c4b96badb24d8"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/MaritimeMap.tsx": {
+    "mtime": 1789921966.2841945,
+    "seen": 1789929350.9709125,
+    "ast_hash": "e8ec38407d1a30be69c1be423310a19f",
+    "semantic_hash": "e8ec38407d1a30be69c1be423310a19f"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/OperationalHUD.tsx": {
+    "mtime": 1789925794.2886736,
+    "seen": 1789929350.9709132,
+    "ast_hash": "f3f3bd7bf16b66efae3ea69d17dc8f20",
+    "semantic_hash": "f3f3bd7bf16b66efae3ea69d17dc8f20"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/WorkstationShell.tsx": {
+    "mtime": 1789925801.5252726,
+    "seen": 1789929350.9709144,
+    "ast_hash": "8631db5910fb384c602ea8239b2021ee",
+    "semantic_hash": "8631db5910fb384c602ea8239b2021ee"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/contextual/AttributionCard.tsx": {
+    "mtime": 1789924680.8987963,
+    "seen": 1789929350.9709148,
+    "ast_hash": "fdf749fdb2fff10397a598c4fe810d62",
+    "semantic_hash": "fdf749fdb2fff10397a598c4fe810d62"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/contextual/BacktrackingCard.tsx": {
+    "mtime": 1789924637.4131866,
+    "seen": 1789929350.9709156,
+    "ast_hash": "26b766677576e85976ebd72c5360811c",
+    "semantic_hash": "26b766677576e85976ebd72c5360811c"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/contextual/ConclusionCard.tsx": {
+    "mtime": 1789924652.7194767,
+    "seen": 1789929350.9709163,
+    "ast_hash": "56f7a8ebfc4c13d5c46be85a0c60cde7",
+    "semantic_hash": "56f7a8ebfc4c13d5c46be85a0c60cde7"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/contextual/DetectionCard.tsx": {
+    "mtime": 1789924628.4537556,
+    "seen": 1789929350.9709172,
+    "ast_hash": "c4627eecccf6d3c8d1fde6266fd1755a",
+    "semantic_hash": "c4627eecccf6d3c8d1fde6266fd1755a"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/contextual/EnvironmentDriftCard.tsx": {
+    "mtime": 1789924154.6175265,
+    "seen": 1789929350.970918,
+    "ast_hash": "eca4a8914bd676c03c1e099da52d4ae5",
+    "semantic_hash": "eca4a8914bd676c03c1e099da52d4ae5"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/contextual/IncidentCard.tsx": {
+    "mtime": 1789924619.0799973,
+    "seen": 1789929350.970919,
+    "ast_hash": "4c52c83be1984bd64903e597795182ad",
+    "semantic_hash": "4c52c83be1984bd64903e597795182ad"
+  },
+  "oil-spill-system/frontend/src/components/commandcenter/contextual/SelectionInspectorCard.tsx": {
+    "mtime": 1789924186.839921,
+    "seen": 1789929350.9709196,
+    "ast_hash": "705afd5399c52db5c72897d2df9e0443",
+    "semantic_hash": "705afd5399c52db5c72897d2df9e0443"
+  },
+  "oil-spill-system/frontend/src/components/intel/IntelPanel.tsx": {
+    "mtime": 1789405732.952428,
+    "seen": 1789929350.9709206,
+    "ast_hash": "93a982e7dd8db35d93b0aeef38050b97",
+    "semantic_hash": "93a982e7dd8db35d93b0aeef38050b97"
+  },
+  "oil-spill-system/frontend/src/components/investigation/InvestigationTimeline.tsx": {
+    "mtime": 1789405795.939037,
+    "seen": 1789929350.9709213,
+    "ast_hash": "f4d1a021acbe29745775c94c1bd8cb3f",
+    "semantic_hash": "f4d1a021acbe29745775c94c1bd8cb3f"
+  },
+  "oil-spill-system/frontend/src/components/investigation/Pipeline.tsx": {
+    "mtime": 1789021096.2462225,
+    "seen": 1789929350.970922,
+    "ast_hash": "e5676bb22d8b8026be9e5606ad845950",
+    "semantic_hash": "e5676bb22d8b8026be9e5606ad845950"
+  },
+  "oil-spill-system/frontend/src/components/investigation/SarObservation.tsx": {
+    "mtime": 1789021096.2462225,
+    "seen": 1789929350.970923,
+    "ast_hash": "042ab466708f0433167c918787751e62",
+    "semantic_hash": "042ab466708f0433167c918787751e62"
+  },
+  "oil-spill-system/frontend/src/components/investigation/Stepper.tsx": {
+    "mtime": 1789405564.8369837,
+    "seen": 1789929350.9709237,
+    "ast_hash": "2668b0a8e6d78c3cd10924e3951b9269",
+    "semantic_hash": "2668b0a8e6d78c3cd10924e3951b9269"
+  },
+  "oil-spill-system/frontend/src/components/map/InvestigationMap.tsx": {
+    "mtime": 1789021096.2472222,
+    "seen": 1789929350.9709246,
+    "ast_hash": "b4e97415bf6caeccf5d1410bfdfdf8d7",
+    "semantic_hash": "b4e97415bf6caeccf5d1410bfdfdf8d7"
+  },
+  "oil-spill-system/frontend/src/components/map/MapView.tsx": {
+    "mtime": 1789021096.2472222,
+    "seen": 1789929350.9709253,
+    "ast_hash": "4d091eb3a304c34c7c6094399438ca8e",
+    "semantic_hash": "4d091eb3a304c34c7c6094399438ca8e"
+  },
+  "oil-spill-system/frontend/src/components/map/SimulationLayers.tsx": {
+    "mtime": 1789021096.2482224,
+    "seen": 1789929350.970926,
+    "ast_hash": "2fd0b42ffad501261c59a926de1a92d6",
+    "semantic_hash": "2fd0b42ffad501261c59a926de1a92d6"
+  },
+  "oil-spill-system/frontend/src/components/map/overlays.tsx": {
+    "mtime": 1789021096.2482224,
+    "seen": 1789929350.9709268,
+    "ast_hash": "1e8ef48ff2209d88ae08662e9add2a85",
+    "semantic_hash": "1e8ef48ff2209d88ae08662e9add2a85"
+  },
+  "oil-spill-system/frontend/src/components/ui/Button.tsx": {
+    "mtime": 1789906589.0673718,
+    "seen": 1789929350.9709277,
+    "ast_hash": "5e7b8253e19d8a1d4463b14ac3523844",
+    "semantic_hash": "5e7b8253e19d8a1d4463b14ac3523844"
+  },
+  "oil-spill-system/frontend/src/components/ui/DataSourceCard.tsx": {
+    "mtime": 1789021096.2492225,
+    "seen": 1789929350.9709284,
+    "ast_hash": "68654c52a02e8156a8619ebc8f06ae1c",
+    "semantic_hash": "68654c52a02e8156a8619ebc8f06ae1c"
+  },
+  "oil-spill-system/frontend/src/components/ui/Icon.tsx": {
+    "mtime": 1789021096.2492225,
+    "seen": 1789929350.9709291,
+    "ast_hash": "9d442522992c6ae48dd77154d7ecbaef",
+    "semantic_hash": "9d442522992c6ae48dd77154d7ecbaef"
+  },
+  "oil-spill-system/frontend/src/components/ui/MapLayersPanel.tsx": {
+    "mtime": 1789021096.2492225,
+    "seen": 1789929350.9709299,
+    "ast_hash": "cb07264c0ec13513488aa3c363efe3e3",
+    "semantic_hash": "cb07264c0ec13513488aa3c363efe3e3"
+  },
+  "oil-spill-system/frontend/src/components/ui/Panel.tsx": {
+    "mtime": 1789920547.937285,
+    "seen": 1789929350.9709306,
+    "ast_hash": "ac3d1882de4d61b68a1948bb6abb8b79",
+    "semantic_hash": "ac3d1882de4d61b68a1948bb6abb8b79"
+  },
+  "oil-spill-system/frontend/src/components/ui/primitives.tsx": {
+    "mtime": 1789920564.2032406,
+    "seen": 1789929350.9709315,
+    "ast_hash": "0934666ce0e327812057f93908bced6c",
+    "semantic_hash": "0934666ce0e327812057f93908bced6c"
+  },
+  "oil-spill-system/frontend/src/components/workspace/ContextualPanel.tsx": {
+    "mtime": 1789021096.251224,
+    "seen": 1789929350.9709322,
+    "ast_hash": "0455b59fb8175dd7b14df7b1730350a2",
+    "semantic_hash": "0455b59fb8175dd7b14df7b1730350a2"
+  },
+  "oil-spill-system/frontend/src/components/workspace/MissionWorkspace.tsx": {
+    "mtime": 1789920581.4711113,
+    "seen": 1789929350.970933,
+    "ast_hash": "3c81f51db6de2200a3d24df6afc5bcaa",
+    "semantic_hash": "3c81f51db6de2200a3d24df6afc5bcaa"
+  },
+  "oil-spill-system/frontend/src/components/workspace/selection.tsx": {
+    "mtime": 1789021096.2522259,
+    "seen": 1789929350.9709337,
+    "ast_hash": "7b3722d9015ae05a5c9059e0a782860f",
+    "semantic_hash": "7b3722d9015ae05a5c9059e0a782860f"
+  },
+  "oil-spill-system/frontend/src/hooks/useHealthProbe.ts": {
+    "mtime": 1789021096.2522259,
+    "seen": 1789929350.9709346,
+    "ast_hash": "fd5a73521ae00e2b7e2b1170be5564d7",
+    "semantic_hash": "fd5a73521ae00e2b7e2b1170be5564d7"
+  },
+  "oil-spill-system/frontend/src/hooks/useInvestigationConnection.ts": {
+    "mtime": 1789021096.2532225,
+    "seen": 1789929350.9709353,
+    "ast_hash": "571b0cfb1abc8f1c8e51c85f07f23e31",
+    "semantic_hash": "571b0cfb1abc8f1c8e51c85f07f23e31"
+  },
+  "oil-spill-system/frontend/src/hooks/useSimulationConnection.ts": {
+    "mtime": 1789021096.2532225,
+    "seen": 1789929350.970936,
+    "ast_hash": "46dbad3b310c102a281f982e4147f513",
+    "semantic_hash": "46dbad3b310c102a281f982e4147f513"
+  },
+  "oil-spill-system/frontend/src/lib/api/attributionApi.ts": {
+    "mtime": 1789021096.2552228,
+    "seen": 1789929350.9709368,
+    "ast_hash": "f36b44ed6ae97658fd414b1640c7dc98",
+    "semantic_hash": "f36b44ed6ae97658fd414b1640c7dc98"
+  },
+  "oil-spill-system/frontend/src/lib/api/backtrackApi.ts": {
+    "mtime": 1789021096.2552228,
+    "seen": 1789929350.9709375,
+    "ast_hash": "c54a50608128e741e80ec8ade9c1d70e",
+    "semantic_hash": "c54a50608128e741e80ec8ade9c1d70e"
+  },
+  "oil-spill-system/frontend/src/lib/api/environmentApi.ts": {
+    "mtime": 1789021096.2552228,
+    "seen": 1789929350.9709387,
+    "ast_hash": "8eb28f64b3047f61f5f06e03a97a26e7",
+    "semantic_hash": "8eb28f64b3047f61f5f06e03a97a26e7"
+  },
+  "oil-spill-system/frontend/src/lib/api/healthApi.ts": {
+    "mtime": 1789021096.2562225,
+    "seen": 1789929350.9709394,
+    "ast_hash": "829cd33ab3da341f19aeb9085809f18f",
+    "semantic_hash": "829cd33ab3da341f19aeb9085809f18f"
+  },
+  "oil-spill-system/frontend/src/lib/api/incidentApi.ts": {
+    "mtime": 1789021096.2562225,
+    "seen": 1789929350.97094,
+    "ast_hash": "4385e2cfa03946b0b0d0e558d6363fc8",
+    "semantic_hash": "4385e2cfa03946b0b0d0e558d6363fc8"
+  },
+  "oil-spill-system/frontend/src/lib/api/index.ts": {
+    "mtime": 1789021096.2572224,
+    "seen": 1789929350.9709408,
+    "ast_hash": "9978891d26968bde4d0bbc4a58b80a21",
+    "semantic_hash": "9978891d26968bde4d0bbc4a58b80a21"
+  },
+  "oil-spill-system/frontend/src/lib/api/investigationApi.ts": {
+    "mtime": 1789021096.2572224,
+    "seen": 1789929350.970942,
+    "ast_hash": "ccc07095abc5874af77dfc0cb13be3f4",
+    "semantic_hash": "ccc07095abc5874af77dfc0cb13be3f4"
+  },
+  "oil-spill-system/frontend/src/lib/api/sarApi.ts": {
+    "mtime": 1789021096.2572224,
+    "seen": 1789929350.9709427,
+    "ast_hash": "03c2964de17c9a9aec56dd21ffc875cb",
+    "semantic_hash": "03c2964de17c9a9aec56dd21ffc875cb"
+  },
+  "oil-spill-system/frontend/src/lib/api/simulationApi.ts": {
+    "mtime": 1789021096.2572224,
+    "seen": 1789929350.9709435,
+    "ast_hash": "f5cb6267d694e8d027a650bcd070d132",
+    "semantic_hash": "f5cb6267d694e8d027a650bcd070d132"
+  },
+  "oil-spill-system/frontend/src/lib/api/vesselApi.ts": {
+    "mtime": 1789021096.2582238,
+    "seen": 1789929350.9709442,
+    "ast_hash": "be6545455a770e63654b34e71feb9446",
+    "semantic_hash": "be6545455a770e63654b34e71feb9446"
+  },
+  "oil-spill-system/frontend/src/lib/http.ts": {
+    "mtime": 1789021096.2582238,
+    "seen": 1789929350.9709451,
+    "ast_hash": "edd9c9a01ebd208aa61dcbb7ef6e6311",
+    "semantic_hash": "edd9c9a01ebd208aa61dcbb7ef6e6311"
+  },
+  "oil-spill-system/frontend/src/lib/ws/client.ts": {
+    "mtime": 1789021096.2582238,
+    "seen": 1789929350.9709458,
+    "ast_hash": "76fe6fd2a4068b8f3712d722ab3d6787",
+    "semantic_hash": "76fe6fd2a4068b8f3712d722ab3d6787"
+  },
+  "oil-spill-system/frontend/src/lib/ws/events.ts": {
+    "mtime": 1789021096.2592263,
+    "seen": 1789929350.9709466,
+    "ast_hash": "cca256d38bd716d64b0f13fe52e14909",
+    "semantic_hash": "cca256d38bd716d64b0f13fe52e14909"
+  },
+  "oil-spill-system/frontend/src/lib/ws/index.ts": {
+    "mtime": 1789021096.2592263,
+    "seen": 1789929350.9709473,
+    "ast_hash": "b3fed78c09f3b75779eee6341d4282ec",
+    "semantic_hash": "b3fed78c09f3b75779eee6341d4282ec"
+  },
+  "oil-spill-system/frontend/src/lib/ws/topics.ts": {
+    "mtime": 1789021096.260226,
+    "seen": 1789929350.970948,
+    "ast_hash": "2a790ab3b6fba7186332aca09f634acd",
+    "semantic_hash": "2a790ab3b6fba7186332aca09f634acd"
+  },
+  "oil-spill-system/frontend/src/main.tsx": {
+    "mtime": 1789021096.260226,
+    "seen": 1789929350.970949,
+    "ast_hash": "f5c5091238672bd516f05829a29fb1c4",
+    "semantic_hash": "f5c5091238672bd516f05829a29fb1c4"
+  },
+  "oil-spill-system/frontend/src/pages/Attribution.tsx": {
+    "mtime": 1789021096.2612264,
+    "seen": 1789929350.9709496,
+    "ast_hash": "6701ad65bac24966048e9e275a530a7c",
+    "semantic_hash": "6701ad65bac24966048e9e275a530a7c"
+  },
+  "oil-spill-system/frontend/src/pages/Backtracking.tsx": {
+    "mtime": 1789021096.2612264,
+    "seen": 1789929350.9709518,
+    "ast_hash": "b5b5ed82bda9d5b3816c670d08a9062f",
+    "semantic_hash": "b5b5ed82bda9d5b3816c670d08a9062f"
+  },
+  "oil-spill-system/frontend/src/pages/CommandCenter.tsx": {
+    "mtime": 1789924233.7249715,
+    "seen": 1789929350.9709525,
+    "ast_hash": "19aafe018ce234bbd6db87b24119f3e5",
+    "semantic_hash": "19aafe018ce234bbd6db87b24119f3e5"
+  },
+  "oil-spill-system/frontend/src/pages/Investigation.tsx": {
+    "mtime": 1789408146.3188798,
+    "seen": 1789929350.9709532,
+    "ast_hash": "8765fda0c6016e0af24f01ca47f08295",
+    "semantic_hash": "8765fda0c6016e0af24f01ca47f08295"
+  },
+  "oil-spill-system/frontend/src/pages/Report.tsx": {
+    "mtime": 1789408237.3835194,
+    "seen": 1789929350.970954,
+    "ast_hash": "5d7299b75d88074bba54dace4acf2106",
+    "semantic_hash": "5d7299b75d88074bba54dace4acf2106"
+  },
+  "oil-spill-system/frontend/src/pages/Simulation.tsx": {
+    "mtime": 1789408315.823881,
+    "seen": 1789929350.970955,
+    "ast_hash": "ad8e5b3d207256a69e6e3667fcf436e0",
+    "semantic_hash": "ad8e5b3d207256a69e6e3667fcf436e0"
+  },
+  "oil-spill-system/frontend/src/store/connectionStore.ts": {
+    "mtime": 1789021096.2642233,
+    "seen": 1789929350.9709558,
+    "ast_hash": "222736b81800096234a2d037563d51dc",
+    "semantic_hash": "222736b81800096234a2d037563d51dc"
+  },
+  "oil-spill-system/frontend/src/store/environmentStore.ts": {
+    "mtime": 1789021096.2642233,
+    "seen": 1789929350.9709566,
+    "ast_hash": "8454fef9d654e7c1521b4491f17f62bf",
+    "semantic_hash": "8454fef9d654e7c1521b4491f17f62bf"
+  },
+  "oil-spill-system/frontend/src/store/featureStores.ts": {
+    "mtime": 1789021096.2642233,
+    "seen": 1789929350.9709573,
+    "ast_hash": "f3335925e82a63ada85457e510ae267e",
+    "semantic_hash": "f3335925e82a63ada85457e510ae267e"
+  },
+  "oil-spill-system/frontend/src/store/incidentStore.ts": {
+    "mtime": 1789021096.265224,
+    "seen": 1789929350.970958,
+    "ast_hash": "f4f0b13d832ded5e15b169ba7f2ec980",
+    "semantic_hash": "f4f0b13d832ded5e15b169ba7f2ec980"
+  },
+  "oil-spill-system/frontend/src/store/investigationStore.ts": {
+    "mtime": 1789021096.2662256,
+    "seen": 1789929350.9709587,
+    "ast_hash": "9cc60ad52a01701af009c2c45c760d49",
+    "semantic_hash": "9cc60ad52a01701af009c2c45c760d49"
+  },
+  "oil-spill-system/frontend/src/store/mapStore.ts": {
+    "mtime": 1789021096.2662256,
+    "seen": 1789929350.9709597,
+    "ast_hash": "3ba5b893d43025393648422f9a0f39bc",
+    "semantic_hash": "3ba5b893d43025393648422f9a0f39bc"
+  },
+  "oil-spill-system/frontend/src/store/sarStore.ts": {
+    "mtime": 1789021096.2662256,
+    "seen": 1789929350.9709604,
+    "ast_hash": "ada4b3ff1f7ebb7735d1bbcb5817aa0f",
+    "semantic_hash": "ada4b3ff1f7ebb7735d1bbcb5817aa0f"
+  },
+  "oil-spill-system/frontend/src/store/simulationStore.ts": {
+    "mtime": 1789021096.267223,
+    "seen": 1789929350.970961,
+    "ast_hash": "71579a17feca914f299916f1f147ca9a",
+    "semantic_hash": "71579a17feca914f299916f1f147ca9a"
+  },
+  "oil-spill-system/frontend/src/styles/vsco.ts": {
+    "mtime": 1789906433.5864794,
+    "seen": 1789929350.9709618,
+    "ast_hash": "330f5f7dc5f8e1630639c1f097e6252a",
+    "semantic_hash": "330f5f7dc5f8e1630639c1f097e6252a"
+  },
+  "oil-spill-system/frontend/src/types/domain.ts": {
+    "mtime": 1789021096.2682223,
+    "seen": 1789929350.9709628,
+    "ast_hash": "919b53b154f7190d498b5503088dbd75",
+    "semantic_hash": "919b53b154f7190d498b5503088dbd75"
+  },
+  "oil-spill-system/frontend/src/vite-env.d.ts": {
+    "mtime": 1789021096.2682223,
+    "seen": 1789929350.9709635,
+    "ast_hash": "125df218dcbace29586cf0eb0865ad66",
+    "semantic_hash": "125df218dcbace29586cf0eb0865ad66"
+  },
+  "oil-spill-system/frontend/tsconfig.app.json": {
+    "mtime": 1789021096.2682223,
+    "seen": 1789929350.9709642,
+    "ast_hash": "18497c59d942489ad8f2ab2cf00d129f",
+    "semantic_hash": "18497c59d942489ad8f2ab2cf00d129f"
+  },
+  "oil-spill-system/frontend/tsconfig.json": {
+    "mtime": 1789021096.2682223,
+    "seen": 1789929350.970965,
+    "ast_hash": "c3232de8da82364db15d4e21bdaa8151",
+    "semantic_hash": "c3232de8da82364db15d4e21bdaa8151"
+  },
+  "oil-spill-system/frontend/vite-env.d.ts": {
+    "mtime": 1789021096.2692225,
+    "seen": 1789929350.9709659,
+    "ast_hash": "8f68c27c3fc38817b2726b20e2d4f1ee",
+    "semantic_hash": "8f68c27c3fc38817b2726b20e2d4f1ee"
+  },
+  "oil-spill-system/frontend/vite.config.ts": {
+    "mtime": 1789021096.2692225,
+    "seen": 1789929350.9709666,
+    "ast_hash": "58ca435089d11a4864d997606bc951c6",
+    "semantic_hash": "58ca435089d11a4864d997606bc951c6"
+  },
+  "oil-spill-system/infrastructure/build-production.ps1": {
+    "mtime": 1789021096.2702227,
+    "seen": 1789929350.9709673,
+    "ast_hash": "96a2394408563e10fd38bd509130760e",
+    "semantic_hash": "96a2394408563e10fd38bd509130760e"
+  },
+  "oil-spill-system/infrastructure/register-prod-tasks.ps1": {
+    "mtime": 1789021096.2702227,
+    "seen": 1789929350.970968,
+    "ast_hash": "ceeafaf90652e4fda3534d26e0816327",
+    "semantic_hash": "ceeafaf90652e4fda3534d26e0816327"
+  },
+  "oil-spill-system/infrastructure/scripts/e2e-cdp.ps1": {
+    "mtime": 1789021096.2712226,
+    "seen": 1789929350.9709687,
+    "ast_hash": "1a1a45a35818a7da770b8ee2ca87d6ce",
+    "semantic_hash": "1a1a45a35818a7da770b8ee2ca87d6ce"
+  },
+  "oil-spill-system/infrastructure/scripts/e2e-run.ps1": {
+    "mtime": 1789021096.2712226,
+    "seen": 1789929350.9709697,
+    "ast_hash": "55ca4226cee3768a1996fdded3e11d25",
+    "semantic_hash": "55ca4226cee3768a1996fdded3e11d25"
+  },
+  "oil-spill-system/infrastructure/scripts/wait-health.ps1": {
+    "mtime": 1789021096.2712226,
+    "seen": 1789929350.9709704,
+    "ast_hash": "ae3694b7cd8b2f17ce6a2e6179cda55c",
+    "semantic_hash": "ae3694b7cd8b2f17ce6a2e6179cda55c"
+  },
+  "oil-spill-system/infrastructure/scripts/ws-capture.py": {
+    "mtime": 1789021096.2722247,
+    "seen": 1789929350.970971,
+    "ast_hash": "b88f8bfd8770a2baad1804a516eafb3a",
+    "semantic_hash": "b88f8bfd8770a2baad1804a516eafb3a"
+  },
+  "oil-spill-system/infrastructure/start-production.ps1": {
+    "mtime": 1789021096.2722247,
+    "seen": 1789929350.9709718,
+    "ast_hash": "18837423824a3f8717191c36cb8c79a5",
+    "semantic_hash": "18837423824a3f8717191c36cb8c79a5"
+  },
+  "oil-spill-system/scientific-service/app/ais/__init__.py": {
+    "mtime": 1789021096.2842546,
+    "seen": 1789929350.9709728,
+    "ast_hash": "f1047498ef3bbd3245c32d8ca1ef7781",
+    "semantic_hash": "f1047498ef3bbd3245c32d8ca1ef7781"
+  },
+  "oil-spill-system/scientific-service/app/ais/config.py": {
+    "mtime": 1789021096.2852545,
+    "seen": 1789929350.9709735,
+    "ast_hash": "962ec22ec5311fdd543f5e963b50df51",
+    "semantic_hash": "962ec22ec5311fdd543f5e963b50df51"
+  },
+  "oil-spill-system/scientific-service/app/ais/contract.py": {
+    "mtime": 1789021096.2852545,
+    "seen": 1789929350.9709742,
+    "ast_hash": "ee8fc7a47bc44b43b8825c151d93b2e9",
+    "semantic_hash": "ee8fc7a47bc44b43b8825c151d93b2e9"
+  },
+  "oil-spill-system/scientific-service/app/ais/filters.py": {
+    "mtime": 1789021096.2852545,
+    "seen": 1789929350.970975,
+    "ast_hash": "2dc36a1d32e81c67501389b39cd55e93",
+    "semantic_hash": "2dc36a1d32e81c67501389b39cd55e93"
+  },
+  "oil-spill-system/scientific-service/app/ais/generator.py": {
+    "mtime": 1789021096.2862544,
+    "seen": 1789929350.9709756,
+    "ast_hash": "2a8680c233911ccfa9b6eb9d6d1f26ad",
+    "semantic_hash": "2a8680c233911ccfa9b6eb9d6d1f26ad"
+  },
+  "oil-spill-system/scientific-service/app/ais/providers.py": {
+    "mtime": 1789021096.2872715,
+    "seen": 1789929350.9709766,
+    "ast_hash": "82546a190465e1ac2ed603c8e1408de5",
+    "semantic_hash": "82546a190465e1ac2ed603c8e1408de5"
+  },
+  "oil-spill-system/scientific-service/app/ais/scoring.py": {
+    "mtime": 1789021096.2872715,
+    "seen": 1789929350.9709773,
+    "ast_hash": "7d64826a8af5e639aea2d17a3e89a57c",
+    "semantic_hash": "7d64826a8af5e639aea2d17a3e89a57c"
+  },
+  "oil-spill-system/scientific-service/app/ais/validation.py": {
+    "mtime": 1789021096.288254,
+    "seen": 1789929350.970978,
+    "ast_hash": "37f7295de395cb7cfa20d102bf264ef8",
+    "semantic_hash": "37f7295de395cb7cfa20d102bf264ef8"
+  },
+  "oil-spill-system/scientific-service/app/backtracking/__init__.py": {
+    "mtime": 1789021096.288254,
+    "seen": 1789929350.9709787,
+    "ast_hash": "8ed4dfcf2db27e55bce5939b409be9c7",
+    "semantic_hash": "8ed4dfcf2db27e55bce5939b409be9c7"
+  },
+  "oil-spill-system/scientific-service/app/backtracking/engine.py": {
+    "mtime": 1789021096.2892537,
+    "seen": 1789929350.9709797,
+    "ast_hash": "decdaed022e88a40c9cfed964330af55",
+    "semantic_hash": "decdaed022e88a40c9cfed964330af55"
+  },
+  "oil-spill-system/scientific-service/app/backtracking/source.py": {
+    "mtime": 1789021096.2892537,
+    "seen": 1789929350.9709804,
+    "ast_hash": "1b5c86a073fdd6c874e6e4cebef8e057",
+    "semantic_hash": "1b5c86a073fdd6c874e6e4cebef8e057"
+  },
+  "oil-spill-system/scientific-service/app/drift/__init__.py": {
+    "mtime": 1789021096.2892537,
+    "seen": 1789929350.9709811,
+    "ast_hash": "6524b12bf04b3bd6f07ab43ab57a7cf7",
+    "semantic_hash": "6524b12bf04b3bd6f07ab43ab57a7cf7"
+  },
+  "oil-spill-system/scientific-service/app/drift/engine.py": {
+    "mtime": 1789021096.290253,
+    "seen": 1789929350.9709818,
+    "ast_hash": "f74be38c816f4698368b8da68f275b0c",
+    "semantic_hash": "f74be38c816f4698368b8da68f275b0c"
+  },
+  "oil-spill-system/scientific-service/app/environment/__init__.py": {
+    "mtime": 1789021096.290253,
+    "seen": 1789929350.9709826,
+    "ast_hash": "335dbf5a4fabba2f1b3f63a1049f0d90",
+    "semantic_hash": "335dbf5a4fabba2f1b3f63a1049f0d90"
+  },
+  "oil-spill-system/scientific-service/app/environment/config.py": {
+    "mtime": 1789021096.291253,
+    "seen": 1789929350.9709835,
+    "ast_hash": "f60d953b620e6527d6a5c9d409818fad",
+    "semantic_hash": "f60d953b620e6527d6a5c9d409818fad"
+  },
+  "oil-spill-system/scientific-service/app/environment/contract.py": {
+    "mtime": 1789021096.291253,
+    "seen": 1789929350.9709842,
+    "ast_hash": "2ac7e5980ec934745e3ff3f9a5341417",
+    "semantic_hash": "2ac7e5980ec934745e3ff3f9a5341417"
+  },
+  "oil-spill-system/scientific-service/app/environment/providers.py": {
+    "mtime": 1789021096.2922602,
+    "seen": 1789929350.970985,
+    "ast_hash": "c7d122af28d7761453bb616975b6c0de",
+    "semantic_hash": "c7d122af28d7761453bb616975b6c0de"
+  },
+  "oil-spill-system/scientific-service/app/main.py": {
+    "mtime": 1789021096.2922602,
+    "seen": 1789929350.9709857,
+    "ast_hash": "d887e4a0e90d8a2e2bf4006e5cf0374c",
+    "semantic_hash": "d887e4a0e90d8a2e2bf4006e5cf0374c"
+  },
+  "oil-spill-system/scientific-service/app/observability.py": {
+    "mtime": 1789021096.2932532,
+    "seen": 1789929350.9709866,
+    "ast_hash": "3b4b4eeaf7a2c7a5088d28309da03998",
+    "semantic_hash": "3b4b4eeaf7a2c7a5088d28309da03998"
+  },
+  "oil-spill-system/scientific-service/app/sar/__init__.py": {
+    "mtime": 1789021096.2932532,
+    "seen": 1789929350.9709876,
+    "ast_hash": "ba0946b098d364784fd537b57eb404d9",
+    "semantic_hash": "ba0946b098d364784fd537b57eb404d9"
+  },
+  "oil-spill-system/scientific-service/app/sar/catalog.py": {
+    "mtime": 1789021096.2942543,
+    "seen": 1789929350.9709883,
+    "ast_hash": "edf5339069e8463fc0a8ae40b472202f",
+    "semantic_hash": "edf5339069e8463fc0a8ae40b472202f"
+  },
+  "oil-spill-system/scientific-service/app/sar/config.py": {
+    "mtime": 1789021096.2942543,
+    "seen": 1789929350.9709892,
+    "ast_hash": "0b6649a06617e6be714425f373c0ec65",
+    "semantic_hash": "0b6649a06617e6be714425f373c0ec65"
+  },
+  "oil-spill-system/scientific-service/app/sar/contract.py": {
+    "mtime": 1789021096.2942543,
+    "seen": 1789929350.9709902,
+    "ast_hash": "fb1b2620c93d2f3b28eea6adc7068f92",
+    "semantic_hash": "fb1b2620c93d2f3b28eea6adc7068f92"
+  },
+  "oil-spill-system/scientific-service/app/sar/detectors/__init__.py": {
+    "mtime": 1789021096.2952518,
+    "seen": 1789929350.9709911,
+    "ast_hash": "26ce786cb9d6a695c0bce89433d1ea92",
+    "semantic_hash": "26ce786cb9d6a695c0bce89433d1ea92"
+  },
+  "oil-spill-system/scientific-service/app/sar/detectors/_contour.py": {
+    "mtime": 1789021096.2952518,
+    "seen": 1789929350.9709918,
+    "ast_hash": "e8c7f0b8aaf3afd5d3bd0624f0fee603",
+    "semantic_hash": "e8c7f0b8aaf3afd5d3bd0624f0fee603"
+  },
+  "oil-spill-system/scientific-service/app/sar/detectors/classical.py": {
+    "mtime": 1789021096.2952518,
+    "seen": 1789929350.9709926,
+    "ast_hash": "031d58e4220e8901886361bb3b6f1e2b",
+    "semantic_hash": "031d58e4220e8901886361bb3b6f1e2b"
+  },
+  "oil-spill-system/scientific-service/app/sar/detectors/onnx.py": {
+    "mtime": 1789021096.2952518,
+    "seen": 1789929350.9709935,
+    "ast_hash": "b6ed6b091b5c0fab2e25bc185ed6bd9d",
+    "semantic_hash": "b6ed6b091b5c0fab2e25bc185ed6bd9d"
+  },
+  "oil-spill-system/scientific-service/app/sar/fixture.py": {
+    "mtime": 1789021096.296251,
+    "seen": 1789929350.9709942,
+    "ast_hash": "e21bd22b751e8d92f0c82a76791dfa85",
+    "semantic_hash": "e21bd22b751e8d92f0c82a76791dfa85"
+  },
+  "oil-spill-system/scientific-service/app/sar/pipeline.py": {
+    "mtime": 1789021096.296251,
+    "seen": 1789929350.970995,
+    "ast_hash": "08f14874def941e6218eb60a7f01ba64",
+    "semantic_hash": "08f14874def941e6218eb60a7f01ba64"
+  },
+  "oil-spill-system/scientific-service/app/sar/preprocess.py": {
+    "mtime": 1789021096.296251,
+    "seen": 1789929350.9709957,
+    "ast_hash": "648a35aa2480b1112100b9334530c97e",
+    "semantic_hash": "648a35aa2480b1112100b9334530c97e"
+  },
+  "oil-spill-system/scientific-service/app/sar/scenes.py": {
+    "mtime": 1789021096.2972515,
+    "seen": 1789929350.9709966,
+    "ast_hash": "f67d2b87fa9e03dc813157b920cd25a0",
+    "semantic_hash": "f67d2b87fa9e03dc813157b920cd25a0"
+  },
+  "oil-spill-system/scientific-service/app/uncertainty/__init__.py": {
+    "mtime": 1789021096.2972515,
+    "seen": 1789929350.9709976,
+    "ast_hash": "1c856162df903f99a647b82d094b024a",
+    "semantic_hash": "1c856162df903f99a647b82d094b024a"
+  },
+  "oil-spill-system/scientific-service/gunicorn.conf.py": {
+    "mtime": 1789021096.2972515,
+    "seen": 1789929350.9709983,
+    "ast_hash": "36af940e3ee1b6fd76b068f65f278414",
+    "semantic_hash": "36af940e3ee1b6fd76b068f65f278414"
+  },
+  "oil-spill-system/scientific-service/tests/conftest.py": {
+    "mtime": 1789021096.2992513,
+    "seen": 1789929350.970999,
+    "ast_hash": "6615e628a3f8d5f4f4247f5e14ab2637",
+    "semantic_hash": "6615e628a3f8d5f4f4247f5e14ab2637"
+  },
+  "oil-spill-system/scientific-service/tests/test_ais_api.py": {
+    "mtime": 1789021096.2992513,
+    "seen": 1789929350.9709997,
+    "ast_hash": "2aad6dd40de1ba321acd3c03203ed63f",
+    "semantic_hash": "2aad6dd40de1ba321acd3c03203ed63f"
+  },
+  "oil-spill-system/scientific-service/tests/test_ais_filtering.py": {
+    "mtime": 1789021096.3002527,
+    "seen": 1789929350.9710007,
+    "ast_hash": "5fb2818c138090224b7e6e92d29b34a2",
+    "semantic_hash": "5fb2818c138090224b7e6e92d29b34a2"
+  },
+  "oil-spill-system/scientific-service/tests/test_ais_generator.py": {
+    "mtime": 1789021096.3002527,
+    "seen": 1789929350.9710016,
+    "ast_hash": "4af7e1c24cd29bd0243f979109bb345d",
+    "semantic_hash": "4af7e1c24cd29bd0243f979109bb345d"
+  },
+  "oil-spill-system/scientific-service/tests/test_ais_providers.py": {
+    "mtime": 1789021096.3012543,
+    "seen": 1789929350.9710023,
+    "ast_hash": "6d150ffdfba42ef7053847c26e08dcaf",
+    "semantic_hash": "6d150ffdfba42ef7053847c26e08dcaf"
+  },
+  "oil-spill-system/scientific-service/tests/test_ais_recovery.py": {
+    "mtime": 1789021096.3012543,
+    "seen": 1789929350.971003,
+    "ast_hash": "2ad959ea77a9d87bc8a8c84b8e3ae78a",
+    "semantic_hash": "2ad959ea77a9d87bc8a8c84b8e3ae78a"
+  },
+  "oil-spill-system/scientific-service/tests/test_ais_scoring.py": {
+    "mtime": 1789021096.3022556,
+    "seen": 1789929350.971004,
+    "ast_hash": "17fbdb5920ddf147e54b09eec7d893c4",
+    "semantic_hash": "17fbdb5920ddf147e54b09eec7d893c4"
+  },
+  "oil-spill-system/scientific-service/tests/test_api.py": {
+    "mtime": 1789021096.3022556,
+    "seen": 1789929350.9710047,
+    "ast_hash": "180635b10c5df5db54455110699b6ad6",
+    "semantic_hash": "180635b10c5df5db54455110699b6ad6"
+  },
+  "oil-spill-system/scientific-service/tests/test_backtrack_controlled_recovery.py": {
+    "mtime": 1789021096.3022556,
+    "seen": 1789929350.9710057,
+    "ast_hash": "5accfefcb9388bf314af4df3488ba7cf",
+    "semantic_hash": "5accfefcb9388bf314af4df3488ba7cf"
+  },
+  "oil-spill-system/scientific-service/tests/test_backtrack_engine.py": {
+    "mtime": 1789021096.3032541,
+    "seen": 1789929350.9710062,
+    "ast_hash": "f2d5f6714beda43e514fc619e68fc15b",
+    "semantic_hash": "f2d5f6714beda43e514fc619e68fc15b"
+  },
+  "oil-spill-system/scientific-service/tests/test_backtrack_source.py": {
+    "mtime": 1789021096.3032541,
+    "seen": 1789929350.9710073,
+    "ast_hash": "6348896e2c015f0741243843b6be6b97",
+    "semantic_hash": "6348896e2c015f0741243843b6be6b97"
+  },
+  "oil-spill-system/scientific-service/tests/test_controlled_drift.py": {
+    "mtime": 1789021096.3042543,
+    "seen": 1789929350.971008,
+    "ast_hash": "e26d1857d6d614d20c9a416a03374792",
+    "semantic_hash": "e26d1857d6d614d20c9a416a03374792"
+  },
+  "oil-spill-system/scientific-service/tests/test_environment_providers.py": {
+    "mtime": 1789021096.3042543,
+    "seen": 1789929350.9710088,
+    "ast_hash": "748933c690dbd512483192bf44b5865b",
+    "semantic_hash": "748933c690dbd512483192bf44b5865b"
+  },
+  "oil-spill-system/scientific-service/tests/test_health.py": {
+    "mtime": 1789021096.3042543,
+    "seen": 1789929350.9710095,
+    "ast_hash": "3dcf0271499a6d4bfdfa6fb61f973a5f",
+    "semantic_hash": "3dcf0271499a6d4bfdfa6fb61f973a5f"
+  },
+  "oil-spill-system/scientific-service/tests/test_oil_types.py": {
+    "mtime": 1789021096.3052542,
+    "seen": 1789929350.9710102,
+    "ast_hash": "3eae792fc98f1f75b620d3085eba9c32",
+    "semantic_hash": "3eae792fc98f1f75b620d3085eba9c32"
+  },
+  "oil-spill-system/scientific-service/tests/test_sar.py": {
+    "mtime": 1789021096.306252,
+    "seen": 1789929350.9710112,
+    "ast_hash": "97e83f4a549f59f9f17853418e6b464a",
+    "semantic_hash": "97e83f4a549f59f9f17853418e6b464a"
+  },
+  "oil-spill-system/scientific-service/tests/test_sar_step08.py": {
+    "mtime": 1789021096.306252,
+    "seen": 1789929350.971012,
+    "ast_hash": "c7a63e0fe41300ae322c26e8b806f36d",
+    "semantic_hash": "c7a63e0fe41300ae322c26e8b806f36d"
+  },
+  "package.json": {
+    "mtime": 1789021096.3072562,
+    "seen": 1789929350.9710128,
+    "ast_hash": "51c3c8c83e5d530f74c7c303627dfa58",
+    "semantic_hash": "51c3c8c83e5d530f74c7c303627dfa58"
+  },
+  "research/24-backtracking/step09_recovery_results.json": {
+    "mtime": 1789021096.3202517,
+    "seen": 1789929350.9710133,
+    "ast_hash": "bde0132fba7f876b024e8851687fd460",
+    "semantic_hash": "bde0132fba7f876b024e8851687fd460"
+  },
+  "research/25-ais-attribution/step10_validation_results.json": {
+    "mtime": 1789021096.3212535,
+    "seen": 1789929350.9710145,
+    "ast_hash": "73e9c02437291bbd97700dab37d819fe",
+    "semantic_hash": "73e9c02437291bbd97700dab37d819fe"
+  },
+  "skills-lock.json": {
+    "mtime": 1789921040.9100642,
+    "seen": 1789929350.9710152,
+    "ast_hash": "c2bec4b214fdc26c38510318b9791a27",
+    "semantic_hash": "c2bec4b214fdc26c38510318b9791a27"
+  },
+  "start-stack-visible.ps1": {
+    "mtime": 1789021096.3222542,
+    "seen": 1789929350.971016,
+    "ast_hash": "3dd1f801961a7b2d01f1d54a69efe43c",
+    "semantic_hash": "3dd1f801961a7b2d01f1d54a69efe43c"
+  },
+  "start-stack.ps1": {
+    "mtime": 1789021096.3222542,
+    "seen": 1789929350.9710166,
+    "ast_hash": "55694f86287af95184785668b3b3b3f1",
+    "semantic_hash": "55694f86287af95184785668b3b3b3f1"
+  }
+}
