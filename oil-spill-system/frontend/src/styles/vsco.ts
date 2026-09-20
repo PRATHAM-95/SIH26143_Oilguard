@@ -32,26 +32,29 @@ export const VSCO = {
   },
 
   base: {
-    bg: '#04070b',
+    bg: '#03070c',
     elev: '#070c13',
-    panel: '#0b1420',
-    panel2: '#0e1a28',
-    inset: '#060c14',
+    panel: '#0b131e',
+    panel2: '#0f1a28',
+    panel3: '#142234',
+    inset: '#04080f',
+    glass: 'rgba(11, 19, 30, 0.82)',
     line: '#16242f',
     lineStrong: '#27405a',
-    text: '#e9f1f8',
-    textDim: '#9db0c2',
-    textFaint: '#5d7085',
+    text: '#f1f5f9',
+    textDim: '#94a3b8',
+    textFaint: '#64748b',
   },
 
   accent: {
     cyan: '#38bdf8',
     cyanStrong: '#7dd3fc',
+    cyanSubtle: 'rgba(56, 189, 248, 0.12)',
   },
 
   ok: '#2fd89a',
   warn: '#f0b23f',
-  danger: '#f4575a',
+  danger: '#f43f5e',
 
   /** Discipline hues (RGB arrays for deck.gl layers). */
   evidence: {
@@ -75,5 +78,38 @@ export const VSCO = {
     lookalikeFill: [208, 163, 95] as const,
     footprint: [96, 165, 205] as const,
     footprintFill: [96, 165, 205] as const,
+  },
+
+  /** Design System Typed Tokens (synchronized with CSS variables) */
+  tokens: {
+    fonts: {
+      sans: "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      mono: "'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', monospace",
+    },
+    zIndex: {
+      canvas: 0,
+      base: 1,
+      surface: 10,
+      mapControl: 20,
+      mapOverlay: 30,
+      header: 40,
+      rail: 40,
+      dock: 50,
+      popover: 60,
+      modal: 70,
+      tooltip: 80,
+      notification: 90,
+    },
+    elevation: {
+      sm: '0 1px 3px rgba(0, 0, 0, 0.40)',
+      md: '0 4px 12px rgba(0, 0, 0, 0.50)',
+      lg: '0 8px 24px rgba(0, 0, 0, 0.65)',
+      glass: '0 12px 36px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+    },
+    motion: {
+      fast: '120ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      normal: '200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      moderate: '320ms cubic-bezier(0.16, 1, 0.3, 1)',
+    },
   },
 } as const

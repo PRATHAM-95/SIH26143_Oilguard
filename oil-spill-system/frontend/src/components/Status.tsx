@@ -1,13 +1,54 @@
 import type { ReactNode } from 'react'
 
-type Tone = 'ok' | 'warn' | 'danger' | 'run' | 'idle'
+export type StatusTone = 'ok' | 'warn' | 'danger' | 'run' | 'idle'
 
-const dotClass: Record<Tone, string> = {
+export type SemanticStatus =
+  | 'live'
+  | 'healthy'
+  | 'running'
+  | 'awaiting'
+  | 'complete'
+  | 'completed'
+  | 'failed'
+  | 'offline'
+  | 'no_data'
+  | 'not_started'
+  | 'idle'
+  | 'ok'
+  | 'warn'
+  | 'danger'
+  | 'run'
+
+const dotClass: Record<StatusTone, string> = {
   ok: 'dot dot--ok',
   warn: 'dot dot--warn',
   danger: 'dot dot--danger',
   run: 'dot dot--running',
   idle: 'dot dot--idle',
+}
+
+/** Resolves any domain status string into a strict 5-tone semantic palette. */
+export function resolveStatusTone(status: string | null | undefined): StatusTone {
+  if (!status) return 'idle'
+  const s = status.toLowerCase().trim()
+  if (['ok', 'healthy', 'live', 'complete', 'completed', 'online', 'available'].includes(s)) return 'ok'
+  if (['run', 'running', 'simulating', 'processing'].includes(s)) return 'run'
+  if (
+    [
+      'warn',
+      'awaiting',
+      'pending',
+      'partial',
+      'demo',
+      'synthetic',
+      'not_started',
+      'unconfirmed',
+      'no_data',
+    ].includes(s)
+  )
+    return 'warn'
+  if (['danger', 'failed', 'offline', 'unavailable', 'error', 'cancelled'].includes(s)) return 'danger'
+  return 'idle'
 }
 
 /**
@@ -16,28 +57,35 @@ const dotClass: Record<Tone, string> = {
  */
 export function StatusChip({
   tone,
+  status,
   label,
+  size = 'md',
+  className,
   children,
 }: {
-  tone: Tone
-  label: string
+  tone?: StatusTone
+  status?: SemanticStatus | string
+  label?: string
+  size?: 'sm' | 'md'
+  className?: string
   children?: ReactNode
 }) {
-  const chipClass =
-    tone === 'ok'
-      ? 'status-chip status-chip--ok'
-      : tone === 'danger'
-        ? 'status-chip status-chip--danger'
-        : tone === 'warn'
-          ? 'status-chip status-chip--warn'
-          : tone === 'run'
-            ? 'status-chip status-chip--run'
-            : 'status-chip'
+  const resolvedTone = tone ?? resolveStatusTone(status)
+  const displayLabel = label ?? (typeof status === 'string' ? status.toUpperCase() : 'STATUS')
+
+  const chipClass = [
+    'status-chip',
+    `status-chip--${resolvedTone}`,
+    size === 'sm' ? 'status-chip--sm' : '',
+    className ?? '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
-    <span className={chipClass} title={label}>
-      <span aria-hidden="true" className={dotClass[tone]} />
-      <span>{children ?? label}</span>
+    <span className={chipClass} title={displayLabel}>
+      <span aria-hidden="true" className={dotClass[resolvedTone]} />
+      <span>{children ?? displayLabel}</span>
     </span>
   )
 }

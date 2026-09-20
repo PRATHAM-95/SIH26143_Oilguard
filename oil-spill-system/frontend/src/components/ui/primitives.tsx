@@ -116,3 +116,190 @@ export function fmtTime(iso: string | null | undefined, fallback = '—'): strin
   if (Number.isNaN(d.getTime())) return iso
   return d.toISOString().replace('T', ' ').replace('.000Z', 'Z')
 }
+
+/** Operational tooltip wrapper providing instant zero-JS data-tooltip hover cues. */
+export function Tooltip({ text, children, className }: { text: string; children: ReactNode; className?: string }) {
+  return (
+    <span className={className} data-tooltip={text} style={{ display: 'inline-flex' }}>
+      {children}
+    </span>
+  )
+}
+
+/** Radar-sweep loading spinner */
+export function Spinner({ size = 18, className }: { size?: number; className?: string }) {
+  return (
+    <span
+      className={`loading-spinner ${className ?? ''}`.trim()}
+      style={{ width: size, height: size }}
+      aria-hidden="true"
+    />
+  )
+}
+
+/** Shimmer skeleton for content loading */
+export function Skeleton({
+  width = '100%',
+  height = '14px',
+  className,
+}: {
+  width?: string | number
+  height?: string | number
+  className?: string
+}) {
+  return (
+    <div
+      className={`loading-shimmer ${className ?? ''}`.trim()}
+      style={{ width, height }}
+      aria-hidden="true"
+    />
+  )
+}
+
+export type Column<T> = {
+  header: string
+  accessor: (item: T) => ReactNode
+  align?: 'left' | 'right' | 'center'
+  mono?: boolean
+  width?: string
+}
+
+/** Standardized operational data table conforming to the Maritime Design System */
+export function DataTable<T>({
+  columns,
+  data,
+  keyExtractor,
+  selectedId,
+  onSelect,
+  emptyMessage = 'No records available in this telemetry frame.',
+}: {
+  columns: Column<T>[]
+  data: T[]
+  keyExtractor: (item: T) => string
+  selectedId?: string | null
+  onSelect?: (item: T) => void
+  emptyMessage?: string
+}) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="table-container">
+        <table className="data-table">
+          <tbody>
+            <tr>
+              <td colSpan={columns.length} className="table-empty">
+                {emptyMessage}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  return (
+    <div className="table-container">
+      <table className="data-table">
+        <thead>
+          <tr>
+            {columns.map((col, idx) => (
+              <th
+                key={idx}
+                style={{
+                  textAlign: col.align ?? 'left',
+                  width: col.width,
+                }}
+              >
+                {col.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => {
+            const key = keyExtractor(item)
+            const isSelected = selectedId === key
+            return (
+              <tr
+                key={key}
+                className={isSelected ? 'table-row--selected selected' : ''}
+                onClick={() => onSelect?.(item)}
+                style={{ cursor: onSelect ? 'pointer' : 'default' }}
+              >
+                {columns.map((col, idx) => (
+                  <td
+                    key={idx}
+                    className={[
+                      col.mono ? 'table-cell--mono' : '',
+                      col.align === 'right' ? 'table-cell--numeric' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    style={{ textAlign: col.align ?? 'left' }}
+                  >
+                    {col.accessor(item)}
+                  </td>
+                ))}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export type ErrorCategory = 'system' | 'unavailable' | 'action_required' | 'network'
+
+const ERROR_CATEGORY_LABELS: Record<ErrorCategory, string> = {
+  system: 'SYSTEM FAILURE',
+  unavailable: 'DATA UNAVAILABLE',
+  action_required: 'ACTION REQUIRED',
+  network: 'TELEMETRY OFFLINE',
+}
+
+/** Operational error banner distinguishing failure categories with actionable remedy */
+export function ErrorBanner({
+  category = 'system',
+  title,
+  message,
+  action,
+  className,
+}: {
+  category?: ErrorCategory
+  title?: string
+  message: string
+  action?: ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`error-banner error-banner--${category} ${className ?? ''}`.trim()} role="alert">
+      <div className="error-banner-lead">
+        <span className="error-banner-badge">{ERROR_CATEGORY_LABELS[category]}</span>
+        {title ? <span className="error-banner-title">{title}</span> : null}
+      </div>
+      <p className="error-banner-message">{message}</p>
+      {action ? <div className="error-banner-action">{action}</div> : null}
+    </div>
+  )
+}
+
+/** Calm, honest computational progress display for active model / service jobs */
+export function ProcessingBanner({
+  title,
+  subtitle,
+  className,
+}: {
+  title: string
+  subtitle?: string
+  className?: string
+}) {
+  return (
+    <div className={`processing-banner ${className ?? ''}`.trim()} aria-live="polite">
+      <Spinner size={16} />
+      <div className="processing-banner-body">
+        <span className="processing-banner-title">{title}</span>
+        {subtitle ? <span className="processing-banner-sub">{subtitle}</span> : null}
+      </div>
+    </div>
+  )
+}
