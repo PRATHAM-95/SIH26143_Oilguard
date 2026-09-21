@@ -1,3 +1,4 @@
+@layer theme, base, components, legacy, utilities;
 @import "tailwindcss";
 
 @theme {
@@ -18,7 +19,7 @@
   --font-mono: 'JetBrains Mono Variable', monospace;
 }
 
-/* MapLibre and Deck.gl coexistence guarantees */
+/* MapLibre and Deck.gl coexistence guarantees (unlayered, outranking @layer) */
 .maplibregl-map {
   overflow: hidden;
   position: relative;
@@ -38,6 +39,90 @@
   width: 100%;
   height: 100%;
   pointer-events: auto;
+}
+
+/* MapLibre Tactical Theming & Layer Outranking (unlayered, beats vendor styles) */
+.maplibregl-ctrl-group {
+  background: var(--color-trench, #0B1A2B) !important;
+  border: 1px solid var(--color-chartline, #1E3550) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group button {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--color-chartline, #1E3550) !important;
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.maplibregl-ctrl-group button:last-child {
+  border-bottom: none !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background-color: var(--color-deck, #122336) !important;
+}
+
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(85%) hue-rotate(180deg) brightness(110%) !important;
+}
+
+.maplibregl-ctrl-attrib {
+  background-color: rgba(11, 26, 43, 0.88) !important;
+  border: 1px solid var(--color-chartline, #1E3550) !important;
+  border-radius: 2px !important;
+  color: var(--color-mist, #9DB2C8) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: var(--color-sonar, #4FD1E8) !important;
+  text-decoration: none !important;
+}
+
+.maplibregl-ctrl-attrib a:hover {
+  text-decoration: underline !important;
+}
+
+.maplibregl-popup-content {
+  background: var(--color-trench, #0B1A2B) !important;
+  border: 1px solid var(--color-chartline, #1E3550) !important;
+  color: var(--color-foam, #E8F0F7) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  padding: 12px !important;
+}
+
+.maplibregl-popup-anchor-top .maplibregl-popup-tip {
+  border-bottom-color: var(--color-chartline, #1E3550) !important;
+}
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: var(--color-chartline, #1E3550) !important;
+}
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: var(--color-chartline, #1E3550) !important;
+}
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: var(--color-chartline, #1E3550) !important;
+}
+
+.maplibregl-popup-close-button {
+  color: var(--color-mist, #9DB2C8) !important;
+  padding: 4px 8px !important;
+}
+.maplibregl-popup-close-button:hover {
+  color: var(--color-foam, #E8F0F7) !important;
+  background-color: transparent !important;
+}
+
+/* Offset MapLibre bottom-right controls on Command Center to clear docked Contextual Console */
+.workstation-theater .maplibregl-ctrl-bottom-right {
+  margin-right: 386px !important;
+  transition: margin-right var(--dur-normal, 200ms) ease-out;
 }
 
 @layer legacy {
@@ -2215,6 +2300,201 @@ body {
 /* ---------------------------------------------------------------------------
    DATA & LAYERS — table of contents
    ------------------------------------------------------------------------- */
+  background: rgba(44, 168, 212, 0.05);
+  color: var(--ink-1);
+}
+
+.stepper-node-btn.stepper-node--focused {
+  border-color: var(--line-3);
+  background: rgba(44, 168, 212, 0.07);
+  color: var(--ink-0);
+}
+
+.stepper-node--pending {
+  color: var(--ink-3);
+}
+
+.stepper-node--completed {
+  color: var(--ok);
+}
+
+.stepper-node--running {
+  color: var(--accent-strong);
+}
+
+.stepper-node--failed {
+  color: var(--danger);
+}
+
+.stepper-node--skipped,
+.stepper-node--unavailable {
+  color: var(--warn);
+}
+
+.stepper-node-mark {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: var(--inset);
+}
+
+.stepper-node-label {
+  font-size: 11px;
+}
+
+.stepper-link {
+  flex: 0 0 14px;
+  height: 1px;
+  background: var(--line-2);
+}
+
+.stepper-meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress {
+  width: 110px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transition: width 240ms ease;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+}
+
+.controls-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---- map pane ---- */
+.map-pane {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 70% 20%, #0a1724 0%, #050b12 70%);
+}
+
+.map-shell {
+  position: absolute;
+  inset: 0;
+}
+
+.map-note {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: rgba(4, 7, 11, 0.78);
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---- map furniture ---- */
+.map-furniture {
+  position: absolute;
+  z-index: 6;
+  left: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.coord-readout {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-1);
+  background: rgba(4, 7, 11, 0.82);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+.coord-readout .coord-zoom {
+  color: var(--ink-2);
+}
+
+.scale-bar {
+  height: 8px;
+  width: 110px;
+  border-left: 1px solid var(--ink-1);
+  border-bottom: 1px solid var(--ink-1);
+  border-right: 1px solid var(--ink-1);
+  opacity: 0.85;
+}
+
+.scale-bar-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-2);
+  margin-top: 2px;
+  letter-spacing: 0.06em;
+}
+
+.map-actions {
+  position: absolute;
+  z-index: 6;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-attribution {
+  position: absolute;
+  z-index: 5;
+  right: 8px;
+  bottom: 44px;
+  font-size: 9px;
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------------------
+   DATA & LAYERS — table of contents
+   ------------------------------------------------------------------------- */
 /* Layers panel: GIS inspector style */
 .layers-panel {
   position: absolute;
@@ -2222,7 +2502,7 @@ body {
   top: 10px;
   left: 10px;
   width: 256px;
-  max-height: calc(100% - 24px);
+  max-height: calc(100% - 64px);
   display: flex;
   flex-direction: column;
   background: rgba(7, 12, 20, 0.96);
@@ -2263,10 +2543,12 @@ body {
 
 .layers-panel[data-open='true'] .layers-body {
   overflow-y: auto;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 .layers-body {
-  padding: 6px 0 8px;
+  padding: 6px 0 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -2362,9 +2644,10 @@ body {
 }
 
 .layers-foot {
-  padding: 6px 10px 8px;
+  flex-shrink: 0;
+  padding: 8px 10px 10px;
   border-top: 1px solid var(--line);
-  font-size: 10px;
+  font-size: 9.5px;
   line-height: 1.4;
   color: var(--ink-3);
 }

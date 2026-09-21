@@ -93,6 +93,61 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
     - `npm run build` compiled successfully in 6.60s with all font woff2 assets bundled.
 
 ### Next Steps: Milestone M2 (Command Center)
+- M2a (Foundations & Shell Mounting): COMPLETED on 2026-09-21.
+- M2b (Geospatial Theater Rebuild): Ready to start on user signal.
+
+---
+
+## Milestone M2a: Shell Mounting & Contract Enforcement (COMPLETED)
+
+- **Completed On**: 2026-09-21
+- **Branch**: `frontend-rebuild` (Commit `6b50348`)
+- **Goal**: Resolve M1 gaps, classify IDE Problems panel noise, enforce protected contracts with Vitest, mount `AppShell` with single operational navigation spine, restore scientific-service contract models, and automate full-stack start with `start-stack.ps1`.
+
+### What Was Done
+1. **IDE Problems Panel Classification**:
+   - Analyzed all 39 errors and 1 warning before suppressing anything:
+     - *CSS*: 1 warning (`Unknown at rule @theme (unknownAtRules)` in `src/index.css` line 3, validated via `vscode-css-languageservice`).
+     - *Markdown*: 39 errors (broken relative links in `.agents/skills/*/SKILL.md` pointing to missing `../frontend-design/reference/...`).
+     - *Python*: 0 errors, 0 warnings.
+     - *TypeScript / ESLint*: 0 errors, 0 warnings (`npm run lint` and `tsc -b` pass cleanly).
+   - Configured `C:\oilguard\.vscode\settings.json` and `SIH26143_Oilguard\.vscode\settings.json` with `"css.lint.unknownAtRules": "ignore"` and `"markdown.validate.fileLinks.enabled": "off"`. Only existing noise suppressed; zero TS/ESLint suppression.
+2. **CSS Cascade & MapLibre Coexistence**:
+   - Placed explicit layer order at line 1 of `src/index.css`: `@layer theme, base, components, legacy, utilities;`.
+   - Maintained unlayered MapLibre/Deck.gl canvas guards (`.maplibregl-map`, `.maplibregl-canvas`, `#deckgl-overlay`, `.deck-canvas`) with highest cascade precedence over `@layer legacy` and Tailwind preflight.
+3. **Route Extraction & Protected Contract Tests**:
+   - Extracted `APP_ROUTE_PATHS` constant in `src/routes.ts`.
+   - Updated `src/App.tsx` to dynamically build all `<Route path>` items from `APP_ROUTE_PATHS`.
+   - Configured `vitest` + `jsdom` test environment in `vitest.config.ts` and added `npm test` script.
+   - Implemented `src/__tests__/contracts.test.ts` asserting 6 routes, 8 sequential stages, and 13 map layer catalog keys against literal contract values from `PROTECTED_CONTRACTS.md`. Tests run and pass in ~911ms.
+4. **StatusBadge Design System Fix**:
+   - Removed monospace font (`font-mono`), uppercase transformation, and pill shape container (`rounded-full`, pill borders) from `StatusBadge.tsx`. Styled as understated inline dot + normal body text.
+5. **AppShell Layout Mounting**:
+   - Mounted `AppShell` in `src/components/Layout.tsx` with a single unified operational navigation spine (`<NavLink>` rail with tooltips, brand beacon, UTC Zulu clock, service health cluster) and single operational header bar. Completely eliminated legacy outer header and navigation.
+6. **Scientific Service Models & Git Ignore Fix**:
+   - Restored missing Pydantic contract models in `oil-spill-system/scientific-service/app/models/` (`forward_drift.py`, `sar.py`, `backtrack.py`, `ais.py`).
+   - Fixed `.gitignore` in workspace root and `oil-spill-system/` to exempt `scientific-service/app/models/` from generic `models/` rule.
+7. **Stack Automation & Verification**:
+   - Updated `start-stack.ps1` with clean dynamic PATH lookups for Python, Java, and NPM, fixed `$sciConn` variable collision in PowerShell 5.1, and added `-Wait` switch for daemon process management.
+   - Confirmed `backend/target` is gitignored.
+   - Cleaned up lingering Vite processes.
+   - Started stack via `powershell -ExecutionPolicy Bypass -File .\start-stack.ps1 -Wait`:
+     - MongoDB: UP on 27017 (Atlas connection)
+     - Scientific Service: UP on 8000 (`http://localhost:8000/health` -> HTTP 200)
+     - Backend: UP on 8082 (`http://localhost:8082/api/health` -> HTTP 200)
+     - Frontend: UP on 3000 (`http://localhost:3000/api/health` -> HTTP 200)
+   - Verified live WebSocket (`/ws/simulation/...`): connection established, simulation event triggers live state transitions, and `● LIVE` badge illuminated.
+8. **Multi-Route 1440x900 Visual QA**:
+   - Captured 1440x900 screenshots of all six routes post-mounting:
+     1. `/` (Command Center): `route_command_center_1440x900_1789935031320.png`
+     2. `/simulation`: `route_simulation_1440x900_1789935045553.png`
+     3. `/investigation`: `route_investigation_1440x900_1789935124693.png`
+     4. `/backtracking`: `route_backtracking_1440x900_1789935143088.png`
+     5. `/attribution`: `route_attribution_1440x900_1789935161439.png`
+     6. `/report`: `route_report_1440x900_1789935183975.png`
+   - Verified MapLibre controls, zoom buttons, and attribution render cleanly without layer clipping or preflight regression.
+
+### Next Steps: Milestone M2b (Geospatial Theater Rebuild)
 - Rebuild `/` Command Center into an authentic map-first theater.
 - Build live Graticule frame displaying dynamic viewport lat/long coordinates.
 - Implement Command Spine with brand emblem, route shortcuts, UTC Zulu clock, and service health dots.

@@ -5,6 +5,7 @@ import { useConnectionStore } from '@/store/connectionStore'
 import { useInvestigationStore } from '@/store/investigationStore'
 import { useSimulationStore } from '@/store/simulationStore'
 import { StatusChip } from '@/components/Status'
+import { AppShell } from '@/ui/shell/AppShell'
 import {
   BacktraceIcon,
   CommandIcon,
@@ -15,21 +16,21 @@ import {
 } from '@/components/ui/Icon'
 
 const NAV = [
-  { to: '/', label: 'Command Center', icon: CommandIcon, code: 'CC' },
-  { to: '/simulation', label: 'Fleet Simulation', icon: ShipIcon, code: 'SIM' },
-  { to: '/investigation', label: 'Investigation Pipeline', icon: RadarIcon, code: 'INV' },
-  { to: '/backtracking', label: 'Source Backtracking', icon: BacktraceIcon, code: 'BCK' },
-  { to: '/attribution', label: 'Vessel Attribution', icon: RankIcon, code: 'ATR' },
-  { to: '/report', label: 'Incident Dossier', icon: DossierIcon, code: 'REP' },
+  { to: '/', label: 'Command center', icon: CommandIcon, code: 'CC' },
+  { to: '/simulation', label: 'Fleet simulation', icon: ShipIcon, code: 'SIM' },
+  { to: '/investigation', label: 'Investigation pipeline', icon: RadarIcon, code: 'INV' },
+  { to: '/backtracking', label: 'Source backtracking', icon: BacktraceIcon, code: 'BCK' },
+  { to: '/attribution', label: 'Vessel attribution', icon: RankIcon, code: 'ATR' },
+  { to: '/report', label: 'Incident dossier', icon: DossierIcon, code: 'REP' },
 ]
 
 const WORKSPACE_MAP: Record<string, { label: string; code: string }> = {
-  '/': { label: 'Command Center', code: 'CC' },
-  '/simulation': { label: 'Fleet Simulation', code: 'SIM' },
-  '/investigation': { label: 'SAR Pipeline', code: 'INV' },
-  '/backtracking': { label: 'Source Backtracking', code: 'BCK' },
-  '/attribution': { label: 'Vessel Attribution', code: 'ATR' },
-  '/report': { label: 'Incident Dossier', code: 'REP' },
+  '/': { label: 'Command center', code: 'CC' },
+  '/simulation': { label: 'Fleet simulation', code: 'SIM' },
+  '/investigation': { label: 'Investigation pipeline', code: 'INV' },
+  '/backtracking': { label: 'Source backtracking', code: 'BCK' },
+  '/attribution': { label: 'Vessel attribution', code: 'ATR' },
+  '/report': { label: 'Incident dossier', code: 'REP' },
 }
 
 function UtcSpineClock() {
@@ -72,44 +73,72 @@ function SecondaryPageHeader({ currentWorkspace }: { currentWorkspace: { label: 
   const investigationId = useInvestigationStore((s) => s.investigationId)
   const invStatus = useInvestigationStore((s) => s.status)
   const simulationId = useSimulationStore((s) => s.simulationId)
+  const simulationMode = useSimulationStore((s) => s.mode)
   const wsStatus = useConnectionStore((s) => s.connections.websocket)
+  const isConnected = wsStatus === 'online'
+
+  let provenanceLabel = 'No data'
+  let provenanceTone = 'text-dim'
+  let provenanceDot = 'bg-slate-500'
+
+  if (simulationId) {
+    if (simulationMode === 'captain') {
+      provenanceLabel = 'Simulated'
+      provenanceTone = 'text-amber-400'
+      provenanceDot = 'bg-amber-400'
+    } else {
+      provenanceLabel = 'Controlled'
+      provenanceTone = 'text-cyan-400'
+      provenanceDot = 'bg-cyan-400'
+    }
+  }
 
   return (
-    <header className="subpage-header">
-      <div className="subpage-brand">
-        <span className="subpage-mark" aria-hidden="true">◈</span>
-        <div className="subpage-titles">
-          <span className="subpage-title">{currentWorkspace.label}</span>
-          <span className="subpage-sub">OILGUARD MARITIME INTELLIGENCE</span>
+    <div className="flex items-center justify-between w-full h-full text-xs">
+      <div className="flex items-center gap-2">
+        <span className="text-sonar text-sm" aria-hidden="true">◈</span>
+        <div className="flex flex-col">
+          <span className="font-sans font-medium text-foam text-[11px] leading-tight">
+            {currentWorkspace.label}
+          </span>
+          <span className="text-[8px] tracking-wider text-dim">OilGuard maritime intelligence</span>
         </div>
       </div>
 
-      <div className="subpage-context">
+      <div className="flex items-center gap-3">
         {investigationId ? (
-          <div className="subpage-ctx-pill">
-            <span className="ctx-kicker">INV:</span>
-            <span className="ctx-id">{investigationId.slice(0, 12)}…</span>
+          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-deck border border-chartline rounded text-[10px]">
+            <span className="text-dim font-medium">Inv:</span>
+            <span className="font-mono text-foam">{investigationId.slice(0, 12)}…</span>
             <StatusChip tone={invStatus === 'COMPLETED' ? 'ok' : 'run'} size="sm">
               {invStatus}
             </StatusChip>
           </div>
         ) : simulationId ? (
-          <div className="subpage-ctx-pill">
-            <span className="ctx-kicker">CASE:</span>
-            <span className="ctx-id">{simulationId.slice(0, 12)}…</span>
+          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-deck border border-chartline rounded text-[10px]">
+            <span className="text-dim font-medium">Case:</span>
+            <span className="font-mono text-foam">{simulationId.slice(0, 12)}…</span>
           </div>
         ) : null}
 
-        <StatusChip tone={wsStatus === 'online' ? 'ok' : 'idle'} size="sm">
-          LIVE
-        </StatusChip>
+        {/* Data Provenance Indicator */}
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-sans" title={`Data provenance: ${provenanceLabel}`}>
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${provenanceDot}`} />
+          <span className={provenanceTone}>{provenanceLabel}</span>
+        </div>
+
+        {/* Connection State */}
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-300" title={`Connection: ${isConnected ? 'Connected' : 'Offline'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isConnected ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]' : 'bg-rose-500'}`} />
+          <span>{isConnected ? 'Connected' : 'Offline'}</span>
+        </div>
 
         <NavLink to="/report" className="subpage-dossier-link" title="Open Forensic Incident Dossier">
           <DossierIcon size={13} />
           <span>Dossier</span>
         </NavLink>
       </div>
-    </header>
+    </div>
   )
 }
 
@@ -117,59 +146,58 @@ export default function Layout() {
   useHealthProbe()
   const location = useLocation()
   const isCommandCenter = location.pathname === '/'
+  const isTheater = location.pathname !== '/report'
   const currentWorkspace = WORKSPACE_MAP[location.pathname] ?? { label: 'Workspace', code: 'WS' }
 
   return (
-    <div className={`app-shell ${isCommandCenter ? 'app-shell--theater' : 'app-shell--subpage'}`}>
-      {/* 1. Integrated Operational Command Spine (Left Navigation) */}
-      <nav className="command-spine" aria-label="Operational Navigation Spine">
-        {/* Brand Emblem */}
-        <div className="spine-brand">
-          <NavLink to="/" className="spine-brand-link" title="OilGuard Maritime Command Center">
-            <span className="spine-brand-glyph" aria-hidden="true">◈</span>
-            <span className="spine-brand-beacon" aria-hidden="true" />
-          </NavLink>
-        </div>
-
-        {/* Route Action Group */}
-        <div className="spine-nav-group" role="menubar">
-          {NAV.map(({ to, label, icon: RailIcon, code }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              title={label}
-              aria-label={label}
-              className={({ isActive }) => `spine-nav-item ${isActive ? 'spine-nav-item--active' : ''}`}
-            >
-              <RailIcon size={19} />
-              <span className="spine-tooltip" role="tooltip">
-                <span className="tooltip-code">{code}</span>
-                <span className="tooltip-label">{label}</span>
-              </span>
+    <AppShell
+      isTheater={isTheater}
+      spine={
+        <div className="flex flex-col items-center h-full w-full py-2.5" aria-label="Operational Navigation Spine">
+          {/* Brand Emblem */}
+          <div className="spine-brand">
+            <NavLink to="/" className="spine-brand-link" title="OilGuard Maritime Command Center">
+              <span className="spine-brand-glyph" aria-hidden="true">◈</span>
+              <span className="spine-brand-beacon" aria-hidden="true" />
             </NavLink>
-          ))}
+          </div>
+
+          {/* Route Action Group */}
+          <div className="spine-nav-group" role="menubar">
+            {NAV.map(({ to, label, icon: RailIcon, code }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === '/'}
+                title={label}
+                aria-label={label}
+                className={({ isActive }) => `spine-nav-item ${isActive ? 'spine-nav-item--active' : ''}`}
+              >
+                <RailIcon size={19} />
+                <span className="spine-tooltip" role="tooltip">
+                  <span className="tooltip-code">{code}</span>
+                  <span className="tooltip-label">{label}</span>
+                </span>
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="spine-spacer flex-1" />
+
+          {/* Spine Operational Telemetry Footer */}
+          <div className="spine-footer">
+            <UtcSpineClock />
+            <SpineHealthMonitor />
+          </div>
         </div>
-
-        <div className="spine-spacer" />
-
-        {/* Spine Operational Telemetry Footer */}
-        <div className="spine-footer">
-          <UtcSpineClock />
-          <SpineHealthMonitor />
-        </div>
-      </nav>
-
-      {/* 2. Main Workspace Body */}
-      <div className="app-workspace-body">
-        {!isCommandCenter ? (
+      }
+      operationalBar={
+        !isCommandCenter ? (
           <SecondaryPageHeader currentWorkspace={currentWorkspace} />
-        ) : null}
-
-        <main className={`app-main ${isCommandCenter ? 'app-main--theater' : 'app-main--subpage'}`}>
-          <Outlet />
-        </main>
-      </div>
-    </div>
+        ) : null
+      }
+    >
+      <Outlet />
+    </AppShell>
   )
 }

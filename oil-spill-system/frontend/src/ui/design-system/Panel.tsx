@@ -25,7 +25,7 @@ export function Panel({
     variant === 'deck'
       ? 'bg-deck'
       : variant === 'glass'
-      ? 'bg-trench/85 backdrop-blur-md'
+      ? 'bg-trench'
       : 'bg-trench'
 
   return (

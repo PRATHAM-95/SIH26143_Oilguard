@@ -29,7 +29,7 @@ export function AppShell({ spine, operationalBar, children, isTheater = true }: 
       {/* 2. Main Workspace Body */}
       <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden">
         {operationalBar ? (
-          <header className="h-10 shrink-0 border-b border-chartline bg-trench/90 px-3 flex items-center justify-between z-20">
+          <header className="h-10 shrink-0 border-b border-chartline bg-trench px-3 flex items-center justify-between z-20">
             {operationalBar}
           </header>
         ) : null}
@@ -37,7 +37,7 @@ export function AppShell({ spine, operationalBar, children, isTheater = true }: 
         <main
           className={clsx(
             'flex-1 min-h-0 relative overflow-hidden',
-            isTheater ? 'bg-abyss' : 'bg-trench/30 p-4 overflow-auto',
+            isTheater ? 'bg-abyss' : 'bg-abyss p-4 overflow-auto',
           )}
         >
           {children}
