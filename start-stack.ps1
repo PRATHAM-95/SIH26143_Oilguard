@@ -82,7 +82,7 @@ if ($useOnlineMongo) {
 $sciConn = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue
 if (-not $sciConn) {
     Write-Host "[2/4] Starting scientific service on http://127.0.0.1:8000 ..." -ForegroundColor Green
-    Start-Process -FilePath $VENV_PY -ArgumentList '-m','uvicorn','app.main:app','--host','127.0.0.1','--port','8000' -WorkingDirectory $SCI -WindowStyle Hidden
+    Start-Process -FilePath $VENV_PY -ArgumentList '-m','uvicorn','app.main:app','--host','127.0.0.1','--port','8000' -WorkingDirectory $SCI -WindowStyle Hidden -RedirectStandardOutput "$ROOT\sci.log" -RedirectStandardError "$ROOT\sci.err.log"
     if (Wait-Port 8000) { Write-Host "      sci UP on :8000" -ForegroundColor Green } else { Write-Host "      sci FAILED" -ForegroundColor Red }
 } else {
     Write-Host "[2/4] Scientific service already running on :8000" -ForegroundColor Green
@@ -92,7 +92,7 @@ if (-not $sciConn) {
 $be = Get-NetTCPConnection -LocalPort 8082 -State Listen -ErrorAction SilentlyContinue
 if (-not $be) {
     Write-Host "[3/4] Starting backend on http://127.0.0.1:8082 ..." -ForegroundColor Green
-    Start-Process -FilePath $JAVA -ArgumentList '-jar', $JAR -WorkingDirectory $BACK -WindowStyle Hidden
+    Start-Process -FilePath $JAVA -ArgumentList '-jar', $JAR -WorkingDirectory $BACK -WindowStyle Hidden -RedirectStandardOutput "$ROOT\backend.log" -RedirectStandardError "$ROOT\backend.err.log"
     if (Wait-Port 8082 70) { Write-Host "      backend UP on :8082" -ForegroundColor Green } else { Write-Host "      backend FAILED" -ForegroundColor Red }
 } else {
     Write-Host "[3/4] Backend already running on :8082" -ForegroundColor Green

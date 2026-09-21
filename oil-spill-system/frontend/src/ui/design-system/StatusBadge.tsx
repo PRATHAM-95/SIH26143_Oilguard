@@ -20,7 +20,7 @@ export interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> 
  * Operational execution status indicator (stage status, engine state).
  * Formatted cleanly with small text and an inline status dot per Master Brief §6.3 & §6.5.
  * Strictly avoids pill shapes (no container border, background fill, or rounded container)
- * and avoids monospace / uppercase typography for status words.
+ * and avoids monospace / typography for status words.
  */
 export function StatusBadge({
   tone = 'idle',
@@ -38,7 +38,7 @@ export function StatusBadge({
       )}
       {...props}
     >
-      <span className={clsx('w-1.5 h-1.5 rounded-full shrink-0', dotColor)} aria-hidden="true" />
+      <span className={clsx('w-1.5 h-1.5 rounded shrink-0', dotColor)} aria-hidden="true" />
       <span>{children}</span>
     </span>
   )

@@ -5,7 +5,7 @@ export interface PanelProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   title?: React.ReactNode
   subtitle?: React.ReactNode
   headerActions?: React.ReactNode
-  variant?: 'trench' | 'deck' | 'glass'
+  variant?: 'trench' | 'deck'
 }
 
 /**
@@ -24,8 +24,7 @@ export function Panel({
   const bgClass =
     variant === 'deck'
       ? 'bg-deck'
-      : variant === 'glass'
-      ? 'bg-trench'
+
       : 'bg-trench'
 
   return (

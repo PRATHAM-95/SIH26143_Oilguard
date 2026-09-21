@@ -1,19 +1,23 @@
 import { ReactNode, useEffect } from 'react'
 import { OperationalBar } from './OperationalBar'
 import { CommandPalette } from './CommandPalette'
-import { useShellStore } from './shellStore'
-
 export function WorkstationShell({
   children,
   leftPanel,
   rightPanel,
+  leftCollapsed,
+  rightCollapsed,
+  setLeftCollapsed,
+  setRightCollapsed
 }: {
   children: ReactNode
   leftPanel: ReactNode
   rightPanel: ReactNode
+  leftCollapsed: boolean
+  rightCollapsed: boolean
+  setLeftCollapsed: (v: boolean) => void
+  setRightCollapsed: (v: boolean) => void
 }) {
-  const { leftCollapsed, rightCollapsed, setLeftCollapsed, setRightCollapsed } = useShellStore()
-
   // Handle responsive layout based on window width
   useEffect(() => {
     const handleResize = () => {
@@ -40,7 +44,7 @@ export function WorkstationShell({
 
   return (
     <div 
-      className="flex flex-col w-screen h-screen overflow-hidden bg-[#020509] text-ink-1 font-sans workstation-theater"
+      className="flex flex-col w-screen h-screen overflow-hidden bg-[var(--bg-canvas)] text-ink-1 font-sans workstation-theater"
       style={{
         '--panel-left-width': `${leftWidth}px`,
         '--panel-right-width': `${rightWidth}px`,
@@ -53,20 +57,20 @@ export function WorkstationShell({
       <div className="flex flex-1 overflow-hidden relative">
         {/* Left Rail (Flightpath) */}
         <aside 
-          className="h-full border-r border-[#1a2636] bg-[#020509] transition-all duration-200 z-20 flex-shrink-0"
+          className="h-full border-r border-[var(--border-default)] bg-[var(--bg-canvas)] transition-all duration-200 z-20 flex-shrink-0"
           style={{ width: 'var(--panel-left-width)' }}
         >
           {leftPanel}
         </aside>
 
         {/* Center Workspace (Map) */}
-        <main className="flex-1 relative overflow-hidden bg-[#020509]">
+        <main className="flex-1 relative overflow-hidden bg-[var(--bg-canvas)]">
           {children}
         </main>
 
         {/* Right Panel (Contextual Console) */}
         <aside 
-          className={`h-full border-l border-[#1a2636] bg-[#020509] transition-all duration-200 z-20 flex-shrink-0 ${rightCollapsed ? 'contextual-console--collapsed' : ''}`}
+          className={`h-full border-l border-[var(--border-default)] bg-[var(--bg-canvas)] transition-all duration-200 z-20 flex-shrink-0 ${rightCollapsed ? 'contextual-console--collapsed' : ''}`}
           style={{ width: 'var(--panel-right-width)' }}
         >
           {rightPanel}

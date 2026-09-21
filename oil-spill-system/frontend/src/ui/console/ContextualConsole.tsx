@@ -8,17 +8,12 @@ import { AttributionCard } from './cards/AttributionCard'
 import { ConclusionCard } from './cards/ConclusionCard'
 import { SelectionInspectorCard } from './cards/SelectionInspectorCard'
 import { ChevronDownIcon, RadarIcon } from '@/components/ui/Icon'
-import { useShellStore } from '../shell/shellStore'
-
-export function ContextualConsole() {
+export function ContextualConsole({ rightCollapsed, setRightCollapsed }: { rightCollapsed: boolean, setRightCollapsed: (v: boolean) => void }) {
   const focusedStageId = useInvestigationStore((s) => s.focusedStageId)
   const setFocusedStageId = useInvestigationStore((s) => s.setFocusedStageId)
   const stages = useInvestigationStore((s) => s.stages)
   const status = useInvestigationStore((s) => s.status)
   const hasSelection = useMapStore((s) => s.selection != null)
-  
-  const { rightCollapsed, setRightCollapsed } = useShellStore()
-
   // Determine which stage card to display
   const currentRunning = stages.find((s) => s.status === 'running')?.stageId
   const completedStages = stages.filter((s) => s.status === 'completed').map((s) => s.stageId)
@@ -63,13 +58,13 @@ export function ContextualConsole() {
   return (
     <div className="flex flex-col h-full w-full">
       {/* Console Header */}
-      <div className="flex items-center justify-between p-4 border-b border-[#1a2636] bg-[#0a0f16]">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border-default)] bg-[var(--bg-surface)]">
         <div className="flex items-center space-x-2">
           <RadarIcon size={14} className="text-accent" />
           <div>
-            <h2 className="text-xs font-semibold text-ink-1 uppercase tracking-wider">Contextual Console</h2>
-            <p className="text-[10px] font-mono text-ink-3 uppercase mt-0.5">
-              {hasSelection ? 'Feature Inspect' : String(activeStageId).toUpperCase()}
+            <h2 className="text-xs font-semibold text-ink-1 tracking-wider">Contextual Console</h2>
+            <p className="text-[10px] font-mono text-ink-3 mt-0.5">
+              {hasSelection ? 'Feature Inspect' : String(activeStageId)}
             </p>
           </div>
         </div>
@@ -77,7 +72,7 @@ export function ContextualConsole() {
         <div className="flex items-center space-x-3">
           {focusedStageId && (
             <button
-              className="text-[10px] font-semibold text-ink-3 hover:text-ink-1 uppercase tracking-wider transition-colors"
+              className="text-[10px] font-semibold text-ink-3 hover:text-ink-1 tracking-wider transition-colors"
               onClick={() => setFocusedStageId(null)}
               title="Reset to live pipeline stage"
             >
@@ -95,7 +90,7 @@ export function ContextualConsole() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 bg-[#0a0f16]">
+      <div className="flex-1 overflow-y-auto p-4 bg-[var(--bg-surface)]">
         {hasSelection ? (
           <SelectionInspectorCard />
         ) : (

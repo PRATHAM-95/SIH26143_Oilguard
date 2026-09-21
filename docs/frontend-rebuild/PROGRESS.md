@@ -147,11 +147,37 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
      6. `/report`: `route_report_1440x900_1789935183975.png`
    - Verified MapLibre controls, zoom buttons, and attribution render cleanly without layer clipping or preflight regression.
 
-### Next Steps: Milestone M2b (Geospatial Theater Rebuild)
-- Rebuild `/` Command Center into an authentic map-first theater.
-- Build live Graticule frame displaying dynamic viewport lat/long coordinates.
-- Implement Command Spine with brand emblem, route shortcuts, UTC Zulu clock, and service health dots.
-- Implement Operational Bar with case reference, status indicators, and Ctrl+K Command Palette (`cmdk`).
-- Build interactive 8-stage Flightpath rail with stage state transitions.
-- Build collapsible Layer Drawer and Contextual Console.
+## Milestone M2b: Geospatial Theater Rebuild (COMPLETED)
+
+- **Completed On**: 2026-09-22
+- **Branch**: `frontend-rebuild` (Commits `756dd59` (CSS fix), `53b6d5b` (M2b implementation), plus pending close-out commit)
+- **Goal**: Rebuild the Command Center into an authentic map-first operational theater, eliminating old panels and mock data pipelines.
+
+### What Was Done
+1. **Command Center Rebuild**:
+   - Replaced legacy `/` view with a 1440x900 map-first layout.
+   - Built a dynamic `OperationalBar` with case reference, status indicators, and Cmd+K `CommandPalette` for route jumps (`/simulation`, `/investigation`, `/backtracking`, `/attribution`) and map layer toggles.
+   - Built the 8-stage `FlightpathRail` extracting strictly from `investigationStore`. Re-aligned stage subtitles to exact stage IDs (`forward_drift`, `ais_analysis`).
+   - Integrated `LayerDrawer` mapping directly to `MAP_LAYER_CATALOG`.
+   - Built the `ContextualConsole` combining terminal output and timeline analysis.
+2. **Honesty & Provenance Enforcement**:
+   - Eliminated automatic fabricated demo mock pipelines. Removed `runLiveChallenge('DEMO')` from `CommandCenterPage.tsx` cold-open logic.
+   - The map loads into a strictly honest "No data" state when idle.
+   - Updated provenance labels in `OperationalBar` (Data: "No data", "Simulated", "Controlled"). No badges/pills; explicit text dots.
+   - Enforced design system constraints: no all-caps, no pill shapes, no generic hex colors, no `!important` tags, no glassmorphism.
+3. **Playwright Map & Attribution Assertions**:
+   - Hardened `scripts/shots.pw.ts` to actively assert map attribution visibility. The test now executes `expect(covered).toBe(false)` using center-point coordinate evaluation, causing a hard CI failure if attribution is obscured.
+   - Passed three consecutive `npm run shots` runs over all 24 configurations (4 viewports x 6 routes) with 100% success rate.
+   - Screenshot artifacts saved in `docs/frontend-rebuild/screenshots/M2b/`.
+4. **Full-Stack Execution & End-to-End Reliability**:
+   - Executed `./start-stack.ps1 -Wait` seamlessly bridging scientific, backend, and frontend boundaries.
+   - Ran actual simulation and investigation lifecycle via `scripts/e2e_investigation.py`. Verified all stages (`detection` through `conclusion`) completed accurately within expected time bounds.
+   - Investigated `backend.log` and `sci.log` for anomalous 422, 500, or Exception triggers during E2E. Zero critical application faults observed (only benign config properties matched "500").
+
+### Known Deviations
+- `shellStore` was removed. The architecture leverages existing `layoutStore` and CSS variables, keeping the domain state exclusively to existing stores (`useInvestigationStore`, `useSimulationStore`).
+- The `framer-motion` dependency is not used; `motion/react` is strictly used per process constraints.
+
+### Milestone Status
+- **M2b is COMPLETE**. Ready to transition to Milestone M3 (Investigation & Backtracking Interfaces).
 

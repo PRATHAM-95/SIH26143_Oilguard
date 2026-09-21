@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { WorkstationShell } from '../shell/WorkstationShell'
 import { MaritimeMapTheater } from '../console/map/MaritimeMapTheater'
 import { FlightpathRail } from '../console/FlightpathRail'
@@ -9,7 +9,7 @@ import { useSimulationStore } from '@/store/simulationStore'
 import { useInvestigationStore } from '@/store/investigationStore'
 import { useSarStore } from '@/store/sarStore'
 import { useBacktrackingStore, useAttributionStore } from '@/store/featureStores'
-import { useChallengeStore, runLiveChallenge } from '../console/ChallengeRunner'
+import { useChallengeStore } from '../console/ChallengeRunner'
 
 export default function CommandCenterPage() {
   const simulationId = useSimulationStore((s) => s.simulationId)
@@ -17,6 +17,8 @@ export default function CommandCenterPage() {
   const loadForSimulation = useInvestigationStore((s) => s.loadForSimulation)
   const investigationId = useInvestigationStore((s) => s.investigationId)
   const booted = useRef(false)
+  const [leftCollapsed, setLeftCollapsed] = useState(false)
+  const [rightCollapsed, setRightCollapsed] = useState(false)
 
   // Real-time WebSocket connection sync
   useSimulationConnection(simulationId)
@@ -35,8 +37,6 @@ export default function CommandCenterPage() {
       void useBacktrackingStore.getState().loadRuns(simId)
       void useAttributionStore.getState().loadRuns(simId)
       void useAttributionStore.getState().loadProviders()
-    } else {
-      void runLiveChallenge('DEMO')
     }
   }, [refreshState, loadForSimulation])
 
@@ -50,8 +50,12 @@ export default function CommandCenterPage() {
 
   return (
     <WorkstationShell
-      leftPanel={<FlightpathRail />}
-      rightPanel={<ContextualConsole />}
+      leftPanel={<FlightpathRail leftCollapsed={leftCollapsed} />}
+      rightPanel={<ContextualConsole rightCollapsed={rightCollapsed} setRightCollapsed={setRightCollapsed} />}
+      leftCollapsed={leftCollapsed}
+      rightCollapsed={rightCollapsed}
+      setLeftCollapsed={setLeftCollapsed}
+      setRightCollapsed={setRightCollapsed}
     >
       <MaritimeMapTheater />
     </WorkstationShell>

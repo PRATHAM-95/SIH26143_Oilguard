@@ -60,7 +60,7 @@ function fromSarProvenance(provenance: SarProvenance | null): DataProvenanceKind
 
 function fromProvenanceString(value: string | null | undefined): DataProvenanceKind | null {
   if (!value) return null
-  const v = value.toUpperCase()
+  const v = value
   if (v.includes('REAL') || v.includes('LIVE') || v.includes('SENTINEL')) return 'live'
   if (v.includes('CONTROL') || v.includes('FIXTURE') || v.includes('DEMO')) return 'controlled'
   if (v.includes('SYNTH') || v.includes('SIMUL') || v.includes('MODEL')) return 'simulated'

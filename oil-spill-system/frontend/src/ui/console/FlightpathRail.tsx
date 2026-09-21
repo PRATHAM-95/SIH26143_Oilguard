@@ -5,16 +5,15 @@ import {
   STAGE_ORDER,
 } from '@/store/investigationStore'
 import { useSimulationStore } from '@/store/simulationStore'
-import { useShellStore } from '../shell/shellStore'
 import type { InvestigationStageStatus } from '@/types/domain'
 
 const STAGE_SUBTITLES: Record<string, string> = {
   detection: 'SAR radar backscatter scan',
   characterization: 'Spill volume & classification',
   environment: 'Wind & currents interpolation',
-  drift: 'Forward particle dispersion',
+  forward_drift: 'Forward particle dispersion',
   backtracking: 'Lagrangian reverse solver',
-  candidates: 'AIS spatial-temporal filter',
+  ais_analysis: 'AIS spatial-temporal filter',
   attribution: 'Vessel suspect ranking',
   conclusion: 'Forensic incident verdict',
 }
@@ -24,19 +23,18 @@ function stageGlyph(status: InvestigationStageStatus) {
     case 'completed':
       return <svg className="w-4 h-4 text-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
     case 'running':
-      return <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
+      return <div className="w-2.5 h-2.5 rounded bg-accent animate-pulse" />
     case 'failed':
       return <svg className="w-4 h-4 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     case 'skipped':
     case 'unavailable':
-      return <div className="w-2.5 h-2.5 rounded-full bg-ink-muted" />
+      return <div className="w-2.5 h-2.5 rounded bg-ink-muted" />
     default:
-      return <div className="w-2 h-2 rounded-full bg-ink-faint" />
+      return <div className="w-2 h-2 rounded bg-ink-faint" />
   }
 }
 
-export function FlightpathRail() {
-  const { leftCollapsed } = useShellStore()
+export function FlightpathRail({ leftCollapsed }: { leftCollapsed: boolean }) {
   const stages = useInvestigationStore((s) => s.stages)
   const focusedStageId = useInvestigationStore((s) => s.focusedStageId)
   const setFocusedStageId = useInvestigationStore((s) => s.setFocusedStageId)
@@ -45,16 +43,16 @@ export function FlightpathRail() {
   const incidentId = useSimulationStore((s) => s.spill?.incidentId ?? null)
 
   return (
-    <nav className="h-full flex flex-col bg-[#020509]">
-      <div className={`p-4 border-b border-[#1a2636] flex items-center ${leftCollapsed ? 'justify-center' : ''}`}>
+    <nav className="h-full flex flex-col bg-[var(--bg-canvas)]">
+      <div className={`p-4 border-b border-[var(--border-default)] flex items-center ${leftCollapsed ? 'justify-center' : ''}`}>
         {!leftCollapsed && (
           <div>
-            <h2 className="text-xs font-semibold text-ink-1 uppercase tracking-wider">Flightpath</h2>
-            <p className="text-[10px] font-mono text-ink-3 uppercase mt-0.5">8-Stage Sequence</p>
+            <h2 className="text-xs font-semibold text-ink-1 tracking-wider">Flightpath</h2>
+            <p className="text-[10px] font-mono text-ink-3 mt-0.5">8-Stage Sequence</p>
           </div>
         )}
         {leftCollapsed && (
-          <div className="w-6 h-6 rounded flex items-center justify-center bg-[#1a2636]/50">
+          <div className="w-6 h-6 rounded flex items-center justify-center bg-[var(--border-default)]/50">
             <svg className="w-4 h-4 text-ink-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
           </div>
         )}
@@ -81,13 +79,13 @@ export function FlightpathRail() {
               {isFocused && (
                 <motion.div
                   layoutId="active-stage-indicator"
-                  className="absolute inset-0 bg-[#1a2636]/50 rounded border border-[#1a2636]"
+                  className="absolute inset-0 bg-[var(--border-default)]/50 rounded border border-[var(--border-default)]"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                 />
               )}
               
               <div className="relative z-10 flex items-center w-full">
-                <div className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded ${leftCollapsed && !isFocused ? 'hover:bg-[#1a2636]/30' : ''}`}>
+                <div className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded ${leftCollapsed && !isFocused ? 'hover:bg-[var(--border-default)]/30' : ''}`}>
                   {stageGlyph(stat)}
                 </div>
                 
@@ -110,9 +108,9 @@ export function FlightpathRail() {
       </div>
 
       {!leftCollapsed && incidentId && (
-        <div className="p-4 border-t border-[#1a2636]">
+        <div className="p-4 border-t border-[var(--border-default)]">
            <button 
-             className="w-full py-2 bg-[#1a2636] hover:bg-[#1a2636]/80 text-ink-1 text-xs font-semibold rounded uppercase tracking-wider transition-colors"
+             className="w-full py-2 bg-[var(--border-default)] hover:bg-[var(--border-default)]/80 text-ink-1 text-xs font-semibold rounded tracking-wider transition-colors"
              onClick={() => start(incidentId)}
            >
              Launch Pipeline

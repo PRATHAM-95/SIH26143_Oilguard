@@ -35,7 +35,7 @@ export function ProvenanceLabel({
       {...props}
     >
       <span
-        className={clsx('w-1.5 h-1.5 rounded-full shrink-0', config.dotColor)}
+        className={clsx('w-1.5 h-1.5 rounded shrink-0', config.dotColor)}
         aria-hidden="true"
       />
       <span>{label}</span>

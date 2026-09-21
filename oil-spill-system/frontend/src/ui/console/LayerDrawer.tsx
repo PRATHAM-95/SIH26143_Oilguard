@@ -15,7 +15,7 @@ export function LayerDrawer() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="absolute bottom-4 left-4 z-30 bg-[#0a0f16] border border-[#1a2636] rounded p-2 text-ink-3 hover:text-ink-1 hover:border-ink-3 transition-colors shadow-lg"
+        className="absolute bottom-4 left-4 z-30 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded p-2 text-ink-3 hover:text-ink-1 hover:border-ink-3 transition-colors shadow-lg"
         title="Map Layers"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -28,8 +28,8 @@ export function LayerDrawer() {
   }
 
   return (
-    <div className="absolute bottom-4 left-4 z-30 w-80 bg-[#0a0f16] border border-[#1a2636] rounded shadow-2xl flex flex-col max-h-[70vh]">
-      <div className="flex items-center justify-between p-3 border-b border-[#1a2636] bg-[#020509]">
+    <div className="absolute bottom-4 left-4 z-30 w-80 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded shadow-2xl flex flex-col max-h-[70vh]">
+      <div className="flex items-center justify-between p-3 border-b border-[var(--border-default)] bg-[var(--bg-canvas)]">
         <h3 className="font-semibold text-sm">Map Layers</h3>
         <button
           onClick={() => setOpen(false)}
@@ -52,7 +52,7 @@ export function LayerDrawer() {
 
           return (
             <div key={group} className="mb-4 last:mb-0">
-              <h4 className="text-xs font-semibold text-ink-3 uppercase tracking-wider px-2 mb-1">
+              <h4 className="text-xs font-semibold text-ink-3 tracking-wider px-2 mb-1">
                 {LAYER_GROUP_LABEL[group]}
               </h4>
               <div className="space-y-1">
@@ -63,13 +63,13 @@ export function LayerDrawer() {
                   return (
                     <div 
                       key={id}
-                      className="group flex flex-col px-2 py-1.5 rounded hover:bg-[#1a2636] transition-colors cursor-pointer"
+                      className="group flex flex-col px-2 py-1.5 rounded hover:bg-[var(--border-default)] transition-colors cursor-pointer"
                       onClick={() => toggleLayer(id)}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <div 
-                            className="w-3 h-3 rounded-full border border-current"
+                            className="w-3 h-3 rounded border border-current"
                             style={{ 
                               backgroundColor: isVisible ? (meta.color || 'white') : 'transparent',
                               borderColor: meta.color || 'white'
@@ -83,7 +83,7 @@ export function LayerDrawer() {
                           type="checkbox"
                           checked={isVisible}
                           readOnly
-                          className="pointer-events-none accent-[#38bdf8]"
+                          className="pointer-events-none accent-[var(--accent)]"
                         />
                       </div>
                       

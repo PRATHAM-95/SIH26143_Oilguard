@@ -48,7 +48,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? (
-          <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+          <span className="w-3 h-3 border-2 border-current border-t-transparent rounded animate-spin mr-1" />
         ) : null}
         {children}
       </button>

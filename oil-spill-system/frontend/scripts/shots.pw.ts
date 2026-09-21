@@ -64,8 +64,11 @@ for (const vp of VIEWPORTS) {
         const page = await context.newPage()
         const consoleErrors = collectErrors(page)
 
-        await page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle', timeout: 30_000 })
-        // Give React one extra tick to paint
+        await page.goto(`${BASE_URL}${route}`, { waitUntil: 'domcontentloaded', timeout: 30_000 })
+        if (route !== '/report') {
+          await page.waitForSelector('.maplibregl-canvas', { state: 'attached', timeout: 30_000 })
+          await page.waitForSelector('.maplibregl-ctrl-attrib', { state: 'attached', timeout: 30_000 })
+        }
         await page.waitForTimeout(600)
 
         // Capture screenshot
@@ -128,11 +131,10 @@ for (const vp of VIEWPORTS) {
             `[${vp.label}] ${route}: attribution text is clipped`,
           ).toBe(false)
 
-          // "covered" is informational — log but don't hard-fail
-          // (overlapping the attribution with the HUD on mobile is a known trade-off)
-          if (attrResult.covered) {
-            console.warn(`[${vp.label}] ${route}: attribution element is covered by another element`)
-          }
+          expect(
+            attrResult.covered,
+            `[${vp.label}] ${route}: attribution element is covered by another element`,
+          ).toBe(false)
         }
 
         await context.close()
