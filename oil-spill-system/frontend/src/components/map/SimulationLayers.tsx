@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
-import { LineLayer, PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'
+import { LineLayer, PolygonLayer, ScatterplotLayer, IconLayer } from '@deck.gl/layers'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
 import { useSimulationStore } from '@/store/simulationStore'
 import { useMapStore } from '@/store/mapStore'
 import { VSCO } from '@/styles/vsco'
-import { headingTickLayer, labelLayer, trailSegments } from '@/components/map/overlays'
+import { labelLayer, trailSegments } from '@/components/map/overlays'
+import { SHIP_ICON_URL, getVesselColor, computeHeadingVector } from '@/components/map/vesselSilhouette'
 
 /**
  * Captain-mode simulation layers: live vessels, recorded vessel tracks,
@@ -20,6 +21,8 @@ export function useSimulationLayers(): NonNullable<MapboxOverlayProps['layers']>
   const trails = useSimulationStore((s) => s.trails)
   const spill = useSimulationStore((s) => s.spill)
   const drift = useSimulationStore((s) => s.drift)
+  const selectedVesselId = useSimulationStore((s) => s.selectedVesselId)
+  const mapSelection = useMapStore((s) => s.selection)
   const showVessels = useMapStore((s) => s.visibility.vessels)
   const showTrails = useMapStore((s) => s.visibility.vesselTrails)
   const showSlick = useMapStore((s) => s.visibility.slick)
@@ -52,29 +55,71 @@ export function useSimulationLayers(): NonNullable<MapboxOverlayProps['layers']>
     }
 
     if (showVessels) {
+      const vesselIconData = vessels.map((v) => {
+        const isSel =
+          (mapSelection?.kind === 'vessel' &&
+            (mapSelection.id === v.id || mapSelection.mmsi === v.mmsi)) ||
+          selectedVesselId === v.id
+        const isTgt = spill?.vesselId === v.id
+        return {
+          coordinates: [v.position.lon, v.position.lat] as [number, number],
+          heading: v.heading,
+          color: getVesselColor(v, isSel, isTgt),
+          pick: { kind: 'vessel', id: v.id, mmsi: v.mmsi, name: v.name },
+          size: isSel ? 32 : 24,
+        }
+      })
+
+      const headingVectorData = vessels.map((v) => {
+        const isSel =
+          (mapSelection?.kind === 'vessel' &&
+            (mapSelection.id === v.id || mapSelection.mmsi === v.mmsi)) ||
+          selectedVesselId === v.id
+        const isTgt = spill?.vesselId === v.id
+        const sog =
+          typeof v.speed === 'number' && Number.isFinite(v.speed) ? v.speed : null
+        const end = computeHeadingVector(v.position.lon, v.position.lat, v.heading, sog)
+        const color = getVesselColor(v, isSel, isTgt)
+        return {
+          path: [[v.position.lon, v.position.lat], end] as [[number, number], [number, number]],
+          color: [color[0], color[1], color[2], isSel ? 255 : 180] as [
+            number,
+            number,
+            number,
+            number,
+          ],
+        }
+      })
+
       layers.push(
-        new ScatterplotLayer({
+        new LineLayer({
+          id: 'simulation-vessel-headings',
+          data: headingVectorData,
+          getPath: (d: { path: [[number, number], [number, number]] }) => d.path,
+          getColor: (d: { color: [number, number, number, number] }) => d.color,
+          getWidth: 2,
+          widthMinPixels: 1.5,
+          widthMaxPixels: 3.5,
+          pickable: false,
+        }),
+        new IconLayer({
           id: 'simulation-vessels',
-          data: vessels.map((v) => ({
-            coordinates: [v.position.lon, v.position.lat],
-            pick: { kind: 'vessel', id: v.id, mmsi: v.mmsi, name: v.name },
-          })),
+          data: vesselIconData,
           getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
-          getRadius: 900,
-          radiusMinPixels: 6,
-          radiusMaxPixels: 10,
-          getFillColor: VSCO.evidence.vessel as [number, number, number],
+          getIcon: () => ({
+            url: SHIP_ICON_URL,
+            width: 32,
+            height: 64,
+            mask: true,
+          }),
+          getSize: (d: { size: number }) => d.size,
+          sizeUnits: 'pixels',
+          sizeMinPixels: 18,
+          sizeMaxPixels: 42,
+          getAngle: (d: { heading: number }) => (360 - d.heading) % 360,
+          getColor: (d: { color: [number, number, number, number] }) => d.color,
           pickable: true,
         }),
-        headingTickLayer(
-          'simulation-vessel-headings',
-          vessels.map((v) => ({
-            coordinates: [v.position.lon, v.position.lat] as [number, number],
-            heading: v.heading,
-          })),
-          0.045,
-          VSCO.evidence.vessel as [number, number, number],
-        ),
         labelLayer(
           'simulation-vessel-labels',
           vessels.map((v) => ({
@@ -158,5 +203,5 @@ export function useSimulationLayers(): NonNullable<MapboxOverlayProps['layers']>
     }
 
     return layers
-  }, [vessels, trails, spill, drift, showVessels, showTrails, showSlick, showDrift])
+  }, [vessels, trails, spill, drift, showVessels, showTrails, showSlick, showDrift, selectedVesselId, mapSelection])
 }

@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
-import { LineLayer, PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'
+import { LineLayer, PolygonLayer, ScatterplotLayer, IconLayer } from '@deck.gl/layers'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
 import { useAttributionStore } from '@/store/featureStores'
 import { useMapStore } from '@/store/mapStore'
 import { VSCO } from '@/styles/vsco'
 import { labelLayer } from '@/components/map/overlays'
+import { SHIP_ICON_URL } from '@/components/map/vesselSilhouette'
 
 const KM_DEG_LAT = 111.32
 
@@ -81,19 +82,27 @@ export function useAttributionLayers(): NonNullable<MapboxOverlayProps['layers']
           widthMaxPixels: 1.6,
           pickable: false,
         }),
-        new ScatterplotLayer({
+        new IconLayer({
           id: `att-vessel-${v.rank}`,
           data: [
             {
-              coordinates: [pos.lon, pos.lat],
+              coordinates: [pos.lon, pos.lat] as [number, number],
               pick: { kind: 'ais_candidate', rank: v.rank, mmsi: v.mmsi, name: v.name },
             },
           ],
           getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
-          getRadius: 1200,
-          radiusMinPixels: 5 + Math.max(0, 4 - v.rank),
-          radiusMaxPixels: 10,
-          getFillColor: color,
+          getIcon: () => ({
+            url: SHIP_ICON_URL,
+            width: 32,
+            height: 64,
+            mask: true,
+          }),
+          getSize: 28,
+          sizeUnits: 'pixels',
+          sizeMinPixels: 20,
+          sizeMaxPixels: 38,
+          getAngle: 0,
+          getColor: color,
           pickable: true,
         }),
         labelLayer(

@@ -247,5 +247,100 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
 - Dedicated full-page Backtracking ensemble inspector and Attribution 3D vessel ranking workspaces will be rebuilt in Milestone M4 per `PLAN.md`.
 
 ### Milestone Status
-- **M3 is COMPLETE**. Ready to transition to Milestone M4 (Backtracking & Attribution Pages).
+- **M3 is COMPLETE**. Closed at commit `e766f72`.
+
+---
+
+## Milestone M4: Backtracking & Attribution Interfaces (Rebuilt)
+
+### Objective
+Rebuild `/backtracking` and `/attribution` from legacy implementations into the new `src/ui/` presentation architecture (`src/ui/pages/BacktrackingPage.tsx`, `src/ui/pages/AttributionPage.tsx`), improve native Deck.gl vessel map visualization with ship silhouettes, genuine SOG direction vectors, and restrained selection rings, verify in real browser, capture Playwright and E2E evidence, and retire legacy pages.
+
+### Work Completed
+
+1. **Backtracking Workspace (`src/ui/pages/BacktrackingPage.tsx`)**:
+   - Built around the existing `useBacktrackingStore` without altering solver logic or state contracts.
+   - **`BacktrackingControlRail.tsx`**:
+     - Status indicator (`idle`, `running`, `completed`, `failed`).
+     - Real solver controls: "Run backtracking" with advection pulse, "Clear estimate".
+     - Observed slick anchor coordinates and reference timestamp.
+     - Reverse timeline scrubber steps (`T-0`, `-2h`, `-4h`, `-6h`).
+     - Ensemble parameter summary (members, particles/member, forcing dataset).
+     - Responsive mini-rail for collapsed states.
+   - **`BacktrackingConsole.tsx`**:
+     - Estimated origin coordinates formatted in monospace (`lat.toFixed(4)}°, ${lon.toFixed(4)}°`).
+     - Uncertainty spread (`±X.X km`, 2σ confidence interval).
+     - Multi-dimensional confidence: source concentration, environmental quality, trajectory agreement %, ensemble stability.
+     - Source time window (earliest, preferred, latest UTC).
+     - Ensemble convergence and quality metrics (invalid particles, land hits, domain exits).
+     - Forensic evidence basis explaining mathematical confidence contours.
+     - Provenance card with explicit forcing dataset disclosures.
+     - Honest uncalculated/awaiting states when unrun.
+
+2. **Attribution Workspace (`src/ui/pages/AttributionPage.tsx`)**:
+   - Built around the existing `useAttributionStore` without altering scoring or ranking logic.
+   - **`AttributionControlRail.tsx`**:
+     - Status indicator (`idle`, `running`, `completed`, `failed`).
+     - Real controls: "Run AIS attribution", "Clear result".
+     - Forensic pipeline progress indicators (AIS corridor query, spatial-temporal filter, five-factor scoring).
+     - Vessel class filter buttons (`ALL`, `TANKER`, `CARGO`, `OTHER`).
+     - Candidate sort selector (`Rank`, `Score`, `Distance`).
+     - Spatial-temporal search parameters (corridor radius, anchor origin).
+   - **`AttributionConsole.tsx`**:
+     - Attribution conclusion banner ("Primary Candidate Identified" or "Attribution Inconclusive" with decisive margin and confidence warnings).
+     - Ranked candidate vessels table: rank, vessel name, MMSI, score, closest distance, AIS reliability indicator.
+     - Interactive candidate selection with bidirectional synchronization to map marker and inspector.
+     - Attribution Inspector (selected vessel evidence):
+       - Vessel identity (Name, MMSI, Vessel Class).
+       - Closest approach telemetry (minimum distance km, time of approach, position coordinates).
+       - Five-factor normalized evidence breakdown with visual progress bars and notes: spatial match, temporal match, trajectory consistency, behavior anomaly signals (speed jumps, AIS gaps), environmental drift agreement.
+       - AIS signal quality assessment: reliability rating, message count, median cadence, reconstructed track %, coverage gaps, notes.
+       - Scientific provenance disclosures.
+     - Honest empty states when unrun or when filtering yields no candidates.
+
+3. **Vessel Map Visualization Improvements**:
+   - Enhanced existing native Deck.gl layer architecture without introducing parallel layers or HTML markers:
+     - `src/components/map/vesselSilhouette.ts`: top-down SVG vessel silhouette (`SHIP_ICON_URL`) with hydrodynamic pointed bow, bridge superstructure, and transom stern.
+     - Upgraded `src/components/map/SimulationLayers.tsx` to use `@deck.gl/layers` `IconLayer` for live AIS vessels: recognizable ship silhouette at normal zoom levels (`sizeUnits: 'pixels'`).
+     - Direction vectors rendered with `LineLayer` aligned with true vessel heading, with length proportional to genuine SOG (knots) when available; never invented.
+     - Upgraded candidate vessel markers in `src/components/attribution/AttributionMap.tsx` and `src/components/map/InvestigationMap.tsx` to ship silhouettes tinted by rank/domain colors.
+     - Restrained selection ring in `src/components/workspace/selection.tsx` updated to support `ais_candidate`, `origin`, and `source_region` from feature stores.
+     - Vessel styling driven by domain state tokens: Tankers (amber), Cargo/Container (sonar cyan), Fishing (emerald), Spill target vessel (coral red), Selected vessel (bright white).
+
+4. **Unified Theater Integration & Legacy Retirement**:
+   - `MaritimeMapTheater.tsx`: unified layer composition including `useBacktrackingLayers()` and `useAttributionLayers()`, controlled by map layer catalog visibility.
+   - Routes wired in `src/App.tsx` pointing to new `src/ui/pages/BacktrackingPage` and `src/ui/pages/AttributionPage`.
+   - Legacy `src/pages/Backtracking.tsx` and `src/pages/Attribution.tsx` safely retired with `git rm`.
+
+5. **Real Browser Validation**:
+   - Verified `/backtracking` and `/attribution` in real browser via browser agent:
+     - Verified initial honest state ("Awaiting backtracking run", "Awaiting attribution run").
+     - Executed simulation and triggered backtracking solver; verified advection state, origin coordinates, and uncertainty radius.
+     - Executed attribution; verified candidate filtering (`TANKER`/`CARGO`), candidate selection, inspector breakdown, and map selection sync.
+
+6. **Playwright Multi-Viewport Verification**:
+   - Executed `npm run shots` across all 4 viewports (1920x1080, 1440x900, 1280x800, 768x1024) across all 6 routes.
+   - 24/24 configurations passed cleanly with zero horizontal overflow, zero console errors, and readable map attributions.
+   - Captured M4 evidence screenshots in `docs/frontend-rebuild/screenshots/M4/backtracking/` and `docs/frontend-rebuild/screenshots/M4/attribution/`.
+
+7. **Full-Stack Execution & End-to-End Reliability**:
+   - Ran `python scripts/e2e_investigation.py` against running live stack (MongoDB: 27017, Scientific: 8000, Backend: 8082, Frontend: 3000).
+   - All 8 investigation stages completed (`detection`, `characterization`, `environment`, `forward_drift`, `backtracking`, `ais`, `attribution`, `conclusion`).
+   - Real transcript captured in `docs/frontend-rebuild/screenshots/M4/e2e-transcript.txt`.
+
+8. **Protected Contracts Verification**:
+   - Verified zero modifications to `backend/`, `scientific-service/`, `frontend/src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`, or existing solver/scoring business logic.
+
+9. **Build & Quality Gates**:
+   - `docs/frontend-rebuild/screenshots/M4/verification.txt` records terminal execution:
+     - `npx tsc --noEmit`: 0 errors (exit code 0).
+     - `npm run lint`: 0 errors (exit code 0).
+     - `npm run test`: 4 tests passed (exit code 0).
+     - `npm run build`: built in 8.49s (exit code 0).
+     - `npm run shots`: 24 passed in 1.1m (exit code 0).
+     - `python scripts/e2e_investigation.py`: exit code 0.
+
+### Milestone Status
+- **M4 is COMPLETE**. Rebuilt `/backtracking` and `/attribution` interfaces are verified, honest, and operational. Ready for Milestone M5 (Report Rebuild & Export).
+
 

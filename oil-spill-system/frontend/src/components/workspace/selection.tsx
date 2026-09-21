@@ -9,6 +9,7 @@ import {
 import { useSimulationStore } from '@/store/simulationStore'
 import { useSarStore } from '@/store/sarStore'
 import { useInvestigationStore } from '@/store/investigationStore'
+import { useBacktrackingStore, useAttributionStore } from '@/store/featureStores'
 import {
   stageOrigin,
   stageSourceRegionRing,
@@ -68,6 +69,10 @@ export function useSelectionFocus(): SelectionFocus {
   const vessels = useSimulationStore((s) => s.vessels)
   const sarCandidates = useSarStore((s) => s.candidates)
   const stages = useInvestigationStore((s) => s.stages)
+  const btOrigin = useBacktrackingStore((s) => s.origin)
+  const btRegion = useBacktrackingStore((s) => s.sourceRegion)
+  const attOrigin = useAttributionStore((s) => s.origin)
+  const attVessels = useAttributionStore((s) => s.vessels)
 
   return useMemo<SelectionFocus>(() => {
     if (!selection) return { selection: null, kind: null, coords: null, label: null, color: DEFAULT_COLOR }
@@ -103,7 +108,7 @@ export function useSelectionFocus(): SelectionFocus {
         }
       }
       case 'source_region': {
-        const region = stageSourceRegionRing(stages)
+        const region = stageSourceRegionRing(stages) ?? btRegion
         return {
           selection,
           kind: selection.kind,
@@ -113,7 +118,7 @@ export function useSelectionFocus(): SelectionFocus {
         }
       }
       case 'origin': {
-        const origin = stageOrigin(stages)
+        const origin = stageOrigin(stages) ?? btOrigin ?? attOrigin
         return {
           selection,
           kind: selection.kind,
@@ -123,8 +128,27 @@ export function useSelectionFocus(): SelectionFocus {
         }
       }
       case 'ais_candidate': {
-        const candidate =
-          stageRankedVessels(stages).find((v) => v.rank === (selection.rank ?? -1)) ?? null
+        const fromStages = stageRankedVessels(stages).find(
+          (v) => v.rank === (selection.rank ?? -1) || (selection.mmsi && v.mmsi === selection.mmsi),
+        )
+        const fromAtt = attVessels.find(
+          (v) => v.rank === (selection.rank ?? -1) || (selection.mmsi && v.mmsi === selection.mmsi),
+        )
+        const candidate: PositionedCandidate | null =
+          fromStages ??
+          (fromAtt
+            ? {
+                rank: fromAtt.rank,
+                mmsi: fromAtt.mmsi,
+                name: fromAtt.name,
+                score: fromAtt.score,
+                minDistanceKm: fromAtt.minDistanceKm,
+                timeOfClosestApproach: fromAtt.timeOfClosestApproach,
+                closestPosition: fromAtt.closestPosition,
+                factors: fromAtt.factors,
+              }
+            : null)
+
         return {
           selection,
           kind: selection.kind,
@@ -139,7 +163,7 @@ export function useSelectionFocus(): SelectionFocus {
       default:
         return { selection, kind: selection.kind, coords: null, label: null, color: DEFAULT_COLOR }
     }
-  }, [selection, spill, vessels, sarCandidates, stages])
+  }, [selection, spill, vessels, sarCandidates, stages, btOrigin, btRegion, attOrigin, attVessels])
 }
 
 /**

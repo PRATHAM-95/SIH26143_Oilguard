@@ -9,17 +9,21 @@ import { LayerDrawer } from '../LayerDrawer'
 import { useSimulationLayers } from '@/components/map/SimulationLayers'
 import { useSarLayers } from '@/components/investigation/SarObservation'
 import { useInvestigationMapLayers } from '@/components/map/InvestigationMap'
+import { useBacktrackingLayers } from '@/components/backtracking/BacktrackingMap'
+import { useAttributionLayers } from '@/components/attribution/AttributionMap'
 import { useSelectionRingLayers } from '@/components/workspace/selection'
 
 export function MaritimeMapTheater() {
   const simLayers = useSimulationLayers()
   const sarLayers = useSarLayers()
   const invLayers = useInvestigationMapLayers()
+  const btLayers = useBacktrackingLayers()
+  const attLayers = useAttributionLayers()
   const ringLayers = useSelectionRingLayers()
 
   const layers = useMemo(
-    () => [...simLayers, ...sarLayers, ...invLayers, ...ringLayers],
-    [simLayers, sarLayers, invLayers, ringLayers]
+    () => [...simLayers, ...sarLayers, ...invLayers, ...btLayers, ...attLayers, ...ringLayers],
+    [simLayers, sarLayers, invLayers, btLayers, attLayers, ringLayers]
   )
 
   return (

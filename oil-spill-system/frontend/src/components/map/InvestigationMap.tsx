@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { LineLayer, PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'
+import { LineLayer, PolygonLayer, ScatterplotLayer, IconLayer } from '@deck.gl/layers'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
 import { useInvestigationStore } from '@/store/investigationStore'
 import { useMapStore } from '@/store/mapStore'
@@ -7,6 +7,7 @@ import type { InvestigationStageState } from '@/types/domain'
 import { rankColor } from '@/components/attribution/AttributionMap'
 import { VSCO } from '@/styles/vsco'
 import { labelLayer } from '@/components/map/overlays'
+import { SHIP_ICON_URL } from '@/components/map/vesselSilhouette'
 
 /**
  * Geometry derived from the persistent investigation (STEP 11) state.
@@ -199,7 +200,7 @@ export function useInvestigationMapLayers(): NonNullable<MapboxOverlayProps['lay
             widthMaxPixels: 1.6,
             pickable: false,
           }),
-          new ScatterplotLayer({
+          new IconLayer({
             id: `inv-att-vessel-${v.rank}`,
             data: [
               {
@@ -208,10 +209,18 @@ export function useInvestigationMapLayers(): NonNullable<MapboxOverlayProps['lay
               },
             ],
             getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
-            getRadius: 1200,
-            radiusMinPixels: 5 + Math.max(0, 4 - v.rank),
-            radiusMaxPixels: 10,
-            getFillColor: color,
+            getIcon: () => ({
+              url: SHIP_ICON_URL,
+              width: 32,
+              height: 64,
+              mask: true,
+            }),
+            getSize: 28,
+            sizeUnits: 'pixels',
+            sizeMinPixels: 20,
+            sizeMaxPixels: 38,
+            getAngle: 0,
+            getColor: color,
             pickable: true,
           }),
           labelLayer(

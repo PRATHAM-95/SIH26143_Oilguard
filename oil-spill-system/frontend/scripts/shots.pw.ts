@@ -96,6 +96,17 @@ for (const vp of VIEWPORTS) {
         const shotPath = path.join(SHOT_DIR, vp.label, `${routeSlug(route)}.png`)
         await page.screenshot({ path: shotPath, fullPage: false })
 
+        if (route === '/backtracking') {
+          const m4Dir = path.resolve(__dirname, '../../../docs/frontend-rebuild/screenshots/M4/backtracking')
+          fs.mkdirSync(m4Dir, { recursive: true })
+          await page.screenshot({ path: path.join(m4Dir, `${vp.label}.png`), fullPage: false })
+        }
+        if (route === '/attribution') {
+          const m4Dir = path.resolve(__dirname, '../../../docs/frontend-rebuild/screenshots/M4/attribution')
+          fs.mkdirSync(m4Dir, { recursive: true })
+          await page.screenshot({ path: path.join(m4Dir, `${vp.label}.png`), fullPage: false })
+        }
+
         // ── Assertion 1: No horizontal overflow ──────────────────────────────
         const overflow = await page.evaluate(() => {
           return document.body.scrollWidth > document.body.clientWidth + 2
