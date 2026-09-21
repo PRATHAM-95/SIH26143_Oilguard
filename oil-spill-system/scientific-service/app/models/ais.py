@@ -17,7 +17,7 @@ class AisMessageOut(BaseModel):
     speedKnots: float
     courseDeg: float
     headingDeg: float
-    interpolated: bool
+    interpolated: bool = False
 
 
 class AisTrackOut(BaseModel):
@@ -30,8 +30,8 @@ class AisTrackOut(BaseModel):
     draftM: Optional[float] = None
     messages: List[AisMessageOut] = []
     sourceState: str = "CONTROLLED"
-    provider: str
-    dataset: str
+    provider: Optional[str] = None
+    dataset: Optional[str] = None
 
 
 class AnomalyOut(BaseModel):
@@ -46,7 +46,7 @@ class AisCandidateOut(BaseModel):
     name: str
     vesselType: str
     imo: Optional[str] = None
-    track: AisTrackOut
+    track: Optional[AisTrackOut] = None
     messagesInWindow: int
     medianCadenceMin: float
     interpolationFraction: float
@@ -70,6 +70,7 @@ class AisQueryRequest(BaseModel):
 
 
 class AisQueryResponse(BaseModel):
+    status: str = "success"
     sourceState: str
     provider: str
     dataset: str
@@ -98,6 +99,7 @@ class AisFilterRequest(BaseModel):
 
 
 class AisFilterResponse(BaseModel):
+    status: str = "success"
     kept: int
     dropped: int
     stats: Dict[str, Any]

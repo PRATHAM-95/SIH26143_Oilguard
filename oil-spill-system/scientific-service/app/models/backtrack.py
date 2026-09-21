@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -13,12 +13,13 @@ from .forward_drift import CurrentForcing, GeoPoint, WindForcing
 class SourceTimeRange(BaseModel):
     earliest: datetime
     latest: datetime
-    nominal: datetime
+    preferred: Optional[datetime] = None
+    nominal: Optional[datetime] = None
     uncertainty_minutes: float = 0.0
 
 
 class ConfidenceMetrics(BaseModel):
-    source_concentration: float = 0.0
+    source_concentration: Union[str, float] = "LOW"
     environmental_quality: str = "LOW"
     trajectory_agreement: float = 0.0
     ensemble_stability: float = 0.0
