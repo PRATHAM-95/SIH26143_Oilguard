@@ -52,7 +52,7 @@ export function DetectionCard() {
             <span className="ctx-label">CANDIDATE SLICKS</span>
             <span className="ctx-val ctx-val--highlight">
               {sar.candidates.length > 0
-                ? `${sar.candidates.length} features detected (${sar.slickAreaKm2 != null ? sar.slickAreaKm2.toFixed(1) : '0.0'} km²)`
+                ? `${sar.candidates.length} features detected${sar.slickAreaKm2 != null ? ` (${sar.slickAreaKm2.toFixed(1)} km²)` : ''}`
                 : 'Provenance: none'}
             </span>
           </div>

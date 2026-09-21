@@ -70,6 +70,25 @@ for (const vp of VIEWPORTS) {
         if (route !== '/report') {
           await page.waitForSelector('.maplibregl-canvas', { state: 'attached', timeout: 30_000 })
           await page.waitForSelector('.maplibregl-ctrl-attrib', { state: 'attached', timeout: 30_000 })
+          // Let the map attribution settle into its final layout position before
+          // asserting coverage; the check must measure the landed UI, not a mid-load frame.
+          await page
+            .waitForFunction(
+              () => {
+                const el = document.querySelector('.maplibregl-ctrl-attrib') as HTMLElement | null
+                if (!el) return false
+                const rect = el.getBoundingClientRect()
+                const cx = Math.round(rect.left + rect.width / 2)
+                const cy = Math.round(rect.top + rect.height / 2)
+                const topEl = document.elementFromPoint(cx, cy)
+                return topEl ? el.contains(topEl) : false
+              },
+              undefined,
+              { timeout: 20_000, polling: 250 },
+            )
+            .catch(() => {
+              // Not settling here is fine: the iron assertion below reports the definitive result.
+            })
         }
         await page.waitForTimeout(600)
 

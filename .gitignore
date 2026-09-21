@@ -61,5 +61,10 @@ weights/
 scientific-service/.venv/
 
 # Simulation output
-output/*.tsbuildinfo
+output/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Playwright test results
 test-results/

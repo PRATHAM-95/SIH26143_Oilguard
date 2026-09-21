@@ -150,14 +150,14 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
 ## Milestone M2b: Geospatial Theater Rebuild (COMPLETED)
 
 - **Completed On**: 2026-09-22
-- **Branch**: `frontend-rebuild` (Commits `756dd59` (CSS fix), `53b6d5b` (M2b implementation), plus pending close-out commit)
+- **Branch**: `frontend-rebuild` (Commits `756dd59` (CSS fix), `53b6d5b` (M2b implementation), `bbf0a5f` (M2b final remediation, superseded), and the M2b close-out commit `fix(m2b): close verification and evidence gaps` referenced below)
 - **Goal**: Rebuild the Command Center into an authentic map-first operational theater, eliminating old panels and mock data pipelines.
 
 ### What Was Done
 1. **Command Center Rebuild**:
    - Replaced legacy `/` view with a 1440x900 map-first layout.
    - Built a dynamic `OperationalBar` with case reference, status indicators, and Cmd+K `CommandPalette` for route jumps (`/simulation`, `/investigation`, `/backtracking`, `/attribution`) and map layer toggles.
-   - Built the 8-stage `FlightpathRail` extracting strictly from `investigationStore`. Re-aligned stage subtitles to exact stage IDs (`forward_drift`, `ais_analysis`).
+   - Built the 8-stage `FlightpathRail` extracting strictly from `investigationStore`. Re-aligned stage subtitles to the canonical sequential stage IDs (`detection` -> `characterization` -> `environment` -> `forward_drift` -> `backtracking` -> `ais` -> `attribution` -> `conclusion`). The AIS stage subtitle key is the canonical `ais` (not `ais_analysis`), locked by `src/__tests__/flightpath.test.ts`.
    - Integrated `LayerDrawer` mapping directly to `MAP_LAYER_CATALOG`.
    - Built the `ContextualConsole` combining terminal output and timeline analysis.
 2. **Honesty & Provenance Enforcement**:
@@ -166,13 +166,23 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
    - Updated provenance labels in `OperationalBar` (Data: "No data", "Simulated", "Controlled"). No badges/pills; explicit text dots.
    - Enforced design system constraints: no all-caps, no pill shapes, no generic hex colors, no `!important` tags, no glassmorphism.
 3. **Playwright Map & Attribution Assertions**:
-   - Hardened `scripts/shots.pw.ts` to actively assert map attribution visibility. The test now executes `expect(covered).toBe(false)` using center-point coordinate evaluation, causing a hard CI failure if attribution is obscured.
-   - Passed three consecutive `npm run shots` runs over all 24 configurations (4 viewports x 6 routes) with 100% success rate.
-   - Screenshot artifacts saved in `docs/frontend-rebuild/screenshots/M2b/`.
-4. **Full-Stack Execution & End-to-End Reliability**:
-   - Executed `./start-stack.ps1 -Wait` seamlessly bridging scientific, backend, and frontend boundaries.
-   - Ran actual simulation and investigation lifecycle via `scripts/e2e_investigation.py`. Verified all stages (`detection` through `conclusion`) completed accurately within expected time bounds.
-   - Investigated `backend.log` and `sci.log` for anomalous 422, 500, or Exception triggers during E2E. Zero critical application faults observed (only benign config properties matched "500").
+    - Hardened `scripts/shots.pw.ts` to actively assert map attribution visibility. The test now executes `expect(covered).toBe(false)` using center-point coordinate evaluation, causing a hard CI failure if attribution is obscured.
+    - Added an attribution-settle wait (`waitForFunction`, 20s timeout, 250ms polling) so the coverage check measures the landed UI, not a mid-load frame. The iron assertions (`found=true`, `clipped=false`, `covered=false`, no overflow, zero unfiltered console errors) are unchanged.
+    - Passed three consecutive `npm run shots` runs over all 24 configurations (4 viewports x 6 routes) with 100% success rate (24/24 each run, 72/72 total). Per-run marks and timestamps recorded in `docs/frontend-rebuild/screenshots/M2b/playwright-runs.txt` (RUN 1, RUN 2, RUN 3 — each PASS 24/24, exit code 0).
+    - Screenshot artifacts saved in `docs/frontend-rebuild/screenshots/M2b/run{1,2,3}/` (24 png each, 72 total).
+ 4. **Full-Stack Execution & End-to-End Reliability**:
+    - Executed `./start-stack.ps1 -Wait` seamlessly bridging scientific, backend, and frontend boundaries.
+    - Ran actual simulation and investigation lifecycle via `scripts/e2e_investigation.py` against the live stack. Verified all stages (`detection` through `conclusion`) completed accurately within expected time bounds — transcript with captured stdout and final `COMPLETED` state in `docs/frontend-rebuild/screenshots/M2b/e2e-transcript.txt`.
+    - Investigated `backend.log` and `sci.log` for anomalous 422, 500, or Exception triggers during E2E. Zero critical application faults observed (only benign config properties matched "500").
+ 5. **Honesty of Readouts**:
+    - `DetectionCard`: no fabricated `0.0 km²` figure; the candidate-slick area is rendered only when a real `slickAreaKm2` value exists.
+    - `IncidentCard`: observation falls back to `Awaiting classification` (no fake "Synthetic Aperture Radar Oil Slick"); detection confidence shows `No data` when the field is absent.
+    - `ContextualConsole`: footer copy is status-dependent and never claims a live pipeline for `COMPLETED` / `FAILED` / `CANCELLED` states (standing-by, live only while RUNNING, final/reproducible, failed, cancelled as appropriate).
+ 6. **Independent Verification Evidence (committed in the M2b close-out commit)**:
+    - `docs/frontend-rebuild/screenshots/M2b/verification.txt`: `npm run lint` (0 errors/0 warnings), `npx tsc --noEmit`, `npm run build` (1425 modules), `npm run test` (2 files, 4 tests) — all exit code 0, captured from terminal. Includes a re-verification pass against the final tree after the `shots.pw.ts` settle-hardening edit.
+    - `docs/frontend-rebuild/screenshots/M2b/playwright-runs.txt` and `e2e-transcript.txt` as above.
+    - Git hygiene: `oil-spill-system/frontend/tsconfig.tsbuildinfo` is no longer tracked (`git rm --cached`); `.gitignore` restores `output/` as a whole-directory rule, adds `*.tsbuildinfo`, and keeps `test-results/` ignored. `git ls-files` contains no `.tsbuildinfo` or `test-results` entries.
+    - Protected contracts reverified against the M2b baseline: zero diff over `backend/`, `scientific-service/`, `frontend/src/store`, `src/lib`, `src/types`, `src/hooks`, and `src/routes.ts`.
 
 ### Known Deviations
 - `shellStore` was removed. The architecture leverages existing `layoutStore` and CSS variables, keeping the domain state exclusively to existing stores (`useInvestigationStore`, `useSimulationStore`).

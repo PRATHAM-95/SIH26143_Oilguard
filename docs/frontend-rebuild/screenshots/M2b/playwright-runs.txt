@@ -1,0 +1,41 @@
+# OilGuard M2b — Playwright screenshot matrix evidence
+Directory:              oil-spill-system/frontend
+Base URL:               http://localhost:3000 (local Vite dev server, current working tree)
+Matrix:                 6 routes x 4 viewports = 24 screenshots per run
+Routes:                 / ; /simulation ; /investigation ; /backtracking ; /attribution ; /report
+Viewports:              1920x1080 ; 1440x900 ; 1280x800 ; 768x1024
+Hard assertions:        found=true (attribution element present)
+                        clipped=false (attribution text not clipped)
+                        covered=false (attribution not covered by another element)
+                        overflow=false (no horizontal body overflow)
+                        zero unfiltered console errors
+Command per run:        $env:SHOT_DIR="docs/frontend-rebuild/screenshots/M2b/runN"; npm run shots
+
+RUN 1 — PASS — 24/24
+  timestamp:            2026-09-22 00:57:24 +05:30 (first screenshot write) .. 00:58:11 +05:30 (final)
+  exit code:            0
+  screenshots:          docs/frontend-rebuild/screenshots/M2b/run1/  (24 png)
+
+RUN 2 — PASS — 24/24
+  timestamp:            2026-09-22 00:58:19 +05:30 (first screenshot write) .. 00:59:05 +05:30 (final)
+  exit code:            0
+  screenshots:          docs/frontend-rebuild/screenshots/M2b/run2/  (24 png)
+
+RUN 3 — PASS — 24/24
+  timestamp:            2026-09-22 00:59:13 +05:30 (first screenshot write) .. 01:00:00 +05:30 (final)
+  exit code:            0
+  screenshots:          docs/frontend-rebuild/screenshots/M2b/run3/  (24 png)
+
+TOTAL: 72/72 screenshots (verified: 72 png files present across run1/run2/run3)
+
+Notes:
+- Each run is a separate real Playwright execution against the current code;
+  screenshots were not copied between run directories.
+- The first full-suite pass exposed a load-time race
+  (attribution not yet settled before the coverage assertion). shots.pw.ts now waits
+  for the attribution control to settle into its final layout position before
+  asserting, keeping the iron assertions (found/clipped/covered/overflow) unchanged.
+  After this hardening all three runs pass 24/24 consecutively.
+- Console errors recorded during load were all benign (dev-tool hints, WebGL perf
+  notices, deck.gl label-sdf note); no pageerror/console.error remained after the
+  filter in shots.pw.ts.

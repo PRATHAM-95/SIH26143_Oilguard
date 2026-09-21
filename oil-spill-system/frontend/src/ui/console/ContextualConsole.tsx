@@ -101,7 +101,13 @@ export function ContextualConsole({ rightCollapsed, setRightCollapsed }: { right
           <p className="text-[10px] text-ink-muted">
             {!status || status === 'CREATED'
               ? 'System standing by for telemetry link.'
-              : 'Live scientific pipeline — all sensor models and trajectories reflect deterministic numerical computations.'}
+              : status === 'RUNNING'
+                ? 'Live scientific pipeline — all sensor models and trajectories reflect deterministic numerical computations.'
+                : status === 'COMPLETED'
+                  ? 'Scientific pipeline complete — investigation results are final and reproducible.'
+                  : status === 'FAILED'
+                    ? 'Scientific pipeline failed — no live scientific data available.'
+                    : 'Scientific pipeline cancelled — no live scientific data available.'}
           </p>
         </div>
       </div>

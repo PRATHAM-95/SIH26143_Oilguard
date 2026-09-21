@@ -11,8 +11,8 @@ export function IncidentCard() {
   const busy = useInvestigationStore((s) => s.busy)
 
   const hasIncident = incident.status !== 'none' || spill?.incidentId != null
-  const confidencePct =
-    incident.detectionConfidence != null ? Math.round(incident.detectionConfidence * 100) : 0
+  const hasConfidence = incident.detectionConfidence != null
+  const confidencePct = hasConfidence ? Math.round(incident.detectionConfidence! * 100) : null
 
   const canStart = !!spill?.incidentId && invStatus !== 'RUNNING' && invStatus !== 'CREATED' && !busy
 
@@ -34,7 +34,7 @@ export function IncidentCard() {
             <div className="ctx-field">
               <span className="ctx-label">ANOMALY CLASSIFICATION</span>
               <span className="ctx-val ctx-val--bold">
-                {incident.observation || 'Synthetic Aperture Radar Oil Slick'}
+                {incident.observation || 'Awaiting classification'}
               </span>
             </div>
 
@@ -61,10 +61,10 @@ export function IncidentCard() {
             <div className="ctx-field ctx-field--meter">
               <div className="meter-label-row">
                 <span className="ctx-label">DETECTION CONFIDENCE</span>
-                <span className="meter-score">{confidencePct}%</span>
+                <span className="meter-score">{hasConfidence ? `${confidencePct}%` : 'No data'}</span>
               </div>
-              <div className="meter-track" role="progressbar" aria-valuenow={confidencePct} aria-valuemin={0} aria-valuemax={100}>
-                <div className="meter-fill meter-fill--ok" style={{ width: `${confidencePct}%` }} />
+              <div className="meter-track" role="progressbar" aria-valuenow={confidencePct ?? 0} aria-valuemin={0} aria-valuemax={100}>
+                <div className="meter-fill meter-fill--ok" style={{ width: `${confidencePct ?? 0}%` }} />
               </div>
             </div>
 

@@ -1,0 +1,40 @@
+﻿OilGuard M2b Real-Stack E2E Transcript
+Generated: 2026-09-22 01:01:49 +05:30
+Command   : python scripts/e2e_investigation.py  (stdout + stderr captured below)
+Target    : http://localhost:8082 api + frontend http://localhost:3000
+=================================================================
+
+Creating simulation...
+Simulation created: 6ab18626ce377a4d97c36ed0
+Using vessel: 6ab18626ce377a4d97c36ed1
+Simulation started.
+Spill released. Incident ID: 6ab18626ce377a4d97c36ed3
+Running forward drift...
+Starting investigation...
+Investigation started: inv-b0f1e738-5c0
+Polling investigation...
+[0s] Status: CREATED
+[20s] Status: RUNNING
+[40s] Status: RUNNING
+[60s] Status: RUNNING
+[80s] Status: RUNNING
+[100s] Status: RUNNING
+[120s] Status: RUNNING
+[140s] Status: COMPLETED
+
+--- FINAL INVESTIGATION STATE ---
+Status: COMPLETED
+Stage detection: COMPLETED
+Stage characterization: COMPLETED
+Stage environment: COMPLETED
+Stage forward_drift: COMPLETED
+Stage backtracking: COMPLETED
+Stage ais: COMPLETED
+Stage attribution: COMPLETED
+Stage conclusion: COMPLETED
+
+
+=================================================================
+E2E EXIT CODE: 0
+(E2E ran to actual completion; output above is the raw captured transcript.)
+
