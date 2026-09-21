@@ -119,9 +119,14 @@
   background-color: transparent !important;
 }
 
-/* Offset MapLibre bottom-right controls on Command Center to clear docked Contextual Console */
+/* Offset MapLibre bottom-right controls to clear the docked Contextual Console.
+   The clearance is derived from the theater's panel metrics (declared below on
+   .workstation-theater) rather than a hard-coded pixel value, so it tracks the
+   console width across breakpoints and collapses to zero when the console is
+   collapsed. MapLibre does not set a margin on this container, so no vendor
+   override/!important is required. */
 .workstation-theater .maplibregl-ctrl-bottom-right {
-  margin-right: 386px !important;
+  margin-right: var(--console-dock-clearance, 0px);
   transition: margin-right var(--dur-normal, 200ms) ease-out;
 }
 
@@ -2297,9 +2302,7 @@ body {
   color: var(--ink-3);
 }
 
-/* ---------------------------------------------------------------------------
-   DATA & LAYERS — table of contents
-   ------------------------------------------------------------------------- */
+.stepper-node-btn:hover {
   background: rgba(44, 168, 212, 0.05);
   color: var(--ink-1);
 }
@@ -5013,6 +5016,22 @@ body {
   height: 100%;
   overflow: hidden;
   background: #020509;
+
+  /* Layout metrics for the right-docked Contextual Intelligence Console.
+     These single-source the console footprint and feed the MapLibre control
+     clearance, so no panel-width magic numbers live in override rules. */
+  --console-dock-width: 360px;
+  --console-dock-inset: 16px;
+  --console-dock-gap: 8px;
+  --console-dock-clearance: calc(
+    var(--console-dock-width) + var(--console-dock-inset) + var(--console-dock-gap)
+  );
+}
+
+/* Collapsed console shrinks to its header bar, so reserve no clearance for it. */
+.workstation-theater:has(.contextual-console--collapsed) {
+  --console-dock-width: 0px;
+  --console-dock-gap: 0px;
 }
 
 .theater-map-canvas {
@@ -6437,6 +6456,9 @@ body {
   .contextual-console {
     width: 300px;
   }
+  .workstation-theater {
+    --console-dock-width: 300px;
+  }
   .flightpath-rail {
     width: 240px;
   }
@@ -6453,6 +6475,10 @@ body {
     position: static;
     width: 100%;
     height: auto;
+  }
+  /* Console is no longer docked over the map, so clear the offset entirely. */
+  .workstation-theater {
+    --console-dock-clearance: 0px;
   }
   .workstation-theater {
     display: flex;
