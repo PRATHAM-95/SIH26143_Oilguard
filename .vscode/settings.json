@@ -1,0 +1,6 @@
+{
+  "css.lint.unknownAtRules": "ignore",
+  "markdown.validate.ignoredLinks": [
+    "../frontend-design/reference/**"
+  ]
+}
