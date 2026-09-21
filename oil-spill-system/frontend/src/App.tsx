@@ -1,7 +1,7 @@
 import type React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
-import CommandCenter from './pages/CommandCenter'
+import CommandCenter from './ui/pages/CommandCenterPage'
 import Simulation from './pages/Simulation'
 import Investigation from './pages/Investigation'
 import Backtracking from './pages/Backtracking'

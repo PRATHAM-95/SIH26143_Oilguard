@@ -1,13 +1,12 @@
 import { useEnvironmentStore } from '@/store/environmentStore'
 import { useSimulationStore } from '@/store/simulationStore'
-import { ProvenancePill } from '@/components/ui/primitives'
 
 export function EnvironmentDriftCard() {
   const current = useEnvironmentStore((s) => s.current)
   const wind = useEnvironmentStore((s) => s.wind)
   const drift = useSimulationStore((s) => s.drift)
 
-  const envSource = drift.environmentSource || current.label || 'CMEMS Ocean Physics + ERA5 Winds'
+
   const particleCount = drift.particles?.length ?? 128
   const extentKm2 = drift.extent?.length ? (drift.extent.length * 1.4).toFixed(1) : '18.4'
 
@@ -16,9 +15,9 @@ export function EnvironmentDriftCard() {
       <div className="ctx-card-header">
         <div className="ctx-card-title-group">
           <span className="ctx-dot ctx-dot--live" aria-hidden="true" />
-          <h3 className="ctx-card-title">ENVIRONMENT & FORWARD DRIFT</h3>
+          <h3 className="ctx-card-title">Environment & forward drift</h3>
         </div>
-        <ProvenancePill value={envSource} />
+        
       </div>
 
       <div className="ctx-card-body">

@@ -1,6 +1,5 @@
 import { useAttributionStore } from '@/store/featureStores'
 import { useInvestigationStore } from '@/store/investigationStore'
-import { ProvenancePill } from '@/components/ui/primitives'
 import { Button } from '@/components/ui/Button'
 
 const FACTOR_LABEL: Record<string, string> = {
@@ -22,8 +21,7 @@ export function AttributionCard() {
   const status = useAttributionStore((s) => s.status)
   const vessels = useAttributionStore((s) => s.vessels)
   const ranking = useAttributionStore((s) => s.ranking)
-  const aisSource = useAttributionStore((s) => s.aisSource)
-  const radiusKm = useAttributionStore((s) => s.radiusKm)
+    const radiusKm = useAttributionStore((s) => s.radiusKm)
   const errors = useAttributionStore((s) => s.errors)
   const retry = useInvestigationStore((s) => s.retry)
 
@@ -33,7 +31,7 @@ export function AttributionCard() {
         <div className="ctx-card-header">
           <div className="ctx-card-title-group">
             <span className="ctx-dot ctx-dot--danger" aria-hidden="true" />
-            <h3 className="ctx-card-title">ATTRIBUTION RANKING FAILED</h3>
+            <h3 className="ctx-card-title">Attribution ranking failed</h3>
           </div>
         </div>
         <div className="ctx-card-body">
@@ -55,11 +53,9 @@ export function AttributionCard() {
       <div className="ctx-card-header">
         <div className="ctx-card-title-group">
           <span className="ctx-dot ctx-dot--live" aria-hidden="true" />
-          <h3 className="ctx-card-title">VESSEL ATTRIBUTION ADJUDICATION</h3>
+          <h3 className="ctx-card-title">Vessel attribution adjudication</h3>
         </div>
-        <span className="ctx-badge ctx-badge--live">
-          {vessels.length > 0 ? `${vessels.length} CANDIDATES RANKED` : 'SCREENING AIS'}
-        </span>
+        
       </div>
 
       <div className="ctx-card-body">
@@ -67,8 +63,8 @@ export function AttributionCard() {
         {top ? (
           <div className="ctx-verdict-banner">
             <div className="verdict-banner-header">
-              <span className="verdict-tag">PRIMARY MATCH</span>
-              <span className="verdict-score-pill">{topScorePct}% MATCH SCORE</span>
+              <span className="verdict-tag">Primary match</span>
+              <span className="verdict-score-pill">{topScorePct}% Match score</span>
             </div>
 
             <div className="verdict-vessel-name">{top.name || 'ATLANTIC CONVOY'}</div>
@@ -95,10 +91,10 @@ export function AttributionCard() {
               </div>
             </div>
 
-            {/* 5-Factor Score Matrix */}
+            {/* Factor Weights */}
             {top.factors ? (
               <div className="verdict-factors-list">
-                <div className="factors-header">EVIDENTIARY FACTOR WEIGHTS</div>
+                <div className="factors-header">Evidentiary factor weights</div>
                 {Object.entries(top.factors).map(([k, val]) => (
                   <div className="factor-row" key={k}>
                     <span className="factor-name">{FACTOR_LABEL[k] ?? k}</span>
@@ -126,7 +122,7 @@ export function AttributionCard() {
         {/* Secondary Candidates List */}
         {vessels.length > 1 ? (
           <div className="ctx-candidates-secondary">
-            <div className="secondary-header">RUNNER-UP TRAFFIC ({vessels.length - 1})</div>
+            <div className="secondary-header">Runner-up traffic ({vessels.length - 1})</div>
             <div className="secondary-list">
               {vessels.slice(1, 4).map((v) => (
                 <div className="secondary-item" key={v.mmsi ?? v.rank}>
@@ -145,8 +141,8 @@ export function AttributionCard() {
         ) : null}
 
         <div className="ctx-provenance-row">
-          <span className="ctx-prov-label">AIS STREAM:</span>
-          <ProvenancePill value={aisSource} />
+          <span className="ctx-prov-label">AIS stream:</span>
+          
         </div>
       </div>
     </div>

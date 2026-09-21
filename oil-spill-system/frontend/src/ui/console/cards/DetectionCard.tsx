@@ -2,7 +2,6 @@ import { useSarStore } from '@/store/sarStore'
 import { useSimulationStore } from '@/store/simulationStore'
 import { useMapStore } from '@/store/mapStore'
 import { Button } from '@/components/ui/Button'
-import { ProvenancePill } from '@/components/ui/primitives'
 
 export function DetectionCard() {
   const sar = useSarStore((s) => s)
@@ -30,7 +29,7 @@ export function DetectionCard() {
           <span className="ctx-dot ctx-dot--live" aria-hidden="true" />
           <h3 className="ctx-card-title">SATELLITE SAR RADAR</h3>
         </div>
-        <ProvenancePill value={sar.provenance ?? 'UNAVAILABLE'} />
+        
       </div>
 
       <div className="ctx-card-body">

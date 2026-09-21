@@ -1,6 +1,5 @@
 import { useBacktrackingStore } from '@/store/featureStores'
 import { useInvestigationStore } from '@/store/investigationStore'
-import { ProvenancePill } from '@/components/ui/primitives'
 import { Button } from '@/components/ui/Button'
 
 function hhmm(iso: string | null | undefined): string {
@@ -17,10 +16,8 @@ export function BacktrackingCard() {
   const origin = useBacktrackingStore((s) => s.origin)
   const uncertaintyKm = useBacktrackingStore((s) => s.uncertaintyKm)
   const originTimeRange = useBacktrackingStore((s) => s.originTimeRange)
-  const environmentalQuality = useBacktrackingStore((s) => s.environmentalQuality)
-  const ensembleSummary = useBacktrackingStore((s) => s.ensembleSummary)
-  const environmentSource = useBacktrackingStore((s) => s.environmentSource)
-  const trajectoryAgreement = useBacktrackingStore((s) => s.trajectoryAgreement)
+    const ensembleSummary = useBacktrackingStore((s) => s.ensembleSummary)
+    const trajectoryAgreement = useBacktrackingStore((s) => s.trajectoryAgreement)
   const sourceConcentration = useBacktrackingStore((s) => s.sourceConcentration)
   const errors = useBacktrackingStore((s) => s.errors)
   const retry = useInvestigationStore((s) => s.retry)
@@ -31,7 +28,7 @@ export function BacktrackingCard() {
         <div className="ctx-card-header">
           <div className="ctx-card-title-group">
             <span className="ctx-dot ctx-dot--danger" aria-hidden="true" />
-            <h3 className="ctx-card-title">SOURCE BACKTRACKING FAILED</h3>
+            <h3 className="ctx-card-title">SOURCE Backtracking failed</h3>
           </div>
         </div>
         <div className="ctx-card-body">
@@ -57,9 +54,7 @@ export function BacktrackingCard() {
           <span className="ctx-dot ctx-dot--ok" aria-hidden="true" />
           <h3 className="ctx-card-title">PROBABLE SOURCE REGION</h3>
         </div>
-        <span className="ctx-badge ctx-badge--ok">
-          {environmentalQuality ? `CONF: ${environmentalQuality}` : 'CONF: HIGH'}
-        </span>
+        
       </div>
 
       <div className="ctx-card-body">
@@ -116,7 +111,7 @@ export function BacktrackingCard() {
 
           <div className="ctx-provenance-row">
             <span className="ctx-prov-label">MODEL PROVENANCE:</span>
-            <ProvenancePill value={environmentSource ?? 'CMEMS / ERA5 REANALYSIS'} />
+            
           </div>
         </div>
       </div>

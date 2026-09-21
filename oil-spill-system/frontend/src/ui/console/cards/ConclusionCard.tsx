@@ -20,7 +20,7 @@ export function ConclusionCard() {
           <span className="ctx-dot ctx-dot--ok" aria-hidden="true" />
           <h3 className="ctx-card-title">FORENSIC ATTRIBUTION CONCLUSION</h3>
         </div>
-        <span className="ctx-badge ctx-badge--ok">INVESTIGATION COMPLETE</span>
+        
       </div>
 
       <div className="ctx-card-body">
@@ -40,7 +40,7 @@ export function ConclusionCard() {
 
           <div className="verdict-meta-grid">
             <div className="verdict-meta-cell">
-              <span className="v-meta-label">ADJUDICATION STATUS</span>
+              <span className="v-meta-label">Adjudication STATUS</span>
               <span className="v-meta-val v-meta-val--ok">
                 {isDecisive ? 'DECISIVE MATCH' : 'CORRELATED CANDIDATE'}
               </span>

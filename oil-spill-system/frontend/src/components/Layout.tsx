@@ -6,6 +6,7 @@ import { useSimulationStore } from '@/store/simulationStore'
 import { useUtcClock } from '@/hooks/useUtcClock'
 import { StatusChip } from '@/components/Status'
 import { AppShell } from '@/ui/shell/AppShell'
+import { useDataProvenance } from '@/ui/hooks/useDataProvenance'
 import {
   BacktraceIcon,
   CommandIcon,
@@ -84,18 +85,9 @@ function SecondaryPageHeader({
   // WebSocket stream state — only meaningful on pages that open a stream
   const wsStatus = useConnectionStore((s) => s.connections.websocket)
   const showStream = STREAM_PAGES.has(pathname)
-
-  // Provenance: show mode based on simulationId presence
-  // The backend creates simulations in captain mode (Controlled data)
-  let provenanceLabel = 'No data'
-  let provenanceTone = 'text-dim'
-  let provenanceDot = 'bg-slate-500'
-
-  if (simulationId) {
-    provenanceLabel = 'Controlled'
-    provenanceTone = 'text-cyan-400'
-    provenanceDot = 'bg-cyan-400'
-  }
+  // Data provenance — derived from explicit store provenance fields only.
+  // Never inferred from connectivity or a bare simulation id.
+  const provenance = useDataProvenance()
 
   return (
     <div className="flex items-center justify-between w-full h-full text-xs">
@@ -128,10 +120,10 @@ function SecondaryPageHeader({
         {/* Data Provenance Indicator */}
         <div
           className="inline-flex items-center gap-1.5 text-[11px] font-sans"
-          title={`Data provenance: ${provenanceLabel}`}
+          title={`Data provenance: ${provenance.label}`}
         >
-          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${provenanceDot}`} />
-          <span className={provenanceTone}>{provenanceLabel}</span>
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${provenance.dotClass}`} />
+          <span className={provenance.toneClass}>{provenance.label}</span>
         </div>
 
         {/* Backend reachability – from health probe, accurate on all pages */}

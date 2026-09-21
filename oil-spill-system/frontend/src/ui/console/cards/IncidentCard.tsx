@@ -24,7 +24,7 @@ export function IncidentCard() {
           <h3 className="ctx-card-title">INCIDENT ANOMALY BRIEF</h3>
         </div>
         <span className={`ctx-badge ${hasIncident ? 'ctx-badge--warn' : 'ctx-badge--idle'}`}>
-          {incident.status === 'none' ? (spill?.incidentId ? 'DETECTED' : 'STANDBY') : incident.status.toUpperCase()}
+          {incident.status === 'none' ? (spill?.incidentId ? 'DETECTED' : 'STANDBY') : incident.status}
         </span>
       </div>
 
