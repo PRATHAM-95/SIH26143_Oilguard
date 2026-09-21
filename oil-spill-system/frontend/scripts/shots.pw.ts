@@ -38,11 +38,13 @@ function routeSlug(route: string): string {
 
 /** Collect console errors logged during page load. */
 function collectErrors(page: Page): string[] {
-  const errs: string[] = []
+  const consoleErrors: string[] = []
+  page.on('pageerror', (err) => consoleErrors.push(err.message))
   page.on('console', (msg) => {
-    if (msg.type() === 'error') errs.push(msg.text())
+    if (msg.type() === 'error') consoleErrors.push(msg.text())
+    else console.log(`[PAGE CONSOLE] ${msg.text()}`)
   })
-  return errs
+  return consoleErrors
 }
 
 // Ensure screenshot directories exist before tests run
@@ -89,10 +91,15 @@ for (const vp of VIEWPORTS) {
         // ── Assertion 3 & 4: Attribution (map pages only) ────────────────────
         const isMapRoute = route !== '/report'
         if (isMapRoute) {
-          // Wait briefly for MapLibre to paint
-          await page.waitForTimeout(800)
+          // Wait for MapLibre attribution to mount
+          const mapLocator = page.locator('.maplibregl-map')
+          await mapLocator.waitFor({ state: 'attached', timeout: 30_000 }).catch(() => {})
+          await page.waitForTimeout(500)
 
           const attrResult = await page.evaluate(() => {
+            const mapEl = document.querySelector('.maplibregl-map')
+            if (mapEl) console.log("MAP_DOM:", mapEl.innerHTML)
+            
             // MapLibre renders the attribution inside .maplibregl-ctrl-attrib
             const el = document.querySelector('.maplibregl-ctrl-attrib') as HTMLElement | null
             if (!el) return { found: false, clipped: false, covered: false }
@@ -106,7 +113,7 @@ for (const vp of VIEWPORTS) {
             const cx = Math.round(rect.left + rect.width / 2)
             const cy = Math.round(rect.top + rect.height / 2)
             const topEl = document.elementFromPoint(cx, cy)
-            const covered = !el.contains(topEl)
+            const covered = topEl ? !el.contains(topEl) : false
 
             return { found: true, clipped, covered }
           })

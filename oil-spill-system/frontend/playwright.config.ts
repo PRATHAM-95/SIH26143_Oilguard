@@ -7,6 +7,9 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
+    launchOptions: {
+      args: ['--use-gl=egl', '--ignore-gpu-blocklist'],
+    },
     // No trace/video on default shots run to keep it fast
   },
   projects: [
