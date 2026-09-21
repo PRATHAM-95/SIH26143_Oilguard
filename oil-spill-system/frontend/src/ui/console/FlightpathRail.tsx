@@ -79,8 +79,8 @@ export function FlightpathRail({ leftCollapsed }: { leftCollapsed: boolean }) {
               {isFocused && (
                 <motion.div
                   layoutId="active-stage-indicator"
-                  className="absolute inset-0 bg-[var(--border-default)]/50 rounded border border-[var(--border-default)]"
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  className="absolute inset-0 bg-signal-blue/10 rounded-[3px] border border-signal-blue/40"
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                 />
               )}
               
@@ -92,7 +92,7 @@ export function FlightpathRail({ leftCollapsed }: { leftCollapsed: boolean }) {
                 {!leftCollapsed && (
                   <div className="ml-3 overflow-hidden">
                     <div className="flex items-center space-x-2">
-                      <span className={`text-sm whitespace-nowrap ${isFocused || isRunning ? 'text-ink-1' : 'text-ink-3'}`}>
+                      <span className={`text-sm whitespace-nowrap font-medium ${isFocused ? 'text-porcelain' : isRunning ? 'text-ink-1' : 'text-ink-3'}`}>
                         {STAGE_LABEL[stageId] ?? stageId}
                       </span>
                     </div>
@@ -110,7 +110,7 @@ export function FlightpathRail({ leftCollapsed }: { leftCollapsed: boolean }) {
       {!leftCollapsed && incidentId && (
         <div className="p-4 border-t border-[var(--border-default)]">
            <button 
-             className="w-full py-2 bg-[var(--border-default)] hover:bg-[var(--border-default)]/80 text-ink-1 text-xs font-semibold rounded tracking-wider transition-colors"
+             className="w-full py-2 bg-signal-blue hover:bg-[#0048D9] text-porcelain text-xs font-semibold rounded-[3px] tracking-wider transition-colors shadow-sm"
              onClick={() => start(incidentId)}
            >
              Launch Pipeline

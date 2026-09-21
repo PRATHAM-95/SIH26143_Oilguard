@@ -2,17 +2,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-abyss: #050B14;
-  --color-trench: #0B1A2B;
-  --color-deck: #122336;
-  --color-chartline: #1E3550;
-  --color-foam: #E8F0F7;
-  --color-mist: #9DB2C8;
-  --color-dim: #5F7690;
-  --color-sonar: #4FD1E8;
-  --color-ok: #3DD68C;
-  --color-warn: #F2B84B;
-  --color-danger: #F0616D;
+  --color-abyss: #070B10;
+  --color-trench: #0B1118;
+  --color-deck: #111923;
+  --color-chartline: #273340;
+  --color-foam: #F8F7F4;
+  --color-porcelain: #F8F7F4;
+  --color-mist: #B2BBC5;
+  --color-dim: #727D89;
+  --color-signal-blue: #0057FF;
+  --color-accent: #0057FF;
+  --color-sonar: #0057FF;
+  --color-ok: #00D98B;
+  --color-warn: #FFB020;
+  --color-danger: #FF4D5A;
 
   --font-sans: 'Schibsted Grotesk Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Newsreader Variable', Georgia, serif;
@@ -137,14 +140,14 @@
    ========================================================================== */
 
 :root {
-  /* --- 1. Canvas & Surface Hierarchy (Tactical Oceanic Charcoal/Navy) --- */
-  --bg-canvas: #03070c;          /* Deepest oceanic void / map base */
-  --bg-base: #060c14;            /* Operational viewport base */
-  --bg-elevated: #0b131e;        /* Standard component & rail surface */
-  --bg-surface: #0f1a28;         /* Cards, modals, inspector drawers */
-  --bg-surface-raised: #142234;  /* Active items, hover states, popovers */
-  --bg-surface-glass: rgba(11, 19, 30, 0.82); /* Floating map overlays (restrained glass) */
-  --bg-inset: #04080f;           /* Inset inputs, telemetry wells, coords */
+  /* --- 1. Canvas & Surface Hierarchy (Maritime Forensic Neutral Base) --- */
+  --bg-canvas: #070B10;          /* Deepest oceanic void / map base (Abyss) */
+  --bg-base: #070B10;            /* Operational viewport base (Abyss) */
+  --bg-elevated: #0B1118;        /* Standard component & rail surface (Trench) */
+  --bg-surface: #111923;         /* Cards, modals, inspector drawers (Deck) */
+  --bg-surface-raised: #182433;  /* Active items, hover states, popovers */
+  --bg-surface-glass: rgba(11, 17, 24, 0.88); /* Floating map overlays */
+  --bg-inset: #05080D;           /* Inset inputs, telemetry wells, coords */
 
   /* Backward-compatible base surface aliases */
   --bg: var(--bg-base);
@@ -154,12 +157,12 @@
   --panel-3: var(--bg-surface-raised);
   --inset: var(--bg-inset);
 
-  /* --- 2. Text & Ink Hierarchy (WCAG AAA Contrast) --- */
-  --ink-primary: #f1f5f9;        /* Headers, active telemetry values */
-  --ink-secondary: #94a3b8;      /* Standard UI body text, labels */
-  --ink-muted: #64748b;          /* Captions, units, secondary timestamps */
-  --ink-faint: #475569;          /* Disabled hints, subtle borders */
-  --ink-accent: #38bdf8;         /* Focus actions, active tabs */
+  /* --- 2. Text & Ink Hierarchy (Porcelain + Mist + Dim) --- */
+  --ink-primary: #F8F7F4;        /* Headers, active telemetry values (Porcelain) */
+  --ink-secondary: #B2BBC5;      /* Standard UI body text, labels (Mist) */
+  --ink-muted: #727D89;          /* Captions, units, secondary timestamps (Dim) */
+  --ink-faint: #4E5965;          /* Disabled hints, subtle borders */
+  --ink-accent: #0057FF;         /* Focus actions, active tabs (Signal Blue) */
 
   /* Backward-compatible ink aliases */
   --ink-0: var(--ink-primary);
@@ -167,63 +170,71 @@
   --ink-2: var(--ink-muted);
   --ink-3: var(--ink-faint);
 
-  /* --- 3. Border Tokens (Crisp 1px Precision) --- */
-  --border-subtle: rgba(255, 255, 255, 0.06); /* Internal dividers, subtle row separators */
-  --border-default: rgba(255, 255, 255, 0.10); /* Standard panel borders */
-  --border-strong: rgba(255, 255, 255, 0.18); /* Active tabs, header borders */
-  --border-accent: rgba(56, 189, 248, 0.35); /* Primary selection outline */
-  --border-focus: rgba(56, 189, 248, 0.65);  /* Focus-visible ring */
+  /* Brand Accents */
+  --signal-blue: #0057FF;
+  --signal-blue-hover: #0048D9;
+  --signal-blue-subtle: rgba(0, 87, 255, 0.12);
+  --porcelain: #F8F7F4;
+
+  /* --- 3. Border Tokens (Crisp 1px Hairlines) --- */
+  --border-subtle: rgba(255, 255, 255, 0.05); /* Internal dividers, subtle row separators */
+  --border-default: #273340; /* Standard panel borders (Chartline) */
+  --border-strong: #38485B;  /* Active tabs, header borders */
+  --border-accent: rgba(0, 87, 255, 0.45); /* Primary selection outline */
+  --border-focus: rgba(0, 87, 255, 0.80);  /* Focus-visible ring */
 
   /* Backward-compatible border aliases */
-  --line: #16242f;
-  --line-2: #253d52;
-  --line-3: #33526b;
+  --line: #273340;
+  --line-2: #38485B;
+  --line-3: #4E5965;
 
-  /* --- 4. Operational Command Cyan (Accent) --- */
-  --accent: #38bdf8;
-  --accent-strong: #7dd3fc;
-  --accent-subtle: rgba(56, 189, 248, 0.12);
-  --accent-glow: rgba(56, 189, 248, 0.25);
+  /* --- 4. Operational Command Accent (Signal Blue) --- */
+  --accent: #0057FF;
+  --accent-strong: #3378FF;
+  --accent-subtle: rgba(0, 87, 255, 0.12);
+  --accent-glow: none;
 
   /* --- 5. Status Semantics (Clear Text + Color Cues) --- */
-  --status-ok: #2fd89a;
-  --status-ok-bg: rgba(47, 216, 154, 0.08);
-  --status-ok-border: rgba(47, 216, 154, 0.28);
+  --status-ok: #00D98B;
+  --status-ok-bg: rgba(0, 217, 139, 0.08);
+  --status-ok-border: rgba(0, 217, 139, 0.28);
   --ok: var(--status-ok);
 
-  --status-warn: #f0b23f;
-  --status-warn-bg: rgba(240, 178, 63, 0.08);
-  --status-warn-border: rgba(240, 178, 63, 0.28);
+  --status-warn: #FFB020;
+  --status-warn-bg: rgba(255, 176, 32, 0.08);
+  --status-warn-border: rgba(255, 176, 32, 0.28);
   --warn: var(--status-warn);
 
-  --status-danger: #f43f5e;
-  --status-danger-bg: rgba(244, 63, 94, 0.08);
-  --status-danger-border: rgba(244, 63, 94, 0.28);
+  --status-danger: #FF4D5A;
+  --status-danger-bg: rgba(255, 77, 90, 0.08);
+  --status-danger-border: rgba(255, 77, 90, 0.28);
   --danger: var(--status-danger);
 
-  --status-run: #38bdf8;
-  --status-run-bg: rgba(56, 189, 248, 0.08);
-  --status-run-border: rgba(56, 189, 248, 0.32);
+  --status-run: #0057FF;
+  --status-run-bg: rgba(0, 87, 255, 0.08);
+  --status-run-border: rgba(0, 87, 255, 0.32);
 
-  --status-idle: #64748b;
-  --status-idle-bg: rgba(100, 116, 139, 0.08);
-  --status-idle-border: rgba(100, 116, 139, 0.22);
+  --status-idle: #727D89;
+  --status-idle-bg: rgba(114, 125, 137, 0.08);
+  --status-idle-border: rgba(114, 125, 137, 0.22);
 
   /* --- 6. Maritime Discipline Hues (Synced with Deck.gl WebGL layers) --- */
-  --c-sar: #ff8a63;              /* Observed slick orange */
-  --c-sar-look: #d0a35f;         /* SAR lookalike amber */
-  --c-footprint: #60a5cd;        /* SAR radar footprint blue */
-  --c-drift: #2dd4bf;            /* Forward drift model teal */
-  --c-drift-line: #14b8a6;       /* Drift boundary contour */
-  --c-source: #f0c05a;           /* Backtracked source origin gold */
-  --c-vessel: #7dd3fc;           /* Live vessel sky blue */
-  --c-trail: #386b8c;            /* Recorded vessel trail slate */
-  --c-sat: #516f8c;              /* Satellite track slate-cyan */
+  --c-sar: #FF8A63;              /* Observed slick orange */
+  --c-sar-look: #D0A35F;         /* SAR lookalike amber */
+  --c-footprint: #60A5CD;        /* SAR radar footprint blue */
+  --c-drift: #2DD4BF;            /* Forward drift model teal */
+  --c-drift-line: #14B8A6;       /* Drift boundary contour */
+  --c-source: #FFB020;           /* Backtracked source origin gold */
+  --c-vessel: #B2BBC5;           /* Normal vessel mist */
+  --c-trail: #273340;            /* Recorded vessel trail chartline */
+  --c-sat: #516F8C;              /* Satellite track slate */
 
   /* --- 7. Typography Tokens --- */
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', Monaco, monospace;
+  --font-sans: 'Schibsted Grotesk Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Newsreader Variable', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', 'Cascadia Code', Consolas, monospace;
   --sans: var(--font-sans);
+  --serif: var(--font-serif);
   --mono: var(--font-mono);
 
   /* Type scale */
@@ -258,13 +269,13 @@
   --space-10: 40px;
   --space-12: 48px;
 
-  /* --- 9. Radius Scale (Restrained, Crisp) --- */
+  /* --- 9. Radius Scale (Restrained, Precision Instrument) --- */
   --radius-none: 0px;
   --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
   --radius-full: 9999px;
   --radius: var(--radius-sm);
 
@@ -272,7 +283,7 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.40);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.50);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.65);
-  --shadow-glass: 0 12px 36px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-glass: 0 12px 36px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   --shadow-1: var(--shadow-sm);
   --shadow-2: var(--shadow-md);
 
@@ -339,8 +350,8 @@ body {
 }
 
 ::selection {
-  background: rgba(56, 189, 248, 0.28);
-  color: #ffffff;
+  background: rgba(0, 87, 255, 0.32);
+  color: #F8F7F4;
 }
 
 /* Operational Scrollbar */
@@ -3486,19 +3497,28 @@ body {
 }
 
 .dossier-hero-title {
-  font-size: 26px;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   line-height: 1.2;
   margin: 0 0 12px;
-  color: var(--ink-0);
+  color: var(--porcelain);
 }
 
 .dossier-hero-title span {
   display: block;
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 400;
-  color: var(--ink-1);
+  font-style: italic;
+  color: var(--ink-secondary);
+}
+
+.dossier-editorial {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--porcelain);
 }
 
 .dossier-hero-note {
@@ -4907,20 +4927,19 @@ body {
 }
 
 .spine-nav-item--active {
-  color: var(--accent-strong);
-  background: rgba(56, 189, 248, 0.12);
+  color: var(--porcelain);
+  background: var(--signal-blue-subtle);
 }
 
 .spine-nav-item--active::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 6px;
-  bottom: 6px;
+  top: 8px;
+  bottom: 8px;
   width: 3px;
-  background: var(--accent);
+  background: var(--signal-blue);
   border-radius: 0 2px 2px 0;
-  box-shadow: 0 0 8px var(--accent);
 }
 
 /* Tooltip on hover */
@@ -5004,7 +5023,7 @@ body {
   border-radius: 50%;
 }
 
-.spine-dot--ok { background: var(--status-ok); box-shadow: 0 0 4px var(--status-ok); }
+.spine-dot--ok { background: var(--status-ok); }
 .spine-dot--warn { background: var(--status-warn); }
 .spine-dot--danger { background: var(--status-danger); }
 .spine-dot--idle { background: var(--ink-faint); }
@@ -5127,8 +5146,8 @@ body {
   flex-shrink: 0;
 }
 
-.flightpath-beacon--ok { background: var(--status-ok); box-shadow: 0 0 6px var(--status-ok); }
-.flightpath-beacon--run { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulseBeacon 1.8s infinite; }
+.flightpath-beacon--ok { background: var(--status-ok); }
+.flightpath-beacon--run { background: var(--accent); }
 .flightpath-beacon--danger { background: var(--status-danger); }
 .flightpath-beacon--idle { background: var(--ink-muted); }
 
@@ -5880,8 +5899,8 @@ body {
   border-radius: 50%;
 }
 
-.ctx-dot--ok { background: var(--status-ok); box-shadow: 0 0 6px var(--status-ok); }
-.ctx-dot--live { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulseBeacon 2s infinite; }
+.ctx-dot--ok { background: var(--status-ok); }
+.ctx-dot--live { background: var(--accent); }
 .ctx-dot--warn { background: var(--status-warn); }
 .ctx-dot--danger { background: var(--status-danger); }
 .ctx-dot--idle { background: var(--ink-faint); }

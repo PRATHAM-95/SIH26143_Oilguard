@@ -343,4 +343,41 @@ Rebuild `/backtracking` and `/attribution` from legacy implementations into the 
 ### Milestone Status
 - **M4 is COMPLETE**. Rebuilt `/backtracking` and `/attribution` interfaces are verified, honest, and operational. Ready for Milestone M5 (Report Rebuild & Export).
 
+---
+
+## Design Direction: Premium Visual System Refinement (COMPLETED)
+
+- **Completed On**: 2026-09-22
+- **Branch**: `frontend-rebuild`
+- **Objective**: Evolve OilGuard into a visually distinctive, premium, commercially credible maritime forensic intelligence product. Eliminate AI slop (neon cyan, glowing borders, card spam, bubbly rounded geometry) and establish the definitive "Maritime Forensic Intelligence" design foundation.
+
+### What Was Done
+1. **Brand Pair & Color Hierarchy**:
+   - Primary Brand Accent Pair: **Signal Blue (`#0057FF`)** + **Porcelain (`#F8F7F4`)**.
+   - Base Neutrals: **Abyss (`#070B10`)**, **Trench (`#0B1118`)**, **Deck (`#111923`)**, and **Chartline (`#273340`)**.
+   - Text Palette: Primary typography and metrics in **Porcelain (`#F8F7F4`)**, secondary body in **Mist (`#B2BBC5`)**, and captions/metadata in **Dim (`#727D89`)**.
+   - Semantic Operational States: Strictly preserved for real domain telemetry: **OK (`#00D98B`)**, **Warn (`#FFB020`)**, **Danger (`#FF4D5A`)**.
+   - Visual distribution: ~80% dark maritime neutrals, ~10–15% porcelain, ~5–10% signal/semantic accents.
+2. **Typography System**:
+   - **Primary UI**: `Schibsted Grotesk Variable` (digital-first UI family; used for navigation, interface labels, headings, buttons, controls, tables).
+   - **Editorial / Dossier**: `Newsreader Variable` (used selectively for forensic narratives, report conclusions, incident dossier hero titles).
+   - **Technical Telemetry**: `JetBrains Mono Variable` (strictly reserved for coordinates, timestamps, MMSI/IMO, measurements, numerical telemetry, and IDs).
+3. **Instrumentation Control Language**:
+   - Buttons refined in `src/ui/design-system/Button.tsx`: Precision instrumentation controls with `rounded-[3px]`, crisp hairlines, and Signal Blue primary styling (`bg-signal-blue text-porcelain hover:bg-[#0048D9] border border-signal-blue`).
+   - Removed glowing box-shadows and pulse animations (`box-shadow: 0 0 8px...`) across spine navigation, beacons, status dots, and contextual cards.
+4. **Vessel Visual Hierarchy**:
+   - Normal vessels rendered in calm mist silhouette `[178, 187, 197, 210]`.
+   - Selected vessel highlighted in Porcelain `[248, 247, 244, 255]` with crisp Signal Blue selection ring `[0, 87, 255, 230]`.
+   - Selected vessel trajectory highlighted with Signal Blue emphasis `[0, 87, 255, 230]` while unselected trails remain chartline slate `[39, 51, 64]`.
+   - Direction vectors scale strictly with genuine SOG (knots) when available. Zero invented telemetry.
+5. **Quality Gates & Multi-Viewport Verification**:
+   - `npx tsc --noEmit`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors (exit code 0).
+   - `npm run test`: 4 passed (exit code 0).
+   - `npm run build`: 1437 modules transformed, built cleanly in 18.9s (exit code 0).
+   - `npx playwright test scripts/shots.pw.ts`: 24/24 passed across 1920x1080, 1440x900, 1280x800, 768x1024 with zero horizontal overflow and zero console errors.
+   - Graphify refreshed: 576 nodes, 1605 edges, 16 communities, 0 import cycles, 0 orphaned components.
+   - Protected contracts verified: 0 modifications to `backend/`, `scientific-service/`, `src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`.
+
+
 

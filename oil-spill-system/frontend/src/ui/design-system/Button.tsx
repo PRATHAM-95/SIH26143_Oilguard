@@ -3,16 +3,16 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { clsx } from 'clsx'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 font-sans font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sonar disabled:pointer-events-none disabled:opacity-40 select-none cursor-pointer rounded-sm',
+  'inline-flex items-center justify-center gap-2 font-sans font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-signal-blue disabled:pointer-events-none disabled:opacity-40 select-none cursor-pointer rounded-[3px]',
   {
     variants: {
       variant: {
         primary:
-          'bg-sonar text-abyss font-semibold hover:brightness-110 active:brightness-95 shadow-sm',
+          'bg-signal-blue text-porcelain font-semibold hover:bg-signal-blue-hover active:bg-signal-blue shadow-sm border border-signal-blue',
         secondary:
-          'bg-deck text-foam border border-chartline hover:border-sonar/40 hover:bg-deck/90 active:bg-deck/80',
+          'bg-deck text-foam border border-chartline hover:border-chartline/90 hover:bg-deck/90 active:bg-deck/80',
         outline:
-          'border border-chartline text-foam hover:border-sonar/60 hover:bg-trench active:bg-deck/50',
+          'border border-chartline text-foam hover:border-signal-blue/50 hover:bg-trench active:bg-deck/50',
         ghost:
           'text-mist hover:text-foam hover:bg-trench/70 active:bg-deck/50',
         danger:

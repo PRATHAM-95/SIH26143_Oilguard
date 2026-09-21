@@ -7,7 +7,7 @@ const TONE_DOT_CLASSES: Record<OperationalStatusTone, string> = {
   ok: 'bg-emerald-400',
   warn: 'bg-amber-400',
   danger: 'bg-rose-500',
-  run: 'bg-cyan-400 animate-pulse',
+  run: 'bg-signal-blue',
   idle: 'bg-slate-500',
 }
 

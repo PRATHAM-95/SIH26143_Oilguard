@@ -153,12 +153,12 @@ export function AttributionControlRail({
             <div className="space-y-2">
               <button
                 type="button"
-                className={`w-full py-2 px-3 rounded text-xs font-medium tracking-wide flex items-center justify-center gap-2 transition-colors ${
+                className={`w-full py-2 px-3 rounded-[3px] text-xs font-medium tracking-wide flex items-center justify-center gap-2 transition-colors ${
                   running
                     ? 'bg-sonar/20 text-sonar border border-sonar/40 cursor-wait'
                     : !simulationId
                       ? 'bg-[var(--border-default)] text-ink-muted cursor-not-allowed'
-                      : 'bg-accent text-white hover:bg-accent/90 shadow-sm'
+                      : 'bg-signal-blue text-porcelain hover:bg-[#0048D9] shadow-sm'
                 }`}
                 disabled={!simulationId || running}
                 onClick={handleRun}
@@ -313,12 +313,12 @@ export function AttributionControlRail({
           <div className="flex flex-col items-center space-y-3">
             <button
               type="button"
-              className={`w-9 h-9 rounded flex items-center justify-center transition-colors ${
+              className={`w-9 h-9 rounded-[3px] flex items-center justify-center transition-colors ${
                 running
                   ? 'bg-sonar/20 text-sonar'
                   : !simulationId
                     ? 'bg-[var(--border-default)] text-ink-muted cursor-not-allowed'
-                    : 'bg-accent text-white hover:bg-accent/90'
+                    : 'bg-signal-blue text-porcelain hover:bg-[#0048D9]'
               }`}
               disabled={!simulationId || running}
               onClick={handleRun}

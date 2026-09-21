@@ -32,22 +32,45 @@ export function useSimulationLayers(): NonNullable<MapboxOverlayProps['layers']>
     const layers: NonNullable<MapboxOverlayProps['layers']> = []
 
     if (showTrails) {
-      const segmentData: { path: [number, number][] }[] = []
+      const normalSegments: { path: [number, number][] }[] = []
+      const selectedSegments: { path: [number, number][] }[] = []
       for (const v of vessels) {
         const pts = trails[v.id]
         if (!pts || pts.length < 2) continue
-        segmentData.push(...trailSegments(pts))
+        const isSel =
+          (mapSelection?.kind === 'vessel' &&
+            (mapSelection.id === v.id || mapSelection.mmsi === v.mmsi)) ||
+          selectedVesselId === v.id
+        if (isSel) {
+          selectedSegments.push(...trailSegments(pts))
+        } else {
+          normalSegments.push(...trailSegments(pts))
+        }
       }
-      if (segmentData.length > 0) {
+      if (normalSegments.length > 0) {
         layers.push(
           new LineLayer({
             id: 'simulation-vessel-trails',
-            data: segmentData,
+            data: normalSegments,
             getPath: (d: { path: [number, number][] }) => d.path,
             getColor: VSCO.evidence.trail as [number, number, number],
             getWidth: 1.4,
+            widthMinPixels: 2.5,
+            widthMaxPixels: 6,
+            pickable: false,
+          }),
+        )
+      }
+      if (selectedSegments.length > 0) {
+        layers.push(
+          new LineLayer({
+            id: 'simulation-vessel-trails-selected',
+            data: selectedSegments,
+            getPath: (d: { path: [number, number][] }) => d.path,
+            getColor: [0, 87, 255, 230],
+            getWidth: 2.4,
             widthMinPixels: 4,
-            widthMaxPixels: 10,
+            widthMaxPixels: 9,
             pickable: false,
           }),
         )

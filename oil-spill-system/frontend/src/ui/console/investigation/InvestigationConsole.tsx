@@ -35,7 +35,7 @@ function ProgressGauge() {
       </div>
       <div className="w-full h-1.5 bg-[var(--border-default)] rounded overflow-hidden">
         <div
-          className="h-full bg-sonar transition-all duration-500 ease-out"
+          className="h-full bg-signal-blue transition-all duration-500 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>

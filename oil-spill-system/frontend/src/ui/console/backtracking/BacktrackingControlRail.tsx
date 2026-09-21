@@ -3,6 +3,20 @@ import { useBacktrackingStore } from '@/store/featureStores'
 import { StatusBadge, type OperationalStatusTone } from '@/ui/design-system/StatusBadge'
 import { ProvenanceLabel } from '@/ui/design-system/ProvenanceLabel'
 
+/**
+ * Presentation-level solver defaults. These mirror the backend backtracking
+ * defaults (BacktrackingService: durationHours 6.0, ensembleSize 20,
+ * particlesPerMember 200, environmentSource "CONTROLLED") and are shown only
+ * before a completed result is available. A run issued without explicit options
+ * (run(simulationId)) executes exactly these values, so the display and the
+ * executed configuration always agree. After completion the persisted DTO
+ * values are authoritative and replace these fallbacks.
+ */
+const DEFAULT_BACKTRACKING_DURATION_HOURS = 6
+const DEFAULT_BACKTRACKING_ENSEMBLE_SIZE = 20
+const DEFAULT_BACKTRACKING_PARTICLES_PER_MEMBER = 200
+const DEFAULT_BACKTRACKING_ENVIRONMENT_SOURCE = 'CONTROLLED'
+
 function btTone(status: string): OperationalStatusTone {
   switch (status) {
     case 'running':
@@ -21,10 +35,15 @@ export function BacktrackingControlRail({ collapsed }: { collapsed: boolean }) {
   const spill = useSimulationStore((s) => s.spill)
   const status = useBacktrackingStore((s) => s.status)
   const busy = useBacktrackingStore((s) => s.busy)
-  const durationHours = useBacktrackingStore((s) => s.durationHours) ?? 6
-  const ensembleSize = useBacktrackingStore((s) => s.ensembleSize) ?? 100
-  const particlesPerMember = useBacktrackingStore((s) => s.particlesPerMember) ?? 250
-  const environmentSource = useBacktrackingStore((s) => s.environmentSource) ?? 'CONTROLLED'
+  const durationHours =
+    useBacktrackingStore((s) => s.durationHours) ?? DEFAULT_BACKTRACKING_DURATION_HOURS
+  const ensembleSize =
+    useBacktrackingStore((s) => s.ensembleSize) ?? DEFAULT_BACKTRACKING_ENSEMBLE_SIZE
+  const particlesPerMember =
+    useBacktrackingStore((s) => s.particlesPerMember) ??
+    DEFAULT_BACKTRACKING_PARTICLES_PER_MEMBER
+  const environmentSource =
+    useBacktrackingStore((s) => s.environmentSource) ?? DEFAULT_BACKTRACKING_ENVIRONMENT_SOURCE
   const clear = useBacktrackingStore((s) => s.clear)
 
   const running = busy || status === 'running'
@@ -97,12 +116,12 @@ export function BacktrackingControlRail({ collapsed }: { collapsed: boolean }) {
             <div className="space-y-2">
               <button
                 type="button"
-                className={`w-full py-2 px-3 rounded text-xs font-medium tracking-wide flex items-center justify-center gap-2 transition-colors ${
+                className={`w-full py-2 px-3 rounded-[3px] text-xs font-medium tracking-wide flex items-center justify-center gap-2 transition-colors ${
                   running
                     ? 'bg-sonar/20 text-sonar border border-sonar/40 cursor-wait'
                     : !simulationId
                       ? 'bg-[var(--border-default)] text-ink-muted cursor-not-allowed'
-                      : 'bg-accent text-white hover:bg-accent/90 shadow-sm'
+                      : 'bg-signal-blue text-porcelain hover:bg-[#0048D9] shadow-sm'
                 }`}
                 disabled={!simulationId || running}
                 onClick={handleRun}
@@ -221,12 +240,12 @@ export function BacktrackingControlRail({ collapsed }: { collapsed: boolean }) {
           <div className="flex flex-col items-center space-y-3">
             <button
               type="button"
-              className={`w-9 h-9 rounded flex items-center justify-center transition-colors ${
+              className={`w-9 h-9 rounded-[3px] flex items-center justify-center transition-colors ${
                 running
                   ? 'bg-sonar/20 text-sonar'
                   : !simulationId
                     ? 'bg-[var(--border-default)] text-ink-muted cursor-not-allowed'
-                    : 'bg-accent text-white hover:bg-accent/90'
+                    : 'bg-signal-blue text-porcelain hover:bg-[#0048D9]'
               }`}
               disabled={!simulationId || running}
               onClick={handleRun}

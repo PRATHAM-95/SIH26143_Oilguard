@@ -34,27 +34,27 @@ export type RgbaColor = [number, number, number, number]
  */
 export function getVesselColor(vessel: { type?: string; id?: string }, isSelected: boolean, isTarget?: boolean): RgbaColor {
   if (isSelected) {
-    return [255, 255, 255, 255]
+    return [248, 247, 244, 255] // Porcelain highlight
   }
   if (isTarget) {
-    return [240, 97, 109, 245] // danger red/coral
+    return [255, 77, 90, 245] // semantic danger red (#FF4D5A)
   }
 
   const type = vessel.type?.toLowerCase() ?? ''
   if (type.includes('tanker')) {
-    return [242, 184, 75, 235] // amber warning
+    return [255, 176, 32, 235] // hydrocarbon amber (#FFB020)
   }
   if (type.includes('cargo') || type.includes('container') || type.includes('carrier')) {
-    return [79, 209, 232, 230] // sonar cyan
+    return [140, 160, 180, 225] // maritime slate
   }
   if (type.includes('fish') || type.includes('trawler')) {
-    return [61, 214, 140, 220] // emerald
+    return [0, 217, 139, 220] // emerald (#00D98B)
   }
   if (type.includes('passenger') || type.includes('cruise') || type.includes('ferry')) {
-    return [167, 139, 250, 230] // violet
+    return [167, 139, 250, 220] // violet
   }
 
-  return [157, 178, 200, 220] // foam/mist
+  return [178, 187, 197, 210] // mist (#B2BBC5)
 }
 
 /**

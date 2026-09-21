@@ -32,37 +32,44 @@ export const VSCO = {
   },
 
   base: {
-    bg: '#03070c',
-    elev: '#070c13',
-    panel: '#0b131e',
-    panel2: '#0f1a28',
-    panel3: '#142234',
-    inset: '#04080f',
-    glass: 'rgba(11, 19, 30, 0.82)',
-    line: '#16242f',
-    lineStrong: '#27405a',
-    text: '#f1f5f9',
-    textDim: '#94a3b8',
-    textFaint: '#64748b',
+    bg: '#070B10',
+    elev: '#0B1118',
+    panel: '#0B1118',
+    panel2: '#111923',
+    panel3: '#182433',
+    inset: '#05080D',
+    glass: 'rgba(11, 17, 24, 0.88)',
+    line: '#273340',
+    lineStrong: '#38485B',
+    text: '#F8F7F4',
+    textDim: '#B2BBC5',
+    textFaint: '#727D89',
+    porcelain: '#F8F7F4',
   },
 
   accent: {
-    cyan: '#38bdf8',
-    cyanStrong: '#7dd3fc',
-    cyanSubtle: 'rgba(56, 189, 248, 0.12)',
+    signalBlue: '#0057FF',
+    signalBlueStrong: '#3378FF',
+    signalBlueSubtle: 'rgba(0, 87, 255, 0.12)',
+    cyan: '#0057FF',
+    cyanStrong: '#3378FF',
+    cyanSubtle: 'rgba(0, 87, 255, 0.12)',
   },
 
-  ok: '#2fd89a',
-  warn: '#f0b23f',
-  danger: '#f43f5e',
+  ok: '#00D98B',
+  warn: '#FFB020',
+  danger: '#FF4D5A',
 
   /** Discipline hues (RGB arrays for deck.gl layers). */
   evidence: {
-    dim: [82, 99, 118] as const,
+    dim: [114, 125, 137] as const,
     slick: [186, 110, 48] as const, // observed spill point
-    vessel: [122, 212, 255] as const, // live vessels
-    trail: [60, 106, 138] as const, // recorded vessel tracks
-    origin: [240, 192, 90] as const, // probable source
+    vessel: [178, 187, 197] as const, // standard vessel silhouette
+    selectedVessel: [248, 247, 244] as const, // Porcelain highlight
+    selectionRing: [0, 87, 255] as const, // Signal Blue selection
+    trail: [39, 51, 64] as const, // recorded vessel tracks (chartline)
+    selectedTrail: [0, 87, 255] as const, // selected vessel track (Signal Blue)
+    origin: [255, 176, 32] as const, // probable source
   },
 
   drift: {
@@ -83,8 +90,9 @@ export const VSCO = {
   /** Design System Typed Tokens (synchronized with CSS variables) */
   tokens: {
     fonts: {
-      sans: "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      mono: "'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', monospace",
+      sans: "'Schibsted Grotesk Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      serif: "'Newsreader Variable', Georgia, serif",
+      mono: "'JetBrains Mono Variable', 'Cascadia Code', Consolas, monospace",
     },
     zIndex: {
       canvas: 0,

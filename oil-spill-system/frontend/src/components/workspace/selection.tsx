@@ -183,7 +183,7 @@ export function useSelectionRingLayers(): NonNullable<MapboxOverlayProps['layers
         getPolygon: (d: { polygon: [number, number][] }) => d.polygon,
         stroked: true,
         filled: false,
-        getLineColor: [255, 255, 255, 210],
+        getLineColor: [0, 87, 255, 230],
         getLineWidth: 900,
         lineWidthMinPixels: 1.8,
         lineWidthMaxPixels: 3,
@@ -196,7 +196,7 @@ export function useSelectionRingLayers(): NonNullable<MapboxOverlayProps['layers
         getRadius: 520,
         radiusMinPixels: 3,
         radiusMaxPixels: 5,
-        getFillColor: focus.color,
+        getFillColor: focus.kind === 'vessel' ? [248, 247, 244, 255] : focus.color,
         pickable: false,
       }),
     ]
