@@ -189,5 +189,60 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
 - The `framer-motion` dependency is not used; `motion/react` is strictly used per process constraints.
 
 ### Milestone Status
-- **M2b is COMPLETE**. Ready to transition to Milestone M3 (Investigation & Backtracking Interfaces).
+- **M2b is COMPLETE**.
+
+---
+
+## Milestone M3: Simulation & Investigation Rebuild (COMPLETED)
+
+- **Completed On**: 2026-09-22
+- **Branch**: `frontend-rebuild`
+- **Goal**: Rebuild the scenario control room (`/simulation`) and the stage-by-stage evidence workspace (`/investigation`) within the `WorkstationShell` architecture with strict honesty, live WebSocket synchronization, and full-stack integration.
+
+### What Was Done
+1. **Simulation Workspace Rebuild (`/simulation`)**:
+   - Built `SimulationPage.tsx` using `WorkstationShell` integrating `SimulationControlRail` (left), `MaritimeMapTheater` (center), and `SimulationConsole` (right).
+   - Created `SimulationControlRail.tsx`: Purpose-built vertical control rail for Captain mode tracking scenario lifecycle (Scenario, Fleet, Vessel, Spill, Forward drift) without hijacking the 8-stage investigative FlightpathRail.
+   - Built `SimulationConsole.tsx`: Scenario lifecycle controls (Create simulation, Start simulation, Release oil spill, Run forward drift), Fleet selector with live vessel telemetry readouts (MMSI, Type, Speed, Heading, Position), Spill event metadata, and Forward drift mass balance report (Remaining, Evaporated, Dispersed kg).
+   - Built `TimeScrubber.tsx`: Monospace simulation clock display with interactive step advance controls (+1h, +6h, +12h).
+   - Replaced legacy mock/fabricated fallbacks (e.g. `'Generic crude'`) with honest `'Unspecified'` and real store telemetry.
+2. **Investigation Workspace Rebuild (`/investigation`)**:
+   - Built `InvestigationPage.tsx` using `WorkstationShell` integrating `FlightpathRail` (left), `MaritimeMapTheater` (center), and `InvestigationConsole` (right).
+   - Cold-open bootstrap loads and hydrates all feature stores (`useInvestigationStore`, `useSarStore`, `useBacktrackingStore`, `useAttributionStore`) and establishes live WebSocket connections (`useSimulationConnection`, `useInvestigationConnection`).
+   - Built `InvestigationConsole.tsx`: Pipeline progress gauge, execution controls (Start investigation, Retry pipeline, Cancel), contextual stage inspector, inline Ground-Truth Evaluation card, and runtime parameters/provenance breakdown.
+   - Built `StageCards.tsx`: 8-stage evidence card deck (Detection, Characterization, Environment, Forward drift, Backtracking, AIS analysis, Attribution, Conclusion) with strict honesty guards ("Not yet calculated", "Awaiting acquisition", "No data" — never empty blank panels or invented metrics).
+   - Integrated ground-truth reveal inline in the Conclusion stage, utilizing existing backend `revealGroundTruth` API and `lastReveal` comparison metrics.
+3. **Route Wiring & Legacy Retirement**:
+   - Updated `src/App.tsx` routing to map `/simulation` -> `SimulationPage` and `/investigation` -> `InvestigationPage`.
+   - Verified 0 cross-dependencies and retired legacy `src/pages/Simulation.tsx` and `src/pages/Investigation.tsx` via git rm.
+4. **Honesty & Provenance Enforcement**:
+   - Cold-open on both pages renders strictly honest empty/standing-by states.
+   - Telemetry and candidate readouts render only when real store values exist; all fallbacks use explicit provenance labels (`simulated`, `controlled`, `live`, `empty`).
+   - No mock data pipelines or automatic scenario generation.
+5. **Real Browser QA**:
+   - Validated `/simulation` in real browser: cold open -> Create simulation -> Captain mode fleet population -> Start simulation -> Select vessel -> Release spill with genuine Event ID and coordinates -> Advance clock +1h, +6h, +12h -> Run forward drift -> Mass balance readouts -> Map updates with zero console errors.
+   - Validated `/investigation` in real browser: cold open -> Start investigation -> Stage transitions (pending -> running -> completed) -> FlightpathRail status updates -> Real evidence cards population -> Attribution candidates ranking -> Conclusion verdict -> Ground truth reveal displaying 0.02 km position error and 180 min time error with zero console errors.
+6. **Multi-Viewport Playwright Screenshot Suite**:
+   - Executed `npm run shots` targeting `docs/frontend-rebuild/screenshots/M3/`.
+   - 24/24 configurations passed cleanly across 4 standard viewports (1920x1080, 1440x900, 1280x800, 768x1024) across all 6 routes (`/`, `/simulation`, `/investigation`, `/backtracking`, `/attribution`, `/report`).
+   - Hard assertions verified: no horizontal overflow, 0 console errors, map attribution found, unclipped, and uncovered.
+7. **Full-Stack Execution & End-to-End Reliability**:
+   - Stack running across MongoDB (27017), Python scientific service (8000), Spring Boot backend (8082), Vite frontend (3000).
+   - Executed `python scripts/e2e_investigation.py` against the live stack.
+   - All 8 stages (`detection`, `characterization`, `environment`, `forward_drift`, `backtracking`, `ais`, `attribution`, `conclusion`) completed with status `COMPLETED`.
+   - Genuine transcript captured in `docs/frontend-rebuild/screenshots/M3/e2e-transcript.txt`.
+8. **Protected Contracts Verification**:
+   - Verified git diff against baseline `6b86cdb`: 0 modifications to `backend/`, `scientific-service/`, `frontend/src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, stage IDs/order, or API contracts.
+9. **Build & Quality Gates**:
+   - `npx tsc --noEmit`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+   - `npm run test`: 2 test files, 4 tests passed (exit code 0).
+   - `npm run build`: 1434 modules transformed, built in 17.47s (exit code 0).
+   - Git hygiene: no `.tsbuildinfo` or `test-results/` tracked.
+
+### Known Limitations
+- Dedicated full-page Backtracking ensemble inspector and Attribution 3D vessel ranking workspaces will be rebuilt in Milestone M4 per `PLAN.md`.
+
+### Milestone Status
+- **M3 is COMPLETE**. Ready to transition to Milestone M4 (Backtracking & Attribution Pages).
 
