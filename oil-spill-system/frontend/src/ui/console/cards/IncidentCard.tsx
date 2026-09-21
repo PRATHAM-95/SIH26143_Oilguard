@@ -12,7 +12,7 @@ export function IncidentCard() {
 
   const hasIncident = incident.status !== 'none' || spill?.incidentId != null
   const confidencePct =
-    incident.detectionConfidence != null ? Math.round(incident.detectionConfidence * 100) : 92
+    incident.detectionConfidence != null ? Math.round(incident.detectionConfidence * 100) : 0
 
   const canStart = !!spill?.incidentId && invStatus !== 'RUNNING' && invStatus !== 'CREATED' && !busy
 
@@ -45,7 +45,7 @@ export function IncidentCard() {
                   ? `${incident.location.lat.toFixed(4)}°N, ${incident.location.lon.toFixed(4)}°E`
                   : spill?.location
                     ? `${spill.location.lat.toFixed(4)}°N, ${spill.location.lon.toFixed(4)}°E`
-                    : '18.9240°N, 72.8350°E'}
+                    : 'No data'}
               </span>
             </div>
 
@@ -53,8 +53,8 @@ export function IncidentCard() {
               <span className="ctx-label">ESTIMATED DISCHARGE</span>
               <span className="ctx-val ctx-val--mono">
                 {spill?.quantityKg != null
-                  ? `${spill.quantityKg.toLocaleString()} kg · ${spill.oilType ?? 'Heavy Fuel Oil'}`
-                  : '14,200 kg · Heavy Fuel Oil'}
+                  ? `${spill.quantityKg.toLocaleString()} kg · ${spill.oilType ?? 'Unknown type'}`
+                  : 'No data'}
               </span>
             </div>
 

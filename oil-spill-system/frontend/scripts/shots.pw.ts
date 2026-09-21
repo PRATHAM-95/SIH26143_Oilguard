@@ -29,7 +29,9 @@ const VIEWPORTS = [
 ]
 
 const BASE_URL = 'http://localhost:3000'
-const SHOT_DIR = path.resolve(__dirname, '../../../docs/frontend-rebuild/screenshots')
+const SHOT_DIR = process.env.SHOT_DIR 
+  ? path.resolve(__dirname, '../../../', process.env.SHOT_DIR)
+  : path.resolve(__dirname, '../../../docs/frontend-rebuild/screenshots')
 
 /** Route slug for use in filenames. */
 function routeSlug(route: string): string {
@@ -100,9 +102,6 @@ for (const vp of VIEWPORTS) {
           await page.waitForTimeout(500)
 
           const attrResult = await page.evaluate(() => {
-            const mapEl = document.querySelector('.maplibregl-map')
-            if (mapEl) console.log("MAP_DOM:", mapEl.innerHTML)
-            
             // MapLibre renders the attribution inside .maplibregl-ctrl-attrib
             const el = document.querySelector('.maplibregl-ctrl-attrib') as HTMLElement | null
             if (!el) return { found: false, clipped: false, covered: false }

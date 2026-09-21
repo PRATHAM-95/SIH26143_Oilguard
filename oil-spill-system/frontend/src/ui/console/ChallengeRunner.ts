@@ -13,7 +13,7 @@ import { useMapStore } from '@/store/mapStore'
  * full 8-stage investigation. Every channel is labelled honestly (CONTROLLED /
  * LOCAL_FIXTURE provenance) until Phase 3 wires Open-Meteo and EONET.
  *
- * `DEMO` = auto-bootstrapped on cold open; `LIVE` = judge pressed the button.
+ * `DEMO` = reserved for integration tests or explicit fixture injection; `LIVE` = judge pressed the button.
  */
 export type ChallengePhase =
   | 'idle'
@@ -100,7 +100,7 @@ export async function runLiveChallenge(label: 'DEMO' | 'LIVE' = 'LIVE'): Promise
     await useSimulationStore.getState().advance(12)
     await sleep(700)
 
-    // 3b — anchor the demo on the first vessel of the fleet
+    // 3b — anchor the scenario on the first vessel of the fleet
     const vessels = useSimulationStore.getState().vessels
     const anchor = vessels[0] ?? null
     if (anchor) useSimulationStore.getState().selectVessel(anchor.id)
@@ -115,7 +115,7 @@ export async function runLiveChallenge(label: 'DEMO' | 'LIVE' = 'LIVE'): Promise
     }
     await sleep(900)
 
-    // 5 — SAR detection (LOCAL_FIXTURE, explicitly labelled demo)
+    // 5 — SAR detection (LOCAL_FIXTURE, explicitly labelled scenario)
     const simId = useSimulationStore.getState().simulationId
     if (!simId) throw new Error('Simulation id lost during detection.')
     useChallengeStore.setState({ phase: 'detecting' })
@@ -146,7 +146,7 @@ export async function runLiveChallenge(label: 'DEMO' | 'LIVE' = 'LIVE'): Promise
 export function phaseLabel(phase: ChallengePhase): string {
   switch (phase) {
     case 'preparing':
-      return 'Preparing demo case…'
+      return 'Preparing case…'
     case 'running':
       return 'Simulation live'
     case 'detecting':

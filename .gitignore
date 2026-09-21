@@ -61,4 +61,5 @@ weights/
 scientific-service/.venv/
 
 # Simulation output
-output/
+output/*.tsbuildinfo
+test-results/

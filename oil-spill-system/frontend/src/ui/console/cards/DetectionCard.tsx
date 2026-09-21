@@ -37,14 +37,14 @@ export function DetectionCard() {
           <div className="ctx-field">
             <span className="ctx-label">SCENE IDENTIFIER</span>
             <span className="ctx-val ctx-val--mono">
-              {sar.sceneId ? sar.sceneId.slice(0, 20) + '…' : 'SENTINEL-1B_GRDH_1SDV'}
+              {sar.sceneId ? sar.sceneId.slice(0, 20) + '…' : 'No SAR scene acquired'}
             </span>
           </div>
 
           <div className="ctx-field">
             <span className="ctx-label">DETECTION ALGORITHM</span>
             <span className="ctx-val">
-              {sar.detector ?? 'Adaptive Dual-Pol CFAR / ESA Sentinel-1'}
+              {sar.detector ?? 'Awaiting acquisition'}
             </span>
           </div>
 
@@ -52,8 +52,8 @@ export function DetectionCard() {
             <span className="ctx-label">CANDIDATE SLICKS</span>
             <span className="ctx-val ctx-val--highlight">
               {sar.candidates.length > 0
-                ? `${sar.candidates.length} features detected (${sar.slickAreaKm2 != null ? sar.slickAreaKm2.toFixed(1) : '3.8'} km²)`
-                : '1 anomalous feature verified (4.2 km²)'}
+                ? `${sar.candidates.length} features detected (${sar.slickAreaKm2 != null ? sar.slickAreaKm2.toFixed(1) : '0.0'} km²)`
+                : 'Provenance: none'}
             </span>
           </div>
 

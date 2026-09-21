@@ -7,13 +7,13 @@ import {
 import { useSimulationStore } from '@/store/simulationStore'
 import type { InvestigationStageStatus } from '@/types/domain'
 
-const STAGE_SUBTITLES: Record<string, string> = {
+export const STAGE_SUBTITLES: Record<string, string> = {
   detection: 'SAR radar backscatter scan',
   characterization: 'Spill volume & classification',
   environment: 'Wind & currents interpolation',
   forward_drift: 'Forward particle dispersion',
   backtracking: 'Lagrangian reverse solver',
-  ais_analysis: 'AIS spatial-temporal filter',
+  ais: 'AIS spatial-temporal filter',
   attribution: 'Vessel suspect ranking',
   conclusion: 'Forensic incident verdict',
 }

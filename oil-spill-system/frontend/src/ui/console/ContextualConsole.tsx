@@ -99,7 +99,9 @@ export function ContextualConsole({ rightCollapsed, setRightCollapsed }: { right
 
         <div className="mt-8 text-center px-4">
           <p className="text-[10px] text-ink-muted">
-            Live scientific pipeline — all sensor models and trajectories reflect deterministic numerical computations.
+            {!status || status === 'CREATED'
+              ? 'System standing by for telemetry link.'
+              : 'Live scientific pipeline — all sensor models and trajectories reflect deterministic numerical computations.'}
           </p>
         </div>
       </div>
