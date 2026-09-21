@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useHealthProbe } from '@/hooks/useHealthProbe'
 import { useConnectionStore } from '@/store/connectionStore'
 import { useInvestigationStore } from '@/store/investigationStore'
 import { useSimulationStore } from '@/store/simulationStore'
+import { useUtcClock } from '@/hooks/useUtcClock'
 import { StatusChip } from '@/components/Status'
 import { AppShell } from '@/ui/shell/AppShell'
 import {
@@ -34,14 +34,10 @@ const WORKSPACE_MAP: Record<string, { label: string; code: string }> = {
 }
 
 function UtcSpineClock() {
-  const [now, setNow] = useState(() => new Date())
-  useEffect(() => {
-    const t = window.setInterval(() => setNow(new Date()), 1000)
-    return () => window.clearInterval(t)
-  }, [])
-  const stamp = now.toISOString().slice(11, 16)
+  const iso = useUtcClock()
+  const stamp = iso.slice(11, 16)
   return (
-    <div className="spine-clock" title={`UTC Zulu Time: ${now.toISOString()}`}>
+    <div className="spine-clock" title={`UTC Zulu Time: ${iso}`}>
       <span className="spine-clock-val">{stamp}Z</span>
     </div>
   )
@@ -69,28 +65,36 @@ function SpineHealthMonitor() {
   )
 }
 
-function SecondaryPageHeader({ currentWorkspace }: { currentWorkspace: { label: string; code: string } }) {
+/** Pages that maintain an active WebSocket stream and show stream state. */
+const STREAM_PAGES = new Set(['/', '/simulation', '/investigation'])
+
+function SecondaryPageHeader({
+  currentWorkspace,
+  pathname,
+}: {
+  currentWorkspace: { label: string; code: string }
+  pathname: string
+}) {
   const investigationId = useInvestigationStore((s) => s.investigationId)
   const invStatus = useInvestigationStore((s) => s.status)
   const simulationId = useSimulationStore((s) => s.simulationId)
-  const simulationMode = useSimulationStore((s) => s.mode)
+  // Backend REST reachability — set by health probe (connections.api)
+  const apiStatus = useConnectionStore((s) => s.connections.api)
+  const isApiOnline = apiStatus === 'online'
+  // WebSocket stream state — only meaningful on pages that open a stream
   const wsStatus = useConnectionStore((s) => s.connections.websocket)
-  const isConnected = wsStatus === 'online'
+  const showStream = STREAM_PAGES.has(pathname)
 
+  // Provenance: show mode based on simulationId presence
+  // The backend creates simulations in captain mode (Controlled data)
   let provenanceLabel = 'No data'
   let provenanceTone = 'text-dim'
   let provenanceDot = 'bg-slate-500'
 
   if (simulationId) {
-    if (simulationMode === 'captain') {
-      provenanceLabel = 'Simulated'
-      provenanceTone = 'text-amber-400'
-      provenanceDot = 'bg-amber-400'
-    } else {
-      provenanceLabel = 'Controlled'
-      provenanceTone = 'text-cyan-400'
-      provenanceDot = 'bg-cyan-400'
-    }
+    provenanceLabel = 'Controlled'
+    provenanceTone = 'text-cyan-400'
+    provenanceDot = 'bg-cyan-400'
   }
 
   return (
@@ -122,16 +126,43 @@ function SecondaryPageHeader({ currentWorkspace }: { currentWorkspace: { label: 
         ) : null}
 
         {/* Data Provenance Indicator */}
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-sans" title={`Data provenance: ${provenanceLabel}`}>
+        <div
+          className="inline-flex items-center gap-1.5 text-[11px] font-sans"
+          title={`Data provenance: ${provenanceLabel}`}
+        >
           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${provenanceDot}`} />
           <span className={provenanceTone}>{provenanceLabel}</span>
         </div>
 
-        {/* Connection State */}
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-300" title={`Connection: ${isConnected ? 'Connected' : 'Offline'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isConnected ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]' : 'bg-rose-500'}`} />
-          <span>{isConnected ? 'Connected' : 'Offline'}</span>
+        {/* Backend reachability – from health probe, accurate on all pages */}
+        <div
+          className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-300"
+          title={`Backend: ${isApiOnline ? 'Connected' : 'Offline'}`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+              isApiOnline
+                ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]'
+                : 'bg-rose-500'
+            }`}
+          />
+          <span>{isApiOnline ? 'Connected' : 'Offline'}</span>
         </div>
+
+        {/* Stream state – only pages that open a WebSocket */}
+        {showStream ? (
+          <div
+            className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-400"
+            title={`Stream: ${wsStatus === 'online' ? 'Streaming' : 'Idle'}`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                wsStatus === 'online' ? 'bg-sonar animate-pulse' : 'bg-slate-600'
+              }`}
+            />
+            <span>{wsStatus === 'online' ? 'Streaming' : 'Idle'}</span>
+          </div>
+        ) : null}
 
         <NavLink to="/report" className="subpage-dossier-link" title="Open Forensic Incident Dossier">
           <DossierIcon size={13} />
@@ -148,6 +179,7 @@ export default function Layout() {
   const isCommandCenter = location.pathname === '/'
   const isTheater = location.pathname !== '/report'
   const currentWorkspace = WORKSPACE_MAP[location.pathname] ?? { label: 'Workspace', code: 'WS' }
+  const pathname = location.pathname
 
   return (
     <AppShell
@@ -193,7 +225,7 @@ export default function Layout() {
       }
       operationalBar={
         !isCommandCenter ? (
-          <SecondaryPageHeader currentWorkspace={currentWorkspace} />
+          <SecondaryPageHeader currentWorkspace={currentWorkspace} pathname={pathname} />
         ) : null
       }
     >

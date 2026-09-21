@@ -6464,3 +6464,21 @@ body {
   }
 }
 } /* end @layer legacy */
+
+/* -----------------------------------------------------------------------
+   MapLibre vendor overrides — unlayered, scoped to map canvas selectors.
+   Must be outside @layer so they have higher specificity than vendor styles.
+   ----------------------------------------------------------------------- */
+
+/* Compact attribution: remove hard clip so full text is always readable.
+   The expand button still shows; clicking it wraps the full attribution text. */
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  max-width: none;
+  overflow: visible;
+}
+
+/* Attribution inner text: allow wrapping on small viewports */
+.maplibregl-ctrl-attrib-inner {
+  white-space: normal;
+  word-break: break-word;
+}

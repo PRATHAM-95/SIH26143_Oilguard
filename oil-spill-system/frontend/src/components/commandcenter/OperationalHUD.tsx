@@ -11,6 +11,7 @@ import { useInvestigationStore } from '@/store/investigationStore'
 import { useSarStore } from '@/store/sarStore'
 import { useEnvironmentStore } from '@/store/environmentStore'
 import { useAttributionStore } from '@/store/featureStores'
+import { useUtcClock } from '@/hooks/useUtcClock'
 import { LayerControlDrawer } from './LayerControlDrawer'
 import type { MapLayerId } from '@/store/mapStore'
 
@@ -19,21 +20,20 @@ export function OperationalHUD({ availableLayers }: { availableLayers?: MapLayer
   const challengeLabel = useChallengeStore((s) => s.label)
   const simulationId = useSimulationStore((s) => s.simulationId)
   const simStatus = useSimulationStore((s) => s.status)
-  const clock = useSimulationStore((s) => s.clock)
   const invStatus = useInvestigationStore((s) => s.status)
   const sar = useSarStore((s) => s.provenance)
   const wind = useEnvironmentStore((s) => s.wind)
   const current = useEnvironmentStore((s) => s.current)
   const ais = useAttributionStore((s) => s.aisSource)
 
-  const [copied, setCopied] = useState(false)
+  // Wall-clock UTC – based on new Date(), not simulation event timestamps
+  const utcIso = useUtcClock()
+  const clockFormatted = utcIso.slice(11, 19) + 'Z'
 
   const running = challengePhase === 'preparing' || challengePhase === 'running'
   const isCompleted = invStatus === 'COMPLETED' || challengePhase === 'done'
 
-  const clockFormatted = clock
-    ? new Date(clock).toISOString().slice(11, 19) + 'Z'
-    : '—'
+  const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
     if (!simulationId) return

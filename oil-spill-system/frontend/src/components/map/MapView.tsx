@@ -149,9 +149,9 @@ export function MapFurniture() {
     <div className="map-furniture">
       <div className="coord-readout">
         <span className="mono">
-          {Math.abs(pos.lat).toFixed(4)}°{latDir} · {Math.abs(pos.lon).toFixed(4)}°{lonDir}
+          {Math.abs(pos.lat).toFixed(4)}°{latDir} &middot; {Math.abs(pos.lon).toFixed(4)}°{lonDir}
         </span>
-        <span className="coord-zoom">z{view.zoom.toFixed(1)}</span>
+        <span className="coord-zoom"> &middot; z{view.zoom.toFixed(1)}</span>
       </div>
     </div>
   )
