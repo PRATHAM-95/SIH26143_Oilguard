@@ -54,6 +54,7 @@ temp/
 data/
 datasets/
 models/
+!scientific-service/app/models/
 weights/
 
 # Scientific environment

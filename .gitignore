@@ -54,6 +54,7 @@ temp/
 data/
 datasets/
 models/
+!oil-spill-system/scientific-service/app/models/
 weights/
 
 # Scientific environment
