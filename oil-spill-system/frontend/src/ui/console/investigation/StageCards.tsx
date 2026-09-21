@@ -96,14 +96,20 @@ function ForwardDriftEvidence() {
   if (!stage || stage.status === 'pending') return <p className="text-[10px] text-ink-muted">Not yet calculated</p>
   const hasDrift = (drift.particleCount != null && drift.particleCount > 0) || drift.particles.length > 0 || drift.durationHours != null
   if (!hasDrift) return <p className="text-[10px] text-ink-muted">{stage.status === 'running' ? 'Computing forward drift…' : 'No drift results'}</p>
+
+  const envSource = drift.environmentSource ?? (typeof stage.summary?.environmentSource === 'string' ? stage.summary.environmentSource : null)
+
   return (
     <div className="flex flex-col gap-1">
       <KV label="Particles" value={drift.particleCount ?? (drift.particles.length > 0 ? drift.particles.length : null)} mono />
       <KV label="Duration" value={drift.durationHours != null ? `${drift.durationHours} h` : null} mono />
-      {drift.environmentSource && (
+      {envSource && (
         <div className="flex justify-between text-xs">
           <span className="text-mist">Environment</span>
-          <ProvenanceLabel kind="simulated" text={drift.environmentSource} />
+          <ProvenanceLabel
+            kind={envSource.includes('SYNTH') || envSource.includes('MODEL') ? 'simulated' : 'controlled'}
+            text={envSource}
+          />
         </div>
       )}
       {drift.massBalance && (

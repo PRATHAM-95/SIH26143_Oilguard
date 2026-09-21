@@ -25,6 +25,8 @@ function ProgressGauge() {
   const progress = useInvestigationStore((s) => s.progress)
   const status = useInvestigationStore((s) => s.status)
 
+  const percent = Math.max(0, Math.min(1, progress)) * 100
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
@@ -34,10 +36,10 @@ function ProgressGauge() {
       <div className="w-full h-1.5 bg-[var(--border-default)] rounded overflow-hidden">
         <div
           className="h-full bg-sonar transition-all duration-500 ease-out"
-          style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+          style={{ width: `${percent}%` }}
         />
       </div>
-      <span className="text-[10px] font-mono text-ink-muted tabular-nums">{progress.toFixed(0)}% complete</span>
+      <span className="text-[10px] font-mono text-ink-muted tabular-nums">{percent.toFixed(0)}% complete</span>
     </div>
   )
 }

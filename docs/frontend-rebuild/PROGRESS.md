@@ -209,8 +209,9 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
 2. **Investigation Workspace Rebuild (`/investigation`)**:
    - Built `InvestigationPage.tsx` using `WorkstationShell` integrating `FlightpathRail` (left), `MaritimeMapTheater` (center), and `InvestigationConsole` (right).
    - Cold-open bootstrap loads and hydrates all feature stores (`useInvestigationStore`, `useSarStore`, `useBacktrackingStore`, `useAttributionStore`) and establishes live WebSocket connections (`useSimulationConnection`, `useInvestigationConnection`).
-   - Built `InvestigationConsole.tsx`: Pipeline progress gauge, execution controls (Start investigation, Retry pipeline, Cancel), contextual stage inspector, inline Ground-Truth Evaluation card, and runtime parameters/provenance breakdown.
+   - Built `InvestigationConsole.tsx`: Pipeline progress gauge properly scaled (`percent = Math.max(0, Math.min(1, progress)) * 100`) so 1.0 displays as 100% with full bar width; execution controls (Start investigation, Retry pipeline, Cancel), contextual stage inspector, inline Ground-Truth Evaluation card, and runtime parameters/provenance breakdown.
    - Built `StageCards.tsx`: 8-stage evidence card deck (Detection, Characterization, Environment, Forward drift, Backtracking, AIS analysis, Attribution, Conclusion) with strict honesty guards ("Not yet calculated", "Awaiting acquisition", "No data" — never empty blank panels or invented metrics).
+   - Forward drift evidence provenance is dynamically derived from `environmentSource` matching `SimulationConsole.tsx` (controlled when source is CONTROLLED, simulated when SYNTHETIC/MODEL, never hardcoded).
    - Integrated ground-truth reveal inline in the Conclusion stage, utilizing existing backend `revealGroundTruth` API and `lastReveal` comparison metrics.
 3. **Route Wiring & Legacy Retirement**:
    - Updated `src/App.tsx` routing to map `/simulation` -> `SimulationPage` and `/investigation` -> `InvestigationPage`.
@@ -222,6 +223,7 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
 5. **Real Browser QA**:
    - Validated `/simulation` in real browser: cold open -> Create simulation -> Captain mode fleet population -> Start simulation -> Select vessel -> Release spill with genuine Event ID and coordinates -> Advance clock +1h, +6h, +12h -> Run forward drift -> Mass balance readouts -> Map updates with zero console errors.
    - Validated `/investigation` in real browser: cold open -> Start investigation -> Stage transitions (pending -> running -> completed) -> FlightpathRail status updates -> Real evidence cards population -> Attribution candidates ranking -> Conclusion verdict -> Ground truth reveal displaying 0.02 km position error and 180 min time error with zero console errors.
+   - Re-verified in real browser following close-out fixes: Progress gauge displays "100% complete" with full visual bar width upon completion; Forward drift environment displays "controlled" matching underlying CONTROLLED dataset with 0 console errors.
 6. **Multi-Viewport Playwright Screenshot Suite**:
    - Executed `npm run shots` targeting `docs/frontend-rebuild/screenshots/M3/`.
    - 24/24 configurations passed cleanly across 4 standard viewports (1920x1080, 1440x900, 1280x800, 768x1024) across all 6 routes (`/`, `/simulation`, `/investigation`, `/backtracking`, `/attribution`, `/report`).
@@ -232,12 +234,13 @@ Always review `MASTER_BRIEF.md` and this file at the start of every session.
    - All 8 stages (`detection`, `characterization`, `environment`, `forward_drift`, `backtracking`, `ais`, `attribution`, `conclusion`) completed with status `COMPLETED`.
    - Genuine transcript captured in `docs/frontend-rebuild/screenshots/M3/e2e-transcript.txt`.
 8. **Protected Contracts Verification**:
-   - Verified git diff against baseline `6b86cdb`: 0 modifications to `backend/`, `scientific-service/`, `frontend/src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, stage IDs/order, or API contracts.
+   - Verified git diff against baseline `6b86cdb`: 0 modifications to `backend/`, `scientific-service/`, `frontend/src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`, stage IDs/order, or API contracts.
 9. **Build & Quality Gates**:
-   - `npx tsc --noEmit`: 0 errors (exit code 0).
-   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
-   - `npm run test`: 2 test files, 4 tests passed (exit code 0).
-   - `npm run build`: 1434 modules transformed, built in 17.47s (exit code 0).
+   - `docs/frontend-rebuild/screenshots/M3/verification.txt`: captured real execution outputs from terminal for all 4 gates (exit code 0 for every command):
+     - `npx tsc --noEmit`: 0 errors (exit code 0).
+     - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+     - `npm run test`: 2 test files, 4 tests passed (exit code 0).
+     - `npm run build`: 1434 modules transformed, built cleanly in 7.56s (exit code 0).
    - Git hygiene: no `.tsbuildinfo` or `test-results/` tracked.
 
 ### Known Limitations
