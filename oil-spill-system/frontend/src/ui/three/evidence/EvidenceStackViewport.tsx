@@ -171,7 +171,7 @@ export const EvidenceStackViewport: React.FC<EvidenceStackViewportProps> = ({
                 key={p}
                 type="button"
                 onClick={() => handlePhaseChange(p)}
-                className={`font-mono text-[10px] uppercase px-3 py-1 rounded transition-colors cursor-pointer ${
+                className={`font-mono text-[10px] uppercase px-3 py-1 rounded transition-all duration-100 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-1 focus-visible:ring-offset-abyss cursor-pointer ${
                   phase === p
                     ? 'bg-[#0057ff] text-white font-semibold'
                     : 'text-[#727d89] hover:text-[#b2bbc5]'

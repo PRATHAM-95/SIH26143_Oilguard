@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { RouteTransitionBoundary } from '@/ui/motion/RouteTransitionBoundary'
 import { useHealthProbe } from '@/hooks/useHealthProbe'
 import { useConnectionStore } from '@/store/connectionStore'
 import { useInvestigationStore } from '@/store/investigationStore'
@@ -221,7 +222,9 @@ export default function Layout() {
         ) : null
       }
     >
-      <Outlet />
+      <RouteTransitionBoundary>
+        <Outlet />
+      </RouteTransitionBoundary>
     </AppShell>
   )
 }

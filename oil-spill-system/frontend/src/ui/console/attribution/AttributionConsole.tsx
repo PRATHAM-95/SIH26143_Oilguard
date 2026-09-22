@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useAttributionStore } from '@/store/featureStores'
 import { useMapStore } from '@/store/mapStore'
 import { ProvenanceLabel } from '@/ui/design-system/ProvenanceLabel'
+import { NumberTween } from '@/ui/motion/NumberTween'
 import type { AttributionFilterOptions } from './AttributionControlRail'
 import type { AttributionFactorKey, AttributionVesselEntry } from '@/types/domain'
 
@@ -342,7 +343,7 @@ export function AttributionConsole({
                             </div>
                           </td>
                           <td className="py-1.5 px-1 text-right font-mono text-ink-1">
-                            {row.score != null ? row.score.toFixed(3) : '—'}
+                            <NumberTween value={row.score} format={(s) => s.toFixed(3)} placeholder="—" />
                           </td>
                           <td className="py-1.5 px-1 text-right font-mono text-ink-3">
                             {row.minDistanceKm != null ? `${row.minDistanceKm.toFixed(1)}k` : '—'}
@@ -394,7 +395,7 @@ export function AttributionConsole({
                   <div className="text-right">
                     <span className="text-[10px] text-ink-3 block">Composite:</span>
                     <span className="font-mono text-ink-1 font-bold text-sm text-sonar">
-                      {activeCandidate.score != null ? activeCandidate.score.toFixed(3) : '—'}
+                      <NumberTween value={activeCandidate.score} format={(s) => s.toFixed(3)} placeholder="—" />
                     </span>
                   </div>
                 </div>
@@ -454,7 +455,7 @@ export function AttributionConsole({
                             </span>
                           </span>
                           <span className="font-mono text-ink-1 font-medium">
-                            {score != null ? score.toFixed(3) : '—'}
+                            <NumberTween value={score} format={(s) => s.toFixed(3)} placeholder="—" />
                           </span>
                         </div>
                         {/* Visual Progress Bar */}

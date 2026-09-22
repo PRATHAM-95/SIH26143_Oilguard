@@ -34,25 +34,43 @@ export function CommandPalette() {
         <Command.Empty className="p-4 text-center text-ink-3">No results found.</Command.Empty>
         
         <Command.Group heading="Navigation" className="px-2 py-1 text-xs font-semibold text-ink-3 tracking-wider">
-          <Command.Item onSelect={() => { navigate('/'); setOpen(false) }} className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] flex items-center">
+          <Command.Item
+            onSelect={() => { navigate('/'); setOpen(false) }}
+            className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center outline-none"
+          >
             Command Center
           </Command.Item>
-          <Command.Item onSelect={() => { navigate('/report'); setOpen(false) }} className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] flex items-center">
+          <Command.Item
+            onSelect={() => { navigate('/report'); setOpen(false) }}
+            className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center outline-none"
+          >
             Final Report
           </Command.Item>
         </Command.Group>
 
         <Command.Group heading="Stage Jump" className="px-2 py-1 text-xs font-semibold text-ink-3 tracking-wider mt-2">
-          <Command.Item onSelect={() => { navigate('/simulation'); setOpen(false) }} className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] flex items-center">
+          <Command.Item
+            onSelect={() => { navigate('/simulation'); setOpen(false) }}
+            className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center outline-none"
+          >
             Stage: Simulation
           </Command.Item>
-          <Command.Item onSelect={() => { navigate('/investigation'); setOpen(false) }} className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] flex items-center">
+          <Command.Item
+            onSelect={() => { navigate('/investigation'); setOpen(false) }}
+            className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center outline-none"
+          >
             Stage: Investigation
           </Command.Item>
-          <Command.Item onSelect={() => { navigate('/backtracking'); setOpen(false) }} className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] flex items-center">
+          <Command.Item
+            onSelect={() => { navigate('/backtracking'); setOpen(false) }}
+            className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center outline-none"
+          >
             Stage: Backtracking
           </Command.Item>
-          <Command.Item onSelect={() => { navigate('/attribution'); setOpen(false) }} className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] flex items-center">
+          <Command.Item
+            onSelect={() => { navigate('/attribution'); setOpen(false) }}
+            className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center outline-none"
+          >
             Stage: Attribution
           </Command.Item>
         </Command.Group>
@@ -65,7 +83,7 @@ export function CommandPalette() {
               <Command.Item 
                 key={layerId} 
                 onSelect={() => { toggleLayer(layerId); setOpen(false) }}
-                className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] flex items-center justify-between"
+                className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center justify-between outline-none"
               >
                 <span>{layer.label}</span>
                 <span className="text-xs text-ink-3">{isVisible ? 'Visible' : 'Hidden'}</span>

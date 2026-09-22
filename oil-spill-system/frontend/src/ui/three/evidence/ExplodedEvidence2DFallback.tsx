@@ -57,7 +57,7 @@ export const ExplodedEvidence2DFallback: React.FC<ExplodedEvidence2DFallbackProp
               <button
                 key={p}
                 onClick={() => setPhase(p)}
-                className={`font-mono text-[10px] uppercase px-2.5 py-1 rounded transition-colors ${
+                className={`font-mono text-[10px] uppercase px-2.5 py-1 rounded transition-all duration-100 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-1 focus-visible:ring-offset-abyss cursor-pointer ${
                   phase === p
                     ? 'bg-[#0057ff] text-white font-semibold'
                     : 'text-[#727d89] hover:text-[#b2bbc5]'
@@ -71,7 +71,7 @@ export const ExplodedEvidence2DFallback: React.FC<ExplodedEvidence2DFallbackProp
           {onReturnToMap && (
             <button
               onClick={onReturnToMap}
-              className="flex items-center gap-1.5 px-3 py-1 font-mono text-[10px] font-semibold tracking-wider uppercase rounded border border-[#273340] hover:border-[#0057ff] bg-[#111923] text-[#b2bbc5] hover:text-[#f8f7f4] transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1 font-mono text-[10px] font-semibold tracking-wider uppercase rounded border border-[#273340] hover:border-[#0057ff] bg-[#111923] text-[#b2bbc5] hover:text-[#f8f7f4] transition-all duration-100 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-1 focus-visible:ring-offset-abyss cursor-pointer"
             >
               <span>← RETURN TO MAP</span>
             </button>

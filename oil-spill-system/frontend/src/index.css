@@ -1250,8 +1250,13 @@ body {
   border-color: rgba(255, 255, 255, 0.25);
 }
 
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-signal-blue, #0057FF);
+}
+
 .btn:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: scale(0.97);
 }
 
 .btn:disabled {
@@ -4918,12 +4923,21 @@ body {
   color: var(--ink-muted);
   text-decoration: none;
   position: relative;
-  transition: all var(--dur-fast) var(--ease-out-quad);
+  transition: transform 100ms var(--ease-out-quad), background var(--dur-fast) var(--ease-out-quad), color var(--dur-fast) var(--ease-out-quad), border-color var(--dur-fast) var(--ease-out-quad);
 }
 
 .spine-nav-item:hover {
   color: var(--ink-primary);
   background: rgba(255, 255, 255, 0.05);
+}
+
+.spine-nav-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-signal-blue, #0057FF);
+}
+
+.spine-nav-item:active {
+  transform: scale(0.97);
 }
 
 .spine-nav-item--active {

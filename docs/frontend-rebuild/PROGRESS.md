@@ -590,4 +590,101 @@ Built the **Exploded Evidence Stack** representing a single maritime incident as
 ### Milestone Status
 - **M7 is COMPLETE AND VERIFIED**. Exploded Evidence Experience successfully built, tested, and documented.
 
+---
+
+## Milestone M8: Global Motion Polish
+
+### Summary
+Executed **Milestone M8: Global Motion Polish** across the operational application. Established a unified, calm, instrument-like motion vocabulary communicating state, hierarchy, continuity, and causality without decorative flourishes, game-like bounce, or performance regressions.
+
+### Architecture & Deliverables
+
+1. **Data-Honest Numeric Transitions (`src/ui/motion/NumberTween.tsx`)**:
+   - Reusable presentational component for numeric values with strict data honesty:
+     - `null` / `undefined` / missing data displays configured placeholder (defaults to `—`).
+     - **Never tweens from 0** when previous value was unknown or uninitialized.
+     - **First real value appears immediately** with zero tween delay.
+     - Tweens exclusively between two verified real numeric values.
+     - Small, transient `requestAnimationFrame` loop active strictly during the transition interval (~220ms). Immediately settles, cancels, and clears rAF when idle or on unmount.
+     - Under `prefers-reduced-motion: reduce`, snaps immediately to target value without initiating an animation frame.
+   - Integrated into verified store-backed operational readouts:
+     - `AttributionConsole`: Ranked candidate score, active vessel composite score, and five-factor evidence matrix breakdown.
+     - `InvestigationConsole`: Pipeline progress percentage.
+   - Comprehensive unit test suite (`src/__tests__/numberTween.test.tsx`): 6/6 tests covering initial render honesty, real-to-real interpolation, placeholder fallbacks, format preservation, and reduced-motion instant snaps.
+
+2. **Workstation Route Crossfade (`src/ui/motion/RouteTransitionBoundary.tsx`)**:
+   - Restrained, presentation-only opacity crossfade wrapping the operational `<Outlet />` inside `src/components/Layout.tsx`.
+   - Motion React `AnimatePresence mode="wait"` with `motion.div`:
+     - Initial: `{ opacity: 0 }`, Animate: `{ opacity: 1 }`, Exit: `{ opacity: 0 }`.
+     - Duration: `0.18s` (~180ms) with canonical ease-out `[0.16, 1, 0.3, 1]`.
+     - `mode="wait"` prevents concurrent mounting of two WebGL contexts during workstation-to-workstation navigation, protecting MapLibre and Deck.gl lifecycle.
+     - No layout animation, no scale drift, no view jump.
+   - **Route Boundaries Protected**:
+     - Navigation from `/welcome` to `/` is completely bypassed (the welcome route is intentionally mounted outside the `Layout` shell in `App.tsx`).
+     - Under `prefers-reduced-motion: reduce`, returns plain `<>{children}</>` without Motion wrapping.
+
+3. **Forensic Flightpath Rail Polish (`src/ui/console/FlightpathRail.tsx`)**:
+   - Preserved all 8 canonical stage IDs, stage order, subtitles, and availability semantics.
+   - **Active Stage Indicator**: Transitions using canonical motion tokens (`MOTION.duration.ui` = `0.22s`, `MOTION.ease.out`), eliminating arbitrary per-component bounce. Under reduced motion, duration drops to 0.
+   - **Status Glyph Micro-Transitions**: Restrained 120ms (`duration-120 ease-out`) transitions for `completed` (crisp checkmark reveal), `running` (steady signal-blue pulse indicator), `failed`, and `pending` states.
+   - **Progress Connector**: Implemented using GPU-composited `transform: scaleX(progressRatio)` with `origin-left` and canonical UI duration (`220ms`). Zero layout recalculation or width animating.
+   - **Typography & Labels**: Smooth 220ms color transitions (`text-porcelain`, `text-ink-1`, `text-ink-3`) maintaining continuous instrument cohesion.
+
+4. **Shared Press & Focus Interaction Vocabulary**:
+   - **Press**: Subtle active scale (`0.97`) with snappy ~100ms transition (`active:scale-[0.97] transition-all duration-100 ease-out`).
+   - **Focus**: High-visibility keyboard focus treatment using Signal Blue (`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-1 focus-visible:ring-offset-abyss`).
+   - **Applied Universally Across Core Interactive Controls**:
+     - `src/ui/design-system/Button.tsx`: Added to `buttonVariants` defaults for all variants (primary, secondary, outline, ghost, danger).
+     - `src/index.css`: Added to `.btn:active` and `.btn:focus-visible` (and `.spine-nav-item`).
+     - `FlightpathRail`: Stage trigger buttons and pipeline launch button.
+     - `CommandPalette`: Keyboard navigation items with `aria-selected` and `active:scale-[0.97]`.
+     - `EvidenceStackViewport` & `ExplodedEvidence2DFallback`: Phase switcher buttons (`stacked`, `exploded`, `converged`) and map return button.
+
+5. **Token Source of Truth (`src/ui/motion/tokens.ts`)**:
+   - Consumed canonical timing bands:
+     - `micro`: `0.12s` (120ms) — hover, status glyph transitions, press state recovery.
+     - `ui`: `0.22s` (220ms) — stage indicator, route crossfade, label transitions, number tweening.
+     - `layout`: `0.38s` (380ms) — panel collapse / expand.
+     - `cinematic`: `0.85s` (850ms) — preserved for `/welcome` 3D scroll narrative.
+   - Reactive reduced-motion hook created in `src/ui/motion/usePrefersReducedMotion.ts` tracking `(prefers-reduced-motion: reduce)` changes reactively.
+
+6. **Performance & Safety Verification**:
+   - No forced synchronous layout / reflow (strictly `transform` and `opacity`).
+   - Zero global rAF loops: NumberTween rAF loop terminates as soon as value reaches destination.
+   - WebGL context safety: No simultaneous canvas mounting during route transitions.
+
+7. **Verification & Quality Gates**:
+   - `npx tsc --noEmit`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+   - `npm run test -- --run`: 10/10 unit tests passed (exit code 0):
+     - `src/__tests__/contracts.test.ts` (3 tests)
+     - `src/__tests__/flightpath.test.ts` (1 test)
+     - `src/__tests__/numberTween.test.tsx` (6 tests)
+   - `npm run build`: 2029 modules transformed, production build successful in 15.26s (exit code 0).
+   - Playwright Suites:
+     - `scripts/m8-motion.pw.ts`: 5/5 passed across all viewports (1920x1080, 1440x900, 1280x800, 768x1024) and reduced-motion mode (21.0s).
+     - `scripts/welcome.pw.ts`: 6/6 passed (39.0s).
+     - `scripts/evidence-stack.pw.ts`: 7/7 passed (42.2s).
+     - `scripts/shots.pw.ts`: 24/24 passed across 6 routes x 4 resolutions (50.4s).
+     - `scripts/m5-report-qa.pw.ts`: 5/5 passed (30.2s).
+   - **Protected Contracts Diff**: Exactly 0 modifications to `backend/`, `scientific-service/`, `src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`.
+
+### Visual Evidence
+Saved in `docs/frontend-rebuild/screenshots/M8/`:
+- `m8-command-center-1920x1080.png` — Command Center with polished Flightpath and scaleX progress connector
+- `m8-command-center-1440x900.png` — 1440x900 desktop viewport
+- `m8-command-center-1280x800.png` — 1280x800 laptop viewport
+- `m8-command-center-768x1024.png` — 768x1024 tablet viewport with auto-collapse
+- `m8-flightpath-focus-ring.png` — Flightpath stage keyboard focus visible Signal Blue ring
+- `m8-investigation-route-1920x1080.png` — Restrained route crossfade destination
+- `m8-investigation-route-1440x900.png` — Investigation console with NumberTween pipeline progress
+- `m8-investigation-route-1280x800.png` — Investigation route at 1280x800
+- `m8-investigation-route-768x1024.png` — Investigation route at 768x1024
+- `m8-reduced-motion-command-center.png` — Verified instant render without motion under `prefers-reduced-motion`
+- `m8-reduced-motion-attribution.png` — Attribution console under reduced motion
+
+### Milestone Status
+- **M8 is COMPLETE AND VERIFIED**. Global motion polish successfully unified and validated.
+
+
 

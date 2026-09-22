@@ -9,6 +9,7 @@ import { StatusBadge, type OperationalStatusTone } from '@/ui/design-system/Stat
 import { FocusedStageCard, AllStageCards } from './StageCards'
 import { SelectionInspectorCard } from '../cards/SelectionInspectorCard'
 import { ChevronDownIcon, RadarIcon } from '@/components/ui/Icon'
+import { NumberTween } from '@/ui/motion/NumberTween'
 import type { InvestigationStageId } from '@/types/domain'
 
 function invStatusTone(status: string | null): OperationalStatusTone {
@@ -39,7 +40,9 @@ function ProgressGauge() {
           style={{ width: `${percent}%` }}
         />
       </div>
-      <span className="text-[10px] font-mono text-ink-muted tabular-nums">{percent.toFixed(0)}% complete</span>
+      <span className="text-[10px] font-mono text-ink-muted tabular-nums">
+        <NumberTween value={percent} format={(v) => `${v.toFixed(0)}%`} placeholder="0%" /> complete
+      </span>
     </div>
   )
 }
