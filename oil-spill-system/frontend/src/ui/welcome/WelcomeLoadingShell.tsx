@@ -55,8 +55,8 @@ export const WelcomeLoadingShell: React.FC = () => {
 
       {/* Footer bar */}
       <footer className="relative z-10 flex items-center justify-between border-t border-[#273340]/60 pt-4 font-mono text-[10px] text-[#727d89]">
-        <span>LAT: 24° 18&apos; N · LON: 054° 22&apos; E</span>
-        <span>INSTRUMENT AT SEA</span>
+        <span>OILGUARD // MARITIME FORENSIC INTELLIGENCE</span>
+        <span className="text-[#ffb020]">ILLUSTRATIVE · NOT LIVE DATA</span>
       </footer>
     </div>
   )

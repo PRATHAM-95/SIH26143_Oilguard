@@ -518,6 +518,15 @@ Rebuild `/backtracking` and `/attribution` from legacy implementations into the 
    - `npx playwright test scripts/shots.pw.ts`: 24/24 passed across all 6 existing operational routes (`/`, `/simulation`, `/investigation`, `/backtracking`, `/attribution`, `/report`).
    - Protected contracts verified: 0 modifications to `backend/`, `scientific-service/`, `src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`.
 
+### M6 Honesty Blocker Resolution
+- **Removed Fabricated Telemetry**: Completely eliminated hardcoded coordinate / version / speed readouts (`LAT: 24° 18' N`, `LON: 054° 22' E`, `DATUM: WGS84`, `OILGUARD SYSTEM v2.4`, `AIS TRACK // 14.2 KTS`) across `WelcomeNarrative.tsx`, `WelcomeLoadingShell.tsx`, and `WelcomeFallback.tsx`. Replaced with non-operational illustrative product chrome: `OILGUARD // MARITIME FORENSIC INTELLIGENCE` and `ILLUSTRATIVE · NOT LIVE DATA`.
+- **Mandatory Tanker Label Correction**: Updated tanker disclaimer label in `WelcomeNarrative.tsx` to exact required wording: `"Representative model, not vessel-specific geometry"`.
+- **Non-Blocking Audit Notes**:
+  - Unused dependencies (`@react-three/drei`, `@gsap/react`) retained cleanly without runtime penalty.
+  - Reduced motion mode intentionally freezes the 3D scene camera and animations to a static tactical perspective rather than switching to 2D fallback, ensuring accessible parity with immediate CTA access.
+  - Lenis omitted in favor of native scrolling + GSAP ScrollTrigger for deterministic scroll position tracking.
+  - Narrative structured around 5 major cinematic story beats.
+
 ### Milestone Status
-- **M6 is COMPLETE**. The cinematic 3D welcome experience is fully implemented, verified across desktop and tablet viewports, accessible, performance-tuned, and tested against regressions.
+- **M6 is VERIFIED AND CLOSED**. Honesty blocker eliminated, verified with full test and build suites, and confirmed clean across all protected contracts.
 

@@ -162,7 +162,7 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
             </div>
 
             <p className="font-mono text-[10px] text-[#727d89]">
-              SCHEMATIC VESSEL SILHOUETTE · NO CLASSIFIED OPERATIONAL DATA
+              Representative model, not vessel-specific geometry
             </p>
           </div>
 
@@ -307,16 +307,16 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
         </div>
       </main>
 
-      {/* --- FOOTER COORDINATE BANNER --- */}
+      {/* --- FOOTER PRODUCT CHROME BANNER --- */}
       <footer className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-[#273340]/60 pt-4 gap-2 font-mono text-[11px] text-[#727d89] pointer-events-auto">
         <div className="flex items-center gap-4">
-          <span>LAT: 24° 18&apos; N</span>
-          <span>LON: 054° 22&apos; E</span>
-          <span className="hidden sm:inline">DATUM: WGS84</span>
+          <span className="text-[#b2bbc5]">OILGUARD // MARITIME FORENSIC INTELLIGENCE</span>
+          <span className="text-[#273340] hidden sm:inline">|</span>
+          <span className="text-[#ffb020] hidden sm:inline">ILLUSTRATIVE · NOT LIVE DATA</span>
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="text-[#b2bbc5]">OILGUARD SYSTEM v2.4</span>
+          <span className="text-[#727d89]">INSTRUMENT AT SEA</span>
           <span className="text-[#273340]">|</span>
           <button
             type="button"

@@ -172,7 +172,7 @@ export const WelcomeFallback: React.FC<WelcomeFallbackProps> = () => {
 
               {/* Schematic Labels */}
               <text x="20" y="145" fill="#727d89" fontSize="9" fontFamily="monospace">ORIGIN LOCUS</text>
-              <text x="245" y="130" fill="#727d89" fontSize="9" fontFamily="monospace">AIS TRACK // 14.2 KTS</text>
+              <text x="245" y="130" fill="#727d89" fontSize="9" fontFamily="monospace">AIS TRANSIT TRACK (ILLUSTRATIVE)</text>
             </svg>
 
             {/* Technical Disclaimer Notice */}
@@ -187,10 +187,10 @@ export const WelcomeFallback: React.FC<WelcomeFallbackProps> = () => {
       {/* Footer Technical Datum */}
       <footer className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-[#273340]/60 pt-4 gap-2 font-mono text-[11px] text-[#727d89]">
         <div>
-          <span>LAT: 24° 18&apos; N · LON: 054° 22&apos; E · WGS84</span>
+          <span>OILGUARD // MARITIME FORENSIC INTELLIGENCE</span>
         </div>
         <div>
-          <span>OILGUARD MARITIME FORENSIC ENGINE</span>
+          <span className="text-[#ffb020]">ILLUSTRATIVE · NOT LIVE DATA</span>
         </div>
       </footer>
     </div>
