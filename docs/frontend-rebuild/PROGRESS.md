@@ -530,3 +530,64 @@ Rebuild `/backtracking` and `/attribution` from legacy implementations into the 
 ### Milestone Status
 - **M6 is VERIFIED AND CLOSED**. Honesty blocker eliminated, verified with full test and build suites, and confirmed clean across all protected contracts.
 
+---
+
+## Milestone M7: Exploded Evidence Experience
+
+### Summary
+Built the **Exploded Evidence Stack** representing a single maritime incident as nine physical/analytical evidence plates that transition across three phases: **STACKED → EXPLODED → CONVERGED**.
+
+**Core Metaphor:**
+`ONE INCIDENT → MULTIPLE EVIDENCE LAYERS → RECONSTRUCTED EXPLANATION`
+
+### Architecture & Deliverables
+
+1. **Nine Forensic Evidence Layers (`src/ui/three/evidence/layerDefinitions.ts`)**:
+   - Ordered bottom to top (indices 0 to 8):
+     1. **`01 / SATELLITE / SAR SCENE`**: Sentinel-1 radar backscatter footprint & scan boundary.
+     2. **`02 / OIL SLICK MASK`**: Surface hydrocarbon delineation with dark petroleum reflectance.
+     3. **`03 / WIND FIELD`**: Atmospheric forcing vectors (`UNAVAILABLE // NOT YET CALCULATED`).
+     4. **`04 / OCEAN CURRENTS`**: Hydrodynamic circulation (`UNAVAILABLE // NOT YET CALCULATED`).
+     5. **`05 / FORWARD DRIFT`**: Lagrangian particle dispersion cloud extent.
+     6. **`06 / BACKTRACKING ENSEMBLE`**: Reverse trajectory fan connecting slick to release origin.
+     7. **`07 / AIS VESSEL TRACKS`**: Vessel traffic interrogation locus (`UNAVAILABLE // NOT YET CALCULATED`).
+     8. **`08 / PROBABLE SOURCE REGION`**: Reverse-drift probability contour rings.
+     9. **`09 / ATTRIBUTION MARKER`**: Ranked vessel target marker and resolution axis.
+
+2. **Data Honesty & Provenance Handling (`src/ui/hooks/useEvidenceStackData.ts`)**:
+   - Strictly consumes existing read-only Zustand store selectors (`useSarStore`, `useSimulationStore`, `useBacktrackingStore`, `useAttributionStore`, `useInvestigationStore`).
+   - Zero fabricated telemetry, velocity vectors, or fake AIS tracks.
+   - Unavailable layers honestly stamped: `UNAVAILABLE // NOT YET CALCULATED` and `ILLUSTRATIVE · NOT LIVE DATA` where educational models are rendered.
+
+3. **Geospatial Projection (`src/ui/three/evidence/project.ts`)**:
+   - Thin presentation mapper transforming geographic coordinates `[lon, lat]` into local 3D plate plane `[x, z]`.
+   - Uses equirectangular / `circleRing` convention aligned with `AttributionMap.tsx` and incident bounds.
+   - All 9 layers share the identical local coordinate frame.
+
+4. **Dual Mount Architecture**:
+   - **`/welcome` (Scene 04)**: Upgraded existing Scene 04 within `WelcomeScene.tsx`. Reuses the single R3F Canvas without mounting a second Canvas. Scroll progress through $0.58 \to 0.82$ drives the transition from STACKED ($0.58$) $\to$ EXPLODED ($0.68$) $\to$ CONVERGED ($0.78$), connecting seamlessly into Scene 05.
+   - **`/investigation` (Map-First Opt-In)**: Default remains strictly **MAP-FIRST**. The 3D stack never auto-loads. Users explicitly open the stack via `[ 3D EVIDENCE STACK ↗ ]` in `InvestigationConsole.tsx` or the floating map action. Lazy-mounts `EvidenceStackViewport.tsx`. `[ ← RETURN TO MAP ]` restores `<MaritimeMapTheater />` while preserving all incident, store, and pipeline states.
+
+5. **Phase System (`src/ui/three/evidence/phases.ts`)**:
+   - **STACKED ($s = 0$)**: Plates superimpose tightly into a single composite instrument with minimal offset ($0.08$ units) preventing Z-fighting.
+   - **EXPLODED ($s = 1$)**: Plates separate vertically along $Y$ ($\approx 1.8$ units per layer, total height $\approx 16$ units), revealing individual analytical surfaces, corner registration ticks, and sparse Drei `<Html>` metadata badges.
+   - **CONVERGED ($s = 0.35$)**: Plates compress toward analytical focus while a vertical resolution axis line links the top Attribution Marker through the Source Region down to the SAR detection footprint.
+
+6. **Accessible 2D Fallback (`src/ui/three/evidence/ExplodedEvidence2DFallback.tsx`)**:
+   - High-contrast, publication-grade architectural SVG/CSS isometric diagram rendered when WebGL fails or `prefers-reduced-motion` is active.
+   - All 9 layers, phase switches (`stacked`, `exploded`, `converged`), leader lines, and honest provenance tags remain fully readable with zero GPU strain or animation loops.
+
+7. **Verification & Performance Gates**:
+   - `npx tsc --noEmit`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+   - `npm run test -- --run`: 4/4 unit tests passed (exit code 0).
+   - `npm run build`: 2026 modules transformed, `EvidenceStackViewport` isolated into separate lazy chunk (`13.04 kB` / `4.31 kB` gzip), built in 21.43s (exit code 0).
+   - `npx playwright test scripts/welcome.pw.ts`: 6/6 passed (1.1m).
+   - `npx playwright test scripts/evidence-stack.pw.ts`: 7/7 passed (1.2m) across all viewports (1920x1080, 1440x900, 1280x800, 768x1024), reduced motion, and WebGL disabled fallback.
+   - `npx playwright test scripts/shots.pw.ts`: 24/24 passed (1.2m) across all 6 core routes.
+   - Protected contracts verified: 0 modifications to `backend/`, `scientific-service/`, `src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`.
+
+### Milestone Status
+- **M7 is COMPLETE AND VERIFIED**. Exploded Evidence Experience successfully built, tested, and documented.
+
+

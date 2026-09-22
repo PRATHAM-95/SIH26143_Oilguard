@@ -251,8 +251,9 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
               and matching transit windows.
             </p>
 
-            <div className="font-mono text-[11px] text-[#727d89] border-t border-[#273340]/60 pt-3">
-              <span>ILLUSTRATIVE FORENSIC GRAPHICS · SCHEMATIC TRAJECTORY</span>
+            <div className="font-mono text-[11px] text-[#727d89] border-t border-[#273340]/60 pt-3 flex flex-wrap items-center justify-between gap-2">
+              <span>9-LAYER EVIDENCE STACK · STACKED → EXPLODED → CONVERGED</span>
+              <span className="text-[#ffb020]">ILLUSTRATIVE · NOT LIVE DATA</span>
             </div>
           </div>
 

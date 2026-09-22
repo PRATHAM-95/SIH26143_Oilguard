@@ -175,7 +175,17 @@ function ProvenanceSection() {
   )
 }
 
-export function InvestigationConsole({ rightCollapsed, setRightCollapsed }: { rightCollapsed: boolean; setRightCollapsed: (v: boolean) => void }) {
+export function InvestigationConsole({
+  rightCollapsed,
+  setRightCollapsed,
+  onOpenEvidenceStack,
+  isEvidenceStackOpen = false,
+}: {
+  rightCollapsed: boolean
+  setRightCollapsed: (v: boolean) => void
+  onOpenEvidenceStack?: () => void
+  isEvidenceStackOpen?: boolean
+}) {
   const focusedStageId = useInvestigationStore((s) => s.focusedStageId)
   const status = useInvestigationStore((s) => s.status)
   const stages = useInvestigationStore((s) => s.stages)
@@ -183,18 +193,19 @@ export function InvestigationConsole({ rightCollapsed, setRightCollapsed }: { ri
   const setFocusedStageId = useInvestigationStore((s) => s.setFocusedStageId)
   useDataProvenance() // read for reactivity, not directly rendered in header
 
+  // Currently focused stage, or fallback to latest running stage
   const currentRunning = stages.find((s) => s.status === 'running')?.stageId
   const activeStageId = focusedStageId || currentRunning
 
   if (rightCollapsed) {
     return (
-      <div className="h-full flex flex-col items-center pt-4">
+      <div className="h-full flex items-center justify-center p-2 bg-[var(--bg-surface)] border-l border-[var(--border-default)]">
         <button
-          className="text-ink-3 hover:text-ink-1 transition-colors rotate-90"
+          className="text-ink-3 hover:text-ink-1 transition-colors"
           onClick={() => setRightCollapsed(false)}
           title="Expand console"
         >
-          <ChevronDownIcon size={16} />
+          <ChevronDownIcon size={16} className="rotate-90" />
         </button>
       </div>
     )
@@ -214,7 +225,23 @@ export function InvestigationConsole({ rightCollapsed, setRightCollapsed }: { ri
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
+          {/* 3D Evidence Stack Action */}
+          {onOpenEvidenceStack && (
+            <button
+              type="button"
+              onClick={onOpenEvidenceStack}
+              className={`px-2 py-1 font-mono text-[10px] font-semibold rounded tracking-wider transition-all cursor-pointer border ${
+                isEvidenceStackOpen
+                  ? 'border-[#0057ff] bg-[#0057ff] text-white'
+                  : 'border-[#0057ff]/60 text-[#0057ff] hover:bg-[#0057ff]/15'
+              }`}
+              title="Toggle 9-Layer 3D Evidence Stack"
+            >
+              3D EVIDENCE STACK ↗
+            </button>
+          )}
+
           {focusedStageId && (
             <button
               className="text-[10px] font-semibold text-ink-3 hover:text-ink-1 tracking-wider transition-colors"

@@ -5,6 +5,9 @@ import OceanPlane from './OceanPlane'
 import TankerModel from './TankerModel'
 import OilSheen from './OilSheen'
 import ReconstructionGraphics from './ReconstructionGraphics'
+import { ExplodedEvidenceStack } from '../three/evidence/ExplodedEvidenceStack'
+import { useEvidenceStackData } from '../hooks/useEvidenceStackData'
+import type { EvidencePhase } from '../three/evidence/phases'
 import type { SceneScrollState } from './useWelcomeScroll'
 
 interface WelcomeSceneProps {
@@ -46,6 +49,22 @@ export const WelcomeScene: React.FC<WelcomeSceneProps> = ({
   scrollState,
   reducedMotion = false,
 }) => {
+  const stackData = useEvidenceStackData(true)
+
+  // In Scene 04: scroll progress is approximately 0.58 to 0.82
+  const progress = scrollState.progress
+  const scene04Norm = Math.max(0, Math.min(1, (progress - 0.58) / 0.24))
+
+  // Determine stack phase & separation from scroll progress
+  const stackPhase: EvidencePhase =
+    scene04Norm < 0.35 ? 'stacked' : scene04Norm < 0.7 ? 'exploded' : 'converged'
+  const stackSeparation =
+    scene04Norm < 0.35
+      ? (scene04Norm / 0.35) * 0.35
+      : scene04Norm < 0.7
+        ? 0.35 + ((scene04Norm - 0.35) / 0.35) * 0.65
+        : 0.35
+
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none">
       <Canvas
@@ -107,9 +126,25 @@ export const WelcomeScene: React.FC<WelcomeSceneProps> = ({
           reducedMotion={reducedMotion}
           opacity={scrollState.reconstructionOpacity}
         />
+
+        {/* 9-Layer Exploded Evidence Stack in Scene 04 */}
+        {scrollState.reconstructionOpacity > 0.01 && (
+          <ExplodedEvidenceStack
+            layers={stackData.layers}
+            phase={stackPhase}
+            separation={stackSeparation}
+            opacity={scrollState.reconstructionOpacity}
+            position={[-5, 0.4, -12]}
+            rotation={[0, -0.15, 0]}
+            scale={0.7}
+            showLabels={true}
+            reducedMotion={reducedMotion}
+          />
+        )}
       </Canvas>
     </div>
   )
 }
 
 export default WelcomeScene
+
