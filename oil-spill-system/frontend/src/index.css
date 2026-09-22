@@ -7623,3 +7623,18 @@ body {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ============================================================================
+   M6 WELCOME PAGE — NATIVE SCROLL ENABLER
+   Allows standalone /welcome route outside Layout to scroll natively
+   without modifying operational workstation shells.
+   ========================================================================== */
+html:has(.welcome-page-root),
+body:has(.welcome-page-root),
+#root:has(.welcome-page-root) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+

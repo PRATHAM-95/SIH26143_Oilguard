@@ -450,3 +450,74 @@ Rebuild `/backtracking` and `/attribution` from legacy implementations into the 
 
 ### Milestone Status
 - **M5 is COMPLETE**. The publication-grade maritime forensic dossier and print/export experience are fully implemented, verified across viewports and print media, and tested against live data. Ready for Milestone M6.
+
+---
+
+## Milestone M6: Cinematic 3D Welcome Experience (COMPLETED)
+
+- **Completed On**: 2026-09-23
+- **Branch**: `frontend-rebuild`
+- **Goal**: Build `/welcome` as a premium cinematic introduction to OilGuard under the "Instrument at Sea" visual direction. Implement procedural 3D ocean, commercial tanker, oil sheen anomaly, and forensic reconstruction graphics driven by native browser scrolling and GSAP ScrollTrigger. Provide an intentional 2D architectural fallback, full `prefers-reduced-motion` support, responsive adaptation across 4 viewport resolutions, and primary CTA navigation to `/` (Command Center) without modifying operational workstation shells or protected contracts.
+
+### What Was Done
+1. **Routing & Architecture (`src/App.tsx`, `src/ui/pages/WelcomePage.tsx`)**:
+   - `/welcome` is implemented as a standalone route OUTSIDE the existing `Layout` wrapper (no operational spine, no operational bar, no workstation shell).
+   - Fully code-split and lazy-loaded via `React.lazy()` with `React.Suspense` and a dedicated `WelcomeLoadingShell` component.
+   - Preserved `APP_ROUTE_PATHS` and `src/routes.ts` completely intact.
+   - Primary CTA navigates to `/` (Command Center).
+   - Fixed-stage viewport architecture (`fixed inset-0 w-screen h-screen`) coupled with an unconstrained native scroll track (`360vh`), ensuring 100% stable browser scrolling without clipping or sticky ancestor collision issues.
+   - Non-intrusive CSS enabler in `src/index.css` via `:has(.welcome-page-root)` enabling native window scrolling exclusively when `/welcome` is mounted, restoring standard dashboard overflow rules when navigating into operational workstation pages.
+
+2. **3D Scene Implementation (`src/ui/welcome/WelcomeScene.tsx`)**:
+   - Single lightweight React Three Fiber (`@react-three/fiber@^9.7.0`) Canvas with Three.js (`three@0.186.0`) and `@react-three/drei`.
+   - Clamped DPR (`dpr={[1, 1.5]}`) with ACESFilmic tone mapping and `#070B10` (Abyss) atmospheric distance fog.
+   - Directional moonlight illumination (`#DBE7F5`), kicker rim light, and maritime ambient fill.
+   - Decoupled pointer events (`style={{ pointerEvents: 'none' }}` on Canvas) ensuring interactive HTML narrative overlays and CTA buttons remain unobstructed.
+
+3. **Procedural Ocean Plane (`src/ui/welcome/OceanPlane.tsx`, `shaders/oceanShader.ts`)**:
+   - Subdivided 360x360 plane geometry with custom GLSL Gerstner wave displacement vertex shader.
+   - 3 low-frequency harmonic wave components with analytical tangent/binormal calculation for surface normals.
+   - Fragment shader computing Fresnel reflectance, Schlick approximation, subtle celestial glint, bathymetric nautical chartline graticules, and depth fog blending seamlessly into `#070B10`.
+   - Continuous wave propagation in `useFrame` (damped when reduced motion is requested).
+
+4. **Procedural Tanker Model (`src/ui/welcome/TankerModel.tsx`)**:
+   - 100% procedural commercial VLCC crude tanker constructed from Three.js primitives and custom buffer geometry (zero external glTF files, zero network assets, 100% license-clean).
+   - Recognizable silhouette: tapered bow with stem post and bulbous keel, waterline boot-topping band (`#241517`), cargo manifold array with piping rack, raised forecastle with anchor windlasses, 4-tier stepped superstructure, bridge wings with port (red `#FF4D5A`) and starboard (green `#00D98B`) navigational sidelights, rotating radar scanner mast, and stern exhaust stack.
+   - Gentle, high-inertia pitch, roll, and heave bobbing synced to wave frequency in `useFrame` (disabled if reduced motion).
+
+5. **Restrained Oil Sheen (`src/ui/welcome/OilSheen.tsx`, `shaders/sheenShader.ts`)**:
+   - Custom thin-film interference shader generating an organic trailing slick plume in the tanker wake.
+   - Restrained physical petroleum colors (deep charcoal `#060A0E`, bronze-slate `#182432`, muted indigo-slate `#243545`; zero neon rainbow effect).
+   - Prominently accompanied in UI by mandatory honesty badge: `ILLUSTRATIVE · NOT LIVE DATA`.
+
+6. **Forensic Reconstruction Graphics (`src/ui/welcome/ReconstructionGraphics.tsx`)**:
+   - Lightweight Three.js `Line` and `LineSegments` buffer primitives rendered through R3F `<primitive object={...} />` to avoid React SVG namespace collisions.
+   - Concentric origin target rings with pulsating scanner wedge, curved reverse Lagrangian drift trajectory vector, historical AIS vessel transit track with waypoints, correlation vector line, and nautical graticule grid.
+   - Fully animated via scroll progress without calculating false attribution or fabricating operational telemetry.
+
+7. **Scroll Choreography & Narrative Overlay (`src/ui/welcome/useWelcomeScroll.ts`, `WelcomeNarrative.tsx`)**:
+   - Native browser scrolling mapped via GSAP ScrollTrigger (`gsap@3.15.0`) + direct window scroll listener across 5 narrative chapters:
+     - `0.00–0.18` → **Scene 01: Ocean** ("OILGUARD // MARITIME FORENSIC INTELLIGENCE")
+     - `0.18–0.38` → **Scene 02: Vessel** ("Commercial Traffic Correlation")
+     - `0.38–0.58` → **Scene 03: Spill** ("Surface Slick Delineation")
+     - `0.58–0.82` → **Scene 04: Reconstruction** ("OBSERVE → TRACE → CORRELATE → ATTRIBUTE")
+     - `0.82–1.00` → **Scene 05: Enter Command Center** ("Detect. Reconstruct. Correlate. Attribute." + `[ ENTER COMMAND CENTER ]` CTA)
+   - Clickable top chapter tabs allowing immediate jumping to any narrative section.
+   - Direct header CTA and footer skip link allowing instant bypass to `/`.
+
+8. **Accessibility & Designed 2D Fallback (`src/ui/welcome/WelcomeFallback.tsx`)**:
+   - Full `prefers-reduced-motion` compliance: disables camera tweening and continuous bobbing, locking to an intentional static tactical 3D perspective with immediate interactive access.
+   - Resilient WebGL detection: if WebGL context creation fails, renders `WelcomeFallback` with an architectural SVG blueprint tanker schematic, radar graticule, editorial headline, pipeline summary, and direct CTA to `/`. Zero black screens.
+
+9. **Quality Gates & Verification Results**:
+   - `npx tsc -b`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+   - `npm run test -- --run`: 4/4 unit tests passed (exit code 0).
+   - `npm run build`: 1480 modules transformed, `WelcomePage` cleanly code-split into isolated chunk (`1,062 kB` / `299 kB` gzip), built in 11.46s (exit code 0).
+   - `npx playwright test scripts/welcome.pw.ts`: 6/6 tests passed (1920x1080, 1440x900, 1280x800, 768x1024, reduced motion, and WebGL disabled fallback). Zero horizontal overflow, zero uncaught console errors.
+   - `npx playwright test scripts/shots.pw.ts`: 24/24 passed across all 6 existing operational routes (`/`, `/simulation`, `/investigation`, `/backtracking`, `/attribution`, `/report`).
+   - Protected contracts verified: 0 modifications to `backend/`, `scientific-service/`, `src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`.
+
+### Milestone Status
+- **M6 is COMPLETE**. The cinematic 3D welcome experience is fully implemented, verified across desktop and tablet viewports, accessible, performance-tuned, and tested against regressions.
+
