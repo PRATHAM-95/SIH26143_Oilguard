@@ -686,5 +686,96 @@ Saved in `docs/frontend-rebuild/screenshots/M8/`:
 ### Milestone Status
 - **M8 is COMPLETE AND VERIFIED**. Global motion polish successfully unified and validated.
 
+---
 
+## Milestone M9: Final Hardening, Accessibility, Performance & Submission QA (COMPLETED)
 
+- **Completed On**: 2026-09-23
+- **Branch**: `frontend-rebuild`
+- **Baseline Commit**: `04fc5e51f518d71bf8fbe04b22183573a2bec354`
+- **Goal**: Final milestone execution focused strictly on hardening, quality assurance, accessibility compliance, data honesty remediation, repository and dependency hygiene, multi-viewport validation, and protected contract verification. Zero new features or redesigns.
+
+### What Was Done
+
+1. **Data Honesty Remediation (First Task Blocker)**:
+   - Audited the entire `ContextualConsole` card chain on `/` and eliminated all legacy fabricated values:
+     - `EnvironmentDriftCard.tsx`: Purged fabricated wind (`14.2 kn @ 245°`), current (`0.64 m/s @ 072°`), and hardcoded tracers/footprint fallbacks. Now displays genuine store values or honest state labels (`Available`, `Awaiting acquisition`, `Unavailable`, `Not yet calculated`).
+     - `BacktrackingCard.tsx`: Purged hardcoded coordinates (`18.9482°N, 72.7815°E`), radius (`3.4`), timestamps (`06:30Z`, `08:15Z`, `09:45Z`), solver agreement (`94%`), convergence (`92/100`), and concentration (`HIGH`). Uses honest states (`Not yet calculated`, `—`).
+     - `AttributionCard.tsx`: Purged hardcoded vessel name (`ATLANTIC CONVOY`), MMSI (`413289000`), vessel type (`Crude Oil Tanker`), separation (`0.8 km`), TCA (`08:12Z`), margin (`+34.2%`), and score (`89.4%`). Displays honest awaiting/uncalculated states.
+     - `ConclusionCard.tsx`: Purged fabricated `isDecisive = true` default, fabricated vessel fallback (`ATLANTIC CONVOY`), hardcoded confidence (`89%`), and false attribution convergence claims when uncalculated.
+     - `DetectionCard.tsx`: Replaced `'Provenance: none'` with honest states, added explicit `RADAR PROVENANCE` status (`LOCAL FIXTURE (Controlled)`).
+     - `IncidentCard.tsx`: Added accessible `aria-label="Detection confidence score"` on meter progressbar and confirmed fallback states.
+
+2. **Accessibility Overhaul & Axe Compliance**:
+   - Added `@axe-core/playwright` and created comprehensive accessibility test suite `scripts/axe-audit.pw.ts` scanning all 7 application routes (`/`, `/simulation`, `/investigation`, `/backtracking`, `/attribution`, `/report`, `/welcome`).
+   - **Keyboard Skip Link (`AppShell.tsx`)**:
+     - Implemented accessible skip link (`<a href="#main-content">Skip to main console</a>`).
+     - Positioned offscreen when idle and visually revealed with high-contrast Signal Blue styling when focused. Focus transfers seamlessly to `#main-content`.
+   - **Landmark Architecture Audit**:
+     - Identified and resolved nested `<main>` landmark violation in `WorkstationShell.tsx`.
+     - Replaced the inner `<main>` with `<div role="region" aria-label="Geospatial Map Viewport">`, ensuring exactly 1 semantic `<main id="main-content">` per workstation route.
+   - **Navigation ARIA Semantics (`Layout.tsx`)**:
+     - Replaced invalid `role="menubar"` with semantic `<nav className="spine-nav-group" aria-label="Workstation primary routes">`, resolving `aria-required-children` violation.
+   - **Console Keyboard Scrollability**:
+     - Added `tabIndex={0}`, `role="region"`, and accessible labels across all scrollable side consoles (`ContextualConsole`, `InvestigationConsole`, `SimulationConsole`, `BacktrackingConsole`, `AttributionConsole`).
+   - **Form Focus & Focus-Visible (`index.css`)**:
+     - Replaced `outline: none` on inputs with accessible high-contrast `:focus-visible` styling (`outline: 2px solid var(--color-signal-blue, #0057FF); outline-offset: 1px`).
+   - **Welcome & Report Navigation Accessibility**:
+     - `WelcomeNarrative.tsx`: Added `aria-current={isActive ? 'step' : undefined}` to chapter buttons.
+     - `WelcomePage.tsx`: Enhanced chapter jump behavior with `behavior: reducedMotion ? 'instant' : 'smooth'`.
+     - `SectionNav.tsx`: Added `aria-current={activeSection === s.id ? 'location' : undefined}` and reduced-motion handling in `scrollIntoView`.
+   - **Progressbar Accessible Labels**:
+     - Added descriptive `aria-label` to all progressbars (`FlightpathRail`, `IncidentCard`).
+
+3. **Performance & Dependency Hygiene**:
+   - Audited repository dependencies against codebase usage:
+     - Safely uninstalled 4 confirmed unused packages: `lucide-react`, `recharts`, `sonner`, `@gsap/react`.
+     - Confirmed and preserved genuinely used libraries (`gsap`, `three`, `@react-three/fiber`, `@react-three/drei`, `motion`, `vsco.ts`, etc.).
+   - Production bundle compiled cleanly in 10.89s with code-splitting and gzip compression.
+
+4. **Multi-Viewport & Responsive Validation**:
+   - Tested all core routes across 4 target viewports: 1920x1080, 1440x900, 1280x800, and 768x1024.
+   - Verified console collapse, spine navigation, tooltips, evidence stack, and zero horizontal overflow.
+   - Passed 24/24 configurations cleanly in `scripts/shots.pw.ts`.
+
+5. **Reduced Motion Final Pass**:
+   - Verified `prefers-reduced-motion: reduce` behavior across `/welcome`, `/`, `/simulation`, `/investigation`, `/backtracking`, `/attribution`, `/report`.
+   - `NumberTween`: Snaps immediately with zero tween delay or rAF loops.
+   - `RouteTransitionBoundary`: Bypasses opacity crossfades.
+   - Welcome/Report navigation: Instant snap scrolling without smooth scroll forcing.
+   - Welcome 3D: Damps wave motion and disables bobbing.
+
+6. **End-to-End Investigation Pipeline**:
+   - Executed live 8-stage pipeline test (`scripts/pipeline.pw.ts`) through:
+     `detection` -> `characterization` -> `environment` -> `forward_drift` -> `backtracking` -> `ais` -> `attribution` -> `conclusion`.
+   - All 8 stages transitioned through `running` to `completed` with genuine scientific telemetry.
+
+7. **Verification & Quality Gates**:
+   - `npx tsc --noEmit`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+   - `npm run test -- --run`: 10/10 tests passed (exit code 0).
+   - `npm run build`: 1440 modules transformed, production build succeeded in 10.89s (exit code 0).
+   - `npx playwright test scripts/axe-audit.pw.ts`: 11/11 passed (0 critical/serious violations across all 7 routes).
+   - `npx playwright test scripts/m8-motion.pw.ts`: 5/5 passed.
+   - `npx playwright test scripts/welcome.pw.ts`: 6/6 passed.
+   - `npx playwright test scripts/evidence-stack.pw.ts`: 7/7 passed.
+   - `npx playwright test scripts/m5-report-qa.pw.ts`: 5/5 passed.
+   - `npx playwright test scripts/shots.pw.ts`: 24/24 passed across 6 routes x 4 resolutions.
+   - `npx playwright test scripts/pipeline.pw.ts`: 1/1 passed.
+
+8. **Protected Contracts Invariant Check**:
+   - `git diff 04fc5e51f518d71bf8fbe04b22183573a2bec354 HEAD -- backend scientific-service oil-spill-system/frontend/src/store oil-spill-system/frontend/src/lib oil-spill-system/frontend/src/types oil-spill-system/frontend/src/hooks oil-spill-system/frontend/src/routes.ts`: **100% EMPTY**. Zero violations.
+
+### Visual & QA Evidence
+Saved in `docs/frontend-rebuild/screenshots/M9/`:
+- `welcome-desktop.png`: 1920x1080 Welcome experience with 3D ocean scene.
+- `welcome-tablet.png`: 768x1024 Welcome experience responsive layout.
+- `command-center-honest.png`: Command Center with verified honest data states on cards.
+- `skip-link-focused.png`: Keyboard-accessible skip link visible in Signal Blue upon focus.
+- `evidence-stack.png`: Exploded 3D evidence stack inspection view.
+- `reduced-motion.png`: Reduced motion validation in Command Center.
+- `pipeline-execution.png`: Live 8-stage pipeline completion state.
+- `1920x1080/`, `1440x900/`, `1280x800/`, `768x1024/`: Multi-viewport screenshots across all routes.
+
+### Milestone Status
+- **M9 is COMPLETE AND FINAL**. All milestones M0 through M9 are complete. The OilGuard frontend rebuild is verified, hardened, accessible, and ready for submission.

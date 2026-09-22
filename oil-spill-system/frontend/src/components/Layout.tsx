@@ -188,7 +188,7 @@ export default function Layout() {
           </div>
 
           {/* Route Action Group */}
-          <div className="spine-nav-group" role="menubar">
+          <nav className="spine-nav-group" aria-label="Workstation primary routes">
             {NAV.map(({ to, label, icon: RailIcon, code }) => (
               <NavLink
                 key={to}
@@ -205,7 +205,7 @@ export default function Layout() {
                 </span>
               </NavLink>
             ))}
-          </div>
+          </nav>
 
           <div className="spine-spacer flex-1" />
 

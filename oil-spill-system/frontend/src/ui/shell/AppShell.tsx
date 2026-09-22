@@ -16,6 +16,14 @@ export interface AppShellProps {
 export function AppShell({ spine, operationalBar, children, isTheater = true }: AppShellProps) {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-abyss text-foam font-sans select-none">
+      {/* Keyboard accessible skip link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:bg-signal-blue focus:text-white focus:text-xs focus:font-semibold focus:rounded-[3px] focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white"
+      >
+        Skip to main content
+      </a>
+
       {/* 1. Left Command Spine Navigation */}
       {spine ? (
         <aside
@@ -35,8 +43,10 @@ export function AppShell({ spine, operationalBar, children, isTheater = true }: 
         ) : null}
 
         <main
+          id="main-content"
+          tabIndex={-1}
           className={clsx(
-            'flex-1 min-h-0 relative overflow-hidden',
+            'flex-1 min-h-0 relative overflow-hidden focus:outline-none',
             isTheater ? 'bg-abyss' : 'bg-abyss p-4 overflow-auto',
           )}
         >

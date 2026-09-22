@@ -45,17 +45,16 @@ export function AttributionCard() {
   }
 
   const top = vessels[0] ?? null
-  const topScorePct = ranking?.top_score != null ? (ranking.top_score * 100).toFixed(1) : top?.score != null ? (top.score * 100).toFixed(1) : '89.4'
-  const marginPct = ranking?.margin != null ? (ranking.margin * 100).toFixed(1) : '34.2'
+  const topScorePct = ranking?.top_score != null ? (ranking.top_score * 100).toFixed(1) : top?.score != null ? (top.score * 100).toFixed(1) : null
+  const marginPct = ranking?.margin != null ? (ranking.margin * 100).toFixed(1) : null
 
   return (
     <div className="ctx-card ctx-card--attribution" role="region" aria-label="Attribution Candidate Analysis">
       <div className="ctx-card-header">
         <div className="ctx-card-title-group">
-          <span className="ctx-dot ctx-dot--live" aria-hidden="true" />
+          <span className={`ctx-dot ${top ? 'ctx-dot--live' : 'ctx-dot--idle'}`} aria-hidden="true" />
           <h3 className="ctx-card-title">Vessel attribution adjudication</h3>
         </div>
-        
       </div>
 
       <div className="ctx-card-body">
@@ -64,30 +63,30 @@ export function AttributionCard() {
           <div className="ctx-verdict-banner">
             <div className="verdict-banner-header">
               <span className="verdict-tag">Primary match</span>
-              <span className="verdict-score-pill">{topScorePct}% Match score</span>
+              <span className="verdict-score-pill">{topScorePct != null ? `${topScorePct}% Match score` : 'Score: —'}</span>
             </div>
 
-            <div className="verdict-vessel-name">{top.name || 'ATLANTIC CONVOY'}</div>
+            <div className="verdict-vessel-name">{top.name || (top.mmsi ? `Vessel MMSI ${top.mmsi}` : 'Unnamed Vessel')}</div>
             <div className="verdict-vessel-sub">
-              <span>MMSI: {top.mmsi ?? '413289000'}</span>
+              <span>MMSI: {top.mmsi ?? '—'}</span>
               <span>·</span>
-              <span>{top.vesselType ?? 'Crude Oil Tanker'}</span>
+              <span>{top.vesselType ?? 'Unknown type'}</span>
             </div>
 
             <div className="verdict-metrics-row">
               <div className="verdict-metric">
                 <span className="v-metric-label">MIN SEPARATION</span>
                 <span className="v-metric-val">
-                  {top.minDistanceKm != null ? `${top.minDistanceKm.toFixed(1)} km` : '0.8 km'}
+                  {top.minDistanceKm != null ? `${top.minDistanceKm.toFixed(1)} km` : '—'}
                 </span>
               </div>
               <div className="verdict-metric">
                 <span className="v-metric-label">TCA (APPROACH)</span>
-                <span className="v-metric-val">{tca(top.timeOfClosestApproach) || '08:12Z'}</span>
+                <span className="v-metric-val">{top.timeOfClosestApproach ? tca(top.timeOfClosestApproach) : '—'}</span>
               </div>
               <div className="verdict-metric">
                 <span className="v-metric-label">SEPARATION MARGIN</span>
-                <span className="v-metric-val">+{marginPct}%</span>
+                <span className="v-metric-val">{marginPct != null ? `+${marginPct}%` : '—'}</span>
               </div>
             </div>
 
@@ -114,7 +113,7 @@ export function AttributionCard() {
           <div className="ctx-empty-state">
             <p className="ctx-empty-title">Ranking Vessel Trajectories</p>
             <p className="ctx-empty-hint">
-              Evaluating AIS positions against reverse drift envelope within {radiusKm ?? 25} km window.
+              Evaluating AIS positions against reverse drift envelope within {radiusKm != null ? `${radiusKm} km window` : 'investigation window'}.
             </p>
           </div>
         )}
@@ -129,7 +128,7 @@ export function AttributionCard() {
                   <div className="secondary-rank">#{v.rank}</div>
                   <div className="secondary-info">
                     <span className="secondary-name">{v.name || 'Unnamed Vessel'}</span>
-                    <span className="secondary-meta">MMSI {v.mmsi} · {v.vesselType ?? 'Cargo'}</span>
+                    <span className="secondary-meta">MMSI {v.mmsi ?? '—'} · {v.vesselType ?? 'Unknown type'}</span>
                   </div>
                   <div className="secondary-score">
                     {v.score != null ? `${Math.round(v.score * 100)}%` : '—'}

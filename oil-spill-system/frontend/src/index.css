@@ -1504,6 +1504,13 @@ body {
   box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.20);
 }
 
+.input:focus-visible {
+  outline: 2px solid var(--color-signal-blue, #0057FF);
+  outline-offset: 1px;
+  border-color: var(--color-signal-blue, #0057FF);
+  box-shadow: 0 0 0 2px rgba(0, 87, 255, 0.25);
+}
+
 .input:disabled {
   opacity: 0.50;
   cursor: not-allowed;
@@ -1537,6 +1544,13 @@ body {
   box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.20);
 }
 
+.select:focus-visible {
+  outline: 2px solid var(--color-signal-blue, #0057FF);
+  outline-offset: 1px;
+  border-color: var(--color-signal-blue, #0057FF);
+  box-shadow: 0 0 0 2px rgba(0, 87, 255, 0.25);
+}
+
 .textarea {
   background: var(--bg-inset);
   border: 1px solid var(--border-default);
@@ -1555,6 +1569,13 @@ body {
   outline: none;
   border-color: var(--border-focus);
   box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.20);
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--color-signal-blue, #0057FF);
+  outline-offset: 1px;
+  border-color: var(--color-signal-blue, #0057FF);
+  box-shadow: 0 0 0 2px rgba(0, 87, 255, 0.25);
 }
 
 /* ---------------------------------------------------------------------------

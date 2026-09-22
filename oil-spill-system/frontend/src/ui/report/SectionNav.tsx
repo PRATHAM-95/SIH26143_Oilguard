@@ -1,4 +1,5 @@
 import { clsx } from 'clsx'
+import { prefersReducedMotion } from '../motion/tokens'
 
 export const REPORT_SECTIONS = [
   { id: 'dossier-hero', label: 'Incident Dossier', number: '01' },
@@ -35,13 +36,18 @@ export function SectionNav({
           <li key={s.id}>
             <a
               href={`#${s.id}`}
+              aria-current={activeSection === s.id ? 'location' : undefined}
               className={clsx(
                 'report-nav__link',
                 activeSection === s.id && 'report-nav__link--active',
               )}
               onClick={(e) => {
                 e.preventDefault()
-                document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                const isReduced = prefersReducedMotion()
+                document.getElementById(s.id)?.scrollIntoView({
+                  behavior: isReduced ? 'auto' : 'smooth',
+                  block: 'start',
+                })
               }}
             >
               <span className="report-nav__number">{s.number}</span>

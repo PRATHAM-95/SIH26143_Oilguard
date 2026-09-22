@@ -63,7 +63,14 @@ export function IncidentCard() {
                 <span className="ctx-label">DETECTION CONFIDENCE</span>
                 <span className="meter-score">{hasConfidence ? `${confidencePct}%` : 'No data'}</span>
               </div>
-              <div className="meter-track" role="progressbar" aria-valuenow={confidencePct ?? 0} aria-valuemin={0} aria-valuemax={100}>
+              <div
+                className="meter-track"
+                role="progressbar"
+                aria-label="Detection confidence score"
+                aria-valuenow={confidencePct ?? 0}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
                 <div className="meter-fill meter-fill--ok" style={{ width: `${confidencePct ?? 0}%` }} />
               </div>
             </div>

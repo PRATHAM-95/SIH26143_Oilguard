@@ -187,7 +187,12 @@ export function SimulationConsole({ rightCollapsed, setRightCollapsed }: { right
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--bg-surface)]">
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--bg-surface)] focus:outline-none focus-visible:ring-1 focus-visible:ring-signal-blue"
+        tabIndex={0}
+        role="region"
+        aria-label="Simulation Console Controls"
+      >
         {hasSelection ? (
           <SelectionInspectorCard />
         ) : (

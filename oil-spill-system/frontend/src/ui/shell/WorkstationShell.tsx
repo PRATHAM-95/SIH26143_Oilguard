@@ -64,9 +64,9 @@ export function WorkstationShell({
         </aside>
 
         {/* Center Workspace (Map) */}
-        <main className="flex-1 relative overflow-hidden bg-[var(--bg-canvas)]">
+        <div className="flex-1 relative overflow-hidden bg-[var(--bg-canvas)]" role="region" aria-label="Geospatial Map Viewport">
           {children}
-        </main>
+        </div>
 
         {/* Right Panel (Contextual Console) */}
         <aside 

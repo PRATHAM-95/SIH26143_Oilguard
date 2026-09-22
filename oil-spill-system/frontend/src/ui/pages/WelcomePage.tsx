@@ -81,7 +81,7 @@ export const WelcomePage: React.FC = () => {
 
     window.scrollTo({
       top: targetScrollY,
-      behavior: 'smooth',
+      behavior: reducedMotion ? 'instant' : 'smooth',
     })
   }
 

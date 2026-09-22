@@ -105,7 +105,12 @@ export function BacktrackingConsole({
       </div>
 
       {/* Content scroll area */}
-      <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
+      <div
+        className="flex-1 overflow-y-auto p-3.5 space-y-4 focus:outline-none focus-visible:ring-1 focus-visible:ring-signal-blue"
+        tabIndex={0}
+        role="region"
+        aria-label="Backtracking Telemetry Feed"
+      >
         {/* Map Selection Alert Banner */}
         {selection && (
           <div className="rounded border border-sonar/40 bg-sonar/10 p-2.5 flex items-center justify-between text-xs">

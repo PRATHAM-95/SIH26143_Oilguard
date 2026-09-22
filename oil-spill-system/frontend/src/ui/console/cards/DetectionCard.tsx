@@ -26,10 +26,9 @@ export function DetectionCard() {
     <div className="ctx-card ctx-card--detection" role="region" aria-label="SAR Satellite Detection">
       <div className="ctx-card-header">
         <div className="ctx-card-title-group">
-          <span className="ctx-dot ctx-dot--live" aria-hidden="true" />
+          <span className={`ctx-dot ${sar.candidates.length > 0 ? 'ctx-dot--live' : 'ctx-dot--idle'}`} aria-hidden="true" />
           <h3 className="ctx-card-title">SATELLITE SAR RADAR</h3>
         </div>
-        
       </div>
 
       <div className="ctx-card-body">
@@ -53,7 +52,20 @@ export function DetectionCard() {
             <span className="ctx-val ctx-val--highlight">
               {sar.candidates.length > 0
                 ? `${sar.candidates.length} features detected${sar.slickAreaKm2 != null ? ` (${sar.slickAreaKm2.toFixed(1)} km²)` : ''}`
-                : 'Provenance: none'}
+                : busy
+                  ? 'Processing radar backscatter…'
+                  : 'Awaiting acquisition'}
+            </span>
+          </div>
+
+          <div className="ctx-field">
+            <span className="ctx-label">RADAR PROVENANCE</span>
+            <span className="ctx-val ctx-val--mono">
+              {sar.provenance
+                ? sar.provenance === 'LOCAL_FIXTURE'
+                  ? 'LOCAL FIXTURE (Controlled)'
+                  : sar.provenance
+                : 'Awaiting acquisition'}
             </span>
           </div>
 
@@ -74,7 +86,7 @@ export function DetectionCard() {
               disabled={!simulationId || busy}
               onClick={handleRunSar}
             >
-              {busy ? 'Processing Radar Backscatter…' : 'Re-run CFAR Detection'}
+              {busy ? 'Processing Radar Backscatter…' : sar.candidates.length > 0 ? 'Re-run CFAR Detection' : 'Run SAR Detection'}
             </Button>
             <Button
               size="sm"

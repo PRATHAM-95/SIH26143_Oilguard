@@ -101,6 +101,7 @@ export function FlightpathRail({ leftCollapsed }: { leftCollapsed: boolean }) {
       <div
         className="h-0.5 w-full bg-[var(--border-default)] overflow-hidden"
         role="progressbar"
+        aria-label="Investigation pipeline overall progress"
         aria-valuenow={Math.round(progressRatio * 100)}
         aria-valuemin={0}
         aria-valuemax={100}

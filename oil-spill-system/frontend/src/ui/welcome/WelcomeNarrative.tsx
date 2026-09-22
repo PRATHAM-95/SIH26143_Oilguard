@@ -55,6 +55,7 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
               <button
                 key={sec.id}
                 type="button"
+                aria-current={isActive ? 'step' : undefined}
                 onClick={() => onJumpToSection?.(idx)}
                 className={`font-mono text-[10px] tracking-wider px-2.5 py-1 rounded transition-colors ${
                   isActive

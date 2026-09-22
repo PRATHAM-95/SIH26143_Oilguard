@@ -6,18 +6,39 @@ export function EnvironmentDriftCard() {
   const wind = useEnvironmentStore((s) => s.wind)
   const drift = useSimulationStore((s) => s.drift)
 
+  const particleCount =
+    drift.particles && drift.particles.length > 0
+      ? drift.particles.length
+      : drift.particleCount != null && drift.particleCount > 0
+        ? drift.particleCount
+        : null
 
-  const particleCount = drift.particles?.length ?? 128
-  const extentKm2 = drift.extent?.length ? (drift.extent.length * 1.4).toFixed(1) : '18.4'
+  const extentKm2 =
+    drift.extent && drift.extent.length > 0
+      ? (drift.extent.length * 1.4).toFixed(1)
+      : null
+
+  const windValue =
+    wind.status === 'available'
+      ? (wind.note || wind.label || 'Available')
+      : wind.status === 'awaiting'
+        ? 'Awaiting acquisition'
+        : 'Unavailable'
+
+  const currentValue =
+    current.status === 'available'
+      ? (current.note || current.label || 'Available')
+      : current.status === 'awaiting'
+        ? 'Awaiting acquisition'
+        : 'Unavailable'
 
   return (
     <div className="ctx-card ctx-card--environment" role="region" aria-label="Environmental Forcing & Drift">
       <div className="ctx-card-header">
         <div className="ctx-card-title-group">
-          <span className="ctx-dot ctx-dot--live" aria-hidden="true" />
+          <span className={`ctx-dot ${wind.status === 'available' || current.status === 'available' ? 'ctx-dot--live' : 'ctx-dot--idle'}`} aria-hidden="true" />
           <h3 className="ctx-card-title">Environment & forward drift</h3>
         </div>
-        
       </div>
 
       <div className="ctx-card-body">
@@ -25,32 +46,32 @@ export function EnvironmentDriftCard() {
           <div className="ctx-field">
             <span className="ctx-label">SURFACE WIND FIELD</span>
             <span className="ctx-val ctx-val--mono">
-              {wind.status === 'available'
-                ? `${wind.label} (14.2 kn @ 245° WSW)`
-                : '12.8 kn @ 238° WSW (ERA5)'}
+              {windValue}
             </span>
           </div>
 
           <div className="ctx-field">
             <span className="ctx-label">OCEAN CURRENTS</span>
             <span className="ctx-val ctx-val--mono">
-              {current.status === 'available'
-                ? `${current.label} (0.64 m/s @ 072° ENE)`
-                : '0.58 m/s @ 065° ENE (CMEMS)'}
+              {currentValue}
             </span>
           </div>
 
           <div className="ctx-field">
             <span className="ctx-label">LAGRANGIAN PARTICLES</span>
             <span className="ctx-val ctx-val--highlight">
-              {particleCount} active drift tracers tracked
+              {particleCount != null
+                ? `${particleCount} active drift tracers tracked`
+                : 'Not yet calculated'}
             </span>
           </div>
 
           <div className="ctx-field">
             <span className="ctx-label">DISPERSION ENVELOPE</span>
             <span className="ctx-val ctx-val--mono">
-              {extentKm2} km² footprint expansion
+              {extentKm2 != null
+                ? `${extentKm2} km² footprint expansion`
+                : 'Not yet calculated'}
             </span>
           </div>
 

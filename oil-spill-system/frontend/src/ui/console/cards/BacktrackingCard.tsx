@@ -41,56 +41,63 @@ export function BacktrackingCard() {
     )
   }
 
-  const latStr = origin ? `${origin.lat.toFixed(4)}°N` : '18.9482°N'
-  const lonStr = origin ? `${origin.lon.toFixed(4)}°E` : '72.7815°E'
-  const radius = uncertaintyKm != null ? uncertaintyKm.toFixed(1) : '3.4'
-  const agreement = trajectoryAgreement != null ? `${Math.round(trajectoryAgreement * 100)}%` : '94%'
-  const conv = ensembleSummary ? `${ensembleSummary.converged_count}/${ensembleSummary.member_count}` : '92/100'
+  const latStr = origin ? `${Math.abs(origin.lat).toFixed(4)}°${origin.lat >= 0 ? 'N' : 'S'}` : null
+  const lonStr = origin ? `${Math.abs(origin.lon).toFixed(4)}°${origin.lon >= 0 ? 'E' : 'W'}` : null
+  const radius = uncertaintyKm != null ? uncertaintyKm.toFixed(1) : null
+  const agreement = trajectoryAgreement != null ? `${Math.round(trajectoryAgreement * 100)}%` : '—'
+  const conv = ensembleSummary ? `${ensembleSummary.converged_count}/${ensembleSummary.member_count}` : null
 
   return (
     <div className="ctx-card ctx-card--backtracking" role="region" aria-label="Probable Source Region">
       <div className="ctx-card-header">
         <div className="ctx-card-title-group">
-          <span className="ctx-dot ctx-dot--ok" aria-hidden="true" />
+          <span className={`ctx-dot ${origin ? 'ctx-dot--ok' : 'ctx-dot--idle'}`} aria-hidden="true" />
           <h3 className="ctx-card-title">PROBABLE SOURCE REGION</h3>
         </div>
-        
       </div>
 
       <div className="ctx-card-body">
         <div className="ctx-telemetry-grid">
           <div className="ctx-field ctx-field--highlight-box">
             <div className="ctx-coords-large">
-              <span className="coord-point">{latStr}</span>
-              <span className="coord-divider">,</span>
-              <span className="coord-point">{lonStr}</span>
+              {origin ? (
+                <>
+                  <span className="coord-point">{latStr}</span>
+                  <span className="coord-divider">,</span>
+                  <span className="coord-point">{lonStr}</span>
+                </>
+              ) : (
+                <span className="coord-point text-ink-3">Not yet calculated</span>
+              )}
             </div>
             <div className="ctx-coords-sub">
-              <span className="uncertainty-pill">±{radius} km uncertainty radius</span>
+              <span className="uncertainty-pill">
+                {radius != null ? `±${radius} km uncertainty radius` : 'Uncertainty: Not yet calculated'}
+              </span>
             </div>
           </div>
 
           <div className="ctx-field-grid">
             <div className="ctx-mini-field">
               <span className="ctx-mini-label">EARLIEST DISCHARGE</span>
-              <span className="ctx-mini-val">{hhmm(originTimeRange?.earliest) || '06:30Z'}</span>
+              <span className="ctx-mini-val">{originTimeRange?.earliest ? hhmm(originTimeRange.earliest) : '—'}</span>
             </div>
             <div className="ctx-mini-field">
               <span className="ctx-mini-label">PREFERRED WINDOW</span>
               <span className="ctx-mini-val ctx-mini-val--accent">
-                {hhmm(originTimeRange?.preferred) || '08:15Z'}
+                {originTimeRange?.preferred ? hhmm(originTimeRange.preferred) : '—'}
               </span>
             </div>
             <div className="ctx-mini-field">
               <span className="ctx-mini-label">LATEST DISCHARGE</span>
-              <span className="ctx-mini-val">{hhmm(originTimeRange?.latest) || '09:45Z'}</span>
+              <span className="ctx-mini-val">{originTimeRange?.latest ? hhmm(originTimeRange.latest) : '—'}</span>
             </div>
           </div>
 
           <div className="ctx-field-grid">
             <div className="ctx-mini-field">
               <span className="ctx-mini-label">ENSEMBLE SOLVER</span>
-              <span className="ctx-mini-val">{conv} converged</span>
+              <span className="ctx-mini-val">{conv ? `${conv} converged` : 'Not yet calculated'}</span>
             </div>
             <div className="ctx-mini-field">
               <span className="ctx-mini-label">TRAJECTORY MATCH</span>
@@ -98,7 +105,7 @@ export function BacktrackingCard() {
             </div>
             <div className="ctx-mini-field">
               <span className="ctx-mini-label">CONCENTRATION</span>
-              <span className="ctx-mini-val">{sourceConcentration ?? 'HIGH'}</span>
+              <span className="ctx-mini-val">{sourceConcentration ?? '—'}</span>
             </div>
           </div>
 
