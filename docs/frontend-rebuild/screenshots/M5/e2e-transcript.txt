@@ -1,0 +1,24 @@
+Creating simulation...
+Simulation created: 6ab2a6c8ce377a4d97c36f1b
+Using vessel: 6ab2a6c8ce377a4d97c36f1c
+Simulation started.
+Spill released. Incident ID: 6ab2a6c8ce377a4d97c36f1e
+Running forward drift...
+Starting investigation...
+Investigation started: inv-478a2acb-42b
+Polling investigation...
+[0s] Status: CREATED
+[20s] Status: RUNNING
+[40s] Status: RUNNING
+[60s] Status: COMPLETED
+
+--- FINAL INVESTIGATION STATE ---
+Status: COMPLETED
+Stage detection: COMPLETED
+Stage characterization: COMPLETED
+Stage environment: COMPLETED
+Stage forward_drift: COMPLETED
+Stage backtracking: COMPLETED
+Stage ais: COMPLETED
+Stage attribution: COMPLETED
+Stage conclusion: COMPLETED

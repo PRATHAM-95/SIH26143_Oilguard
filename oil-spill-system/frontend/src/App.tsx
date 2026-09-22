@@ -6,7 +6,7 @@ import Simulation from './ui/pages/SimulationPage'
 import Investigation from './ui/pages/InvestigationPage'
 import Backtracking from './ui/pages/BacktrackingPage'
 import Attribution from './ui/pages/AttributionPage'
-import Report from './pages/Report'
+import Report from './ui/pages/ReportPage'
 import { APP_ROUTE_PATHS, type AppRoutePath } from './routes'
 
 const ROUTE_COMPONENTS: Record<AppRoutePath, React.ComponentType> = {

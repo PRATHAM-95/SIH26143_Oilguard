@@ -379,5 +379,74 @@ Rebuild `/backtracking` and `/attribution` from legacy implementations into the 
    - Graphify refreshed: 576 nodes, 1605 edges, 16 communities, 0 import cycles, 0 orphaned components.
    - Protected contracts verified: 0 modifications to `backend/`, `scientific-service/`, `src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`.
 
+---
 
+## Milestone M5: Publication-Grade Maritime Forensic Dossier & Print Export (COMPLETED)
 
+- **Completed On**: 2026-09-22
+- **Branch**: `frontend-rebuild`
+- **Goal**: Rebuild the `/report` route into a publication-grade maritime forensic dossier. Maintain document-oriented editorial rhythm distinct from the operational workstation, wire all 13 planned forensic sections, render honest data and scientific provenance, implement SVG analytical figures for spatial evidence, provide a single lazy WebGL geospatial theater, craft a genuine `@media print` paper composition, and safely retire the legacy `pages/Report.tsx`.
+
+### What Was Done
+1. **Report Architecture & Layout (`src/ui/report/`, `src/ui/pages/ReportPage.tsx`)**:
+   - Replaced card-grid layout with a document-oriented, scrollable publication architecture centered around a max-w-4xl column.
+   - Screen mode maintains the dark maritime intelligence theme (Abyss `#070B10`, Trench `#0B1118`, Deck `#111923`, Chartline `#273340`, Porcelain `#F8F7F4`, Mist `#B2BBC5`, Dim `#727D89`, Signal Blue `#0057FF`).
+   - Implemented `SectionNav` sticky sidebar with scroll-spy, active section tracking, print button trigger (`window.print()`), and smooth scrolling.
+   - Preserved `AppShell` while providing proper scroll containers for the editorial document.
+
+2. **All 13 Structured Forensic Sections Implemented**:
+   - **01 — Incident Dossier** (`DossierHero.tsx`): Classified publication header, incident metadata plate, coordinates, timestamps, confidence grade, and export controls.
+   - **02 — Executive Finding** (`AttributionSections.tsx`): Prominent editorial statement of attribution or honest no-verdict state, probability badge, contributing factors breakdown.
+   - **03 — Detection** (`EvidenceSections.tsx`): SAR sensor metadata, bounding box coordinates, radar backscatter characteristics, detection confidence.
+   - **04 — Characterization** (`EvidenceSections.tsx`): Oil classification, estimated slick area, mass balance distribution plate (evaporated vs natural dispersion vs remaining slick).
+   - **05 — Environment** (`EvidenceSections.tsx`): Wind and surface current vectors, sea state, water temperature, data provenance (`CONTROLLED` / `COPERNICUS` / `HYCOM`).
+   - **06 — Forward Drift** (`AnalysisSections.tsx`): Forward drift trajectory summary, simulation parameters, particle dispersion count, SVG `DriftTrajectoryPlate`.
+   - **07 — Backtracking** (`AnalysisSections.tsx`): Probability origin coordinates, uncertainty radius, advection duration, SVG `BacktrackingAnalyticalPlate` with probability contours and drift streamlines, and SVG `SourceTimeWindowPlate`.
+   - **08 — AIS / Vessel Traffic** (`AttributionSections.tsx`): Candidate vessels within spatiotemporal corridor, closest approach, SOG/COG, flag state, and SVG `AISCorridorAnalyticalPlate` radar chart.
+   - **09 — Attribution** (`AttributionSections.tsx`): Multi-factor scoring matrix, candidate ranking, SVG `FactorBreakdownChart` with weight distribution, and honest unconfirmed warnings.
+   - **10 — Conclusion** (`ConclusionSections.tsx`): Narrative forensic summary in Newsreader serif, legal disclaimer, confidence rationale, and operational caveats.
+   - **11 — Evidence & Provenance** (`ConclusionSections.tsx`): Cryptographic evidence hashes, model versioning, sensor telemetry timestamps, processing pipeline audit trail.
+   - **12 — Limitations / Uncertainty** (`ConclusionSections.tsx`): Explicit atmospheric and hydrodynamic model boundaries, AIS gap analysis, sensor resolution limits.
+   - **13 — Technical Appendix** (`ConclusionSections.tsx`): Full simulation configuration, run parameters, coordinates graticule, and system metadata.
+
+3. **Data Architecture & Scientific Honesty**:
+   - Presentation layer strictly consumes existing Zustand stores (`useInvestigationStore`, `useSimulationStore`, `useSarStore`, `useBacktrackingStore`, `useAttributionStore`, `useEnvironmentStore`) and backend report summary (`investigationApi.report(id)`).
+   - Zero scientific recalculations or simulated numbers in presentation code.
+   - Implemented honest fallback states (`ReportEmpty`): "No active investigation loaded", "Awaiting sensor acquisition", "Not yet calculated" when data is absent.
+   - Dynamic simulation hydration from `sessionStorage` or active investigation store.
+
+4. **Analytical Figures & Map Architecture**:
+   - Avoided multiple heavy WebGL instances: integrated ONE lazy interactive `MaritimeMapTheater` geospatial theater on screen (`.screen-only`).
+   - Implemented genuine data-derived SVG analytical plates for spatial evidence:
+     - `DriftTrajectoryPlate`: SVG vector projection showing release site, particle dispersion cloud, and net transport vector.
+     - `BacktrackingAnalyticalPlate`: Coordinate graticule, candidate release origin with error ellipse, uncertainty radius, and reverse streamlines.
+     - `SourceTimeWindowPlate`: Temporal Gantt plate depicting earliest, preferred, and latest discharge window.
+     - `AISCorridorAnalyticalPlate`: Spatiotemporal radar plate plotting candidates relative to the spill release anchor.
+     - `FactorBreakdownChart`: Proportional stacked bar with factor weights (Trajectory, Proximity, Speed, Vessel Type).
+
+5. **Print & Export System (`@media print`)**:
+   - Comprehensive `@media print` CSS rules in `src/index.css`.
+   - Overrode parent single-page layout overflow constraints (`html`, `body`, `#root`, `.app-shell`, `main`) to enable multi-page document pagination.
+   - Clean paper surface (`#FFFFFF` background, `#111111` dark typography, `#333333` body prose, `#666666` secondary metadata).
+   - Hidden screen chrome: operational spine, top bar, section navigation, interactive buttons, and WebGL theater.
+   - Analytical SVG figures and tables preserved with paper-optimized contrast.
+   - Controlled page breaks (`break-after: page`, `break-inside: avoid`) preventing orphan headings, split figures, and clipped tables.
+   - Verified real PDF export via Playwright: `docs/frontend-rebuild/screenshots/M5/export/oilguard_forensic_dossier.pdf` (156 kB, multi-page).
+
+6. **Retirement of Legacy Report**:
+   - Audited imports across entire codebase confirming zero external references to `src/pages/Report.tsx`.
+   - `src/App.tsx` routes `/report` directly to `src/ui/pages/ReportPage.tsx`.
+   - Safely retired `src/pages/Report.tsx`.
+
+7. **Quality Gates & Verification Results**:
+   - `npx tsc --noEmit`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+   - `npm run test -- --run`: 4/4 tests passed (exit code 0).
+   - `npm run build`: 1444 modules transformed, production bundle built cleanly in 8.35s (exit code 0).
+   - `npx playwright test scripts/shots.pw.ts -g "/report"`: 4/4 passed across 1920x1080, 1440x900, 1280x800, 768x1024 with zero horizontal overflow and zero console errors.
+   - `npx playwright test scripts/m5-report-qa.pw.ts`: 5/5 passed (Screen viewports, All 13 sections, Section navigation jump, Print media simulation, Empty states).
+   - `python scripts/e2e_investigation.py`: exit code 0 (Investigation `inv-478a2acb-42b` completed all 8 stages).
+   - Protected contracts verified: 0 modifications to `backend/`, `scientific-service/`, `src/store/`, `src/lib/`, `src/types/`, `src/hooks/`, `src/routes.ts`.
+
+### Milestone Status
+- **M5 is COMPLETE**. The publication-grade maritime forensic dossier and print/export experience are fully implemented, verified across viewports and print media, and tested against live data. Ready for Milestone M6.
