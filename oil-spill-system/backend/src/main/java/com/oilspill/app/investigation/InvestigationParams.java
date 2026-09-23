@@ -21,8 +21,10 @@ public class InvestigationParams {
     public static final int DEFAULT_FORWARD_DRIFT_PARTICLE_COUNT = 500;
     public static final double DEFAULT_FORWARD_DRIFT_DURATION_HOURS = 6.0;
 
-    // Environment / AIS provenance (no real feeds in this build)
-    public static final String DEFAULT_ENVIRONMENT_SOURCE = "CONTROLLED";
+    // Environment / AIS provenance (no AIS feeds in this build; environment
+    // defaults to LIVE = real Open-Meteo wind, falling back to CONTROLLED in
+    // the scientific service when the feed is offline)
+    public static final String DEFAULT_ENVIRONMENT_SOURCE = "LIVE";
     public static final String DEFAULT_AIS_SOURCE = "CONTROLLED";
 
     // Attribution search geometry

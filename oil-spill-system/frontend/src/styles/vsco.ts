@@ -81,6 +81,8 @@ export const VSCO = {
   sar: {
     slick: [255, 138, 99] as const,
     slickFill: [255, 138, 99] as const,
+    slickHot: [255, 122, 80] as const,
+    slickHotFill: [255, 116, 74] as const,
     lookalike: [208, 163, 95] as const,
     lookalikeFill: [208, 163, 95] as const,
     footprint: [96, 165, 205] as const,

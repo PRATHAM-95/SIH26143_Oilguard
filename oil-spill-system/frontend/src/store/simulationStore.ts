@@ -66,6 +66,25 @@ export function spilledIncidentId(simulationId: string): string | null {
   }
 }
 
+/**
+ * Wipe all persisted simulation memory from sessionStorage — the active-sim
+ * handle plus every spilled-incident binding. Used by the workspace reset so a
+ * fresh case never leaks the previous one across reloads.
+ */
+export function clearSimulationMemory(): void {
+  try {
+    sessionStorage.removeItem(ACTIVE_SIM_KEY)
+    const doomed: string[] = []
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i)
+      if (key && key.startsWith(SPILL_INCIDENT_PREFIX)) doomed.push(key)
+    }
+    doomed.forEach((k) => sessionStorage.removeItem(k))
+  } catch {
+    // storage unavailable — reset is still honest at the API layer
+  }
+}
+
 type SpillEventDto = {
   spillEventId: string
   incidentId?: string
@@ -283,7 +302,10 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         durationHours: 6,
         particleCount: 500,
         oilType: spill.oilType ?? 'GENERIC CRUDE',
-        environmentSource: 'CONTROLLED',
+        // LIVE = real Open-Meteo 10 m wind (no credentials). The scientific
+        // service falls back to the deterministic CONTROLLED field — labelled
+        // honestly in drift.environmentSource — whenever the feed is offline.
+        environmentSource: 'LIVE',
         currents: { u: 0.5, v: 0 },
         wind: { u: 2, v: 0 },
       })

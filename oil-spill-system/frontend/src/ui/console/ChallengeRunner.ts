@@ -10,8 +10,8 @@ import { useMapStore } from '@/store/mapStore'
  *
  * Runs the real pipeline step by step so the map and stores animate live over
  * the websocket: scenario → clock → spill → SAR detection → forward drift →
- * full 8-stage investigation. Every channel is labelled honestly (CONTROLLED /
- * LOCAL_FIXTURE provenance) until Phase 3 wires Open-Meteo and EONET.
+ * full 8-stage investigation. Every channel is labelled honestly (LIVE /
+ * CONTROLLED / LOCAL_FIXTURE provenance).
  *
  * `DEMO` = reserved for integration tests or explicit fixture injection; `LIVE` = judge pressed the button.
  */
@@ -122,7 +122,7 @@ export async function runLiveChallenge(label: 'DEMO' | 'LIVE' = 'LIVE'): Promise
     await useSarStore.getState().detect(simId)
     tell('SAR candidate detected')
 
-    // 6 — forward drift (CONTROLLED test field until Phase 3)
+    // 6 — forward drift (LIVE = real Open-Meteo wind; CONTROLLED when offline)
     useChallengeStore.setState({ phase: 'drifting' })
     await useSimulationStore.getState().runForwardDrift()
     tell('Forward drift run complete')

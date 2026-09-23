@@ -18,6 +18,10 @@ export async function post<T>(path: string, body?: unknown, signal?: AbortSignal
   return request<T>(path, { method: 'POST', body, signal })
 }
 
+export async function del<T>(path: string, signal?: AbortSignal): Promise<T> {
+  return request<T>(path, { method: 'DELETE', signal })
+}
+
 export async function request<T>(
   path: string,
   init: { method: string; body?: unknown; signal?: AbortSignal },

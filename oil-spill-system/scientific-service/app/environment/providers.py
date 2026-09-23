@@ -13,6 +13,7 @@ CONTROLLED forcing, labelling the run accordingly.
 
 from __future__ import annotations
 
+import math
 from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Optional
@@ -456,6 +457,77 @@ class ERA5Provider(EnvironmentProvider):
                     pass
 
 
+class LiveWeatherProvider(EnvironmentProvider):
+    """Open-Meteo live 10 m wind forcing (real, no credentials).
+
+    Layer B alternative: real forecast wind from Open-Meteo (GFS grid) that
+    needs no credentials, so the drift engine can run on real wind even when
+    CMEMS/ERA5 are not configured. Ocean currents are not part of this feed,
+    so the returned field carries wind only (currents 0.0) and is labelled
+    honestly ``LIVE`` — it is never presented as a full reanalysis product.
+    """
+
+    source = "LIVE"
+    dataset = "Open-Meteo forecast (10 m wind)"
+    # Approximate grid spacing of the outgoing met-ocean wind field (deg).
+    resolution_degrees = 0.25
+
+    def _series(
+        self,
+        latitude: float,
+        longitude: float,
+        start_time: datetime,
+        duration_hours: float,
+        time_step_seconds: int,
+    ) -> EnvironmentField:
+        from . import live as _live
+
+        try:
+            rows = _live.fetch_wind_series(latitude, longitude)
+        except Exception as exc:  # noqa: BLE001 - surface any fetch failure
+            raise EnvironmentProviderError(
+                f"Open-Meteo UNAVAILABLE: {type(exc).__name__}: {exc}"
+            ) from exc
+        if not rows:
+            raise EnvironmentProviderError("Open-Meteo returned no wind samples.")
+
+        start_dt = start_time if start_time.tzinfo is None else start_time.replace(tzinfo=None)
+        field = EnvironmentField()
+        n = max(1, int(round((duration_hours * 3600) / time_step_seconds)))
+        for i in range(n):
+            stamp = start_dt + timedelta(seconds=i * time_step_seconds)
+            row = _live.nearest_wind_row(rows, stamp) or rows[-1]
+            u_wind, v_wind = _live.wind_to_uv(
+                row.get("wind_speed_10m"),
+                row.get("wind_direction_10m"),
+            )
+            field.append(
+                EnvironmentSample(
+                    timestamp=stamp,
+                    latitude=latitude,
+                    longitude=longitude,
+                    u_current=0.0,
+                    v_current=0.0,
+                    u_wind=u_wind,
+                    v_wind=v_wind,
+                    source=self.source,
+                    dataset=self.dataset,
+                    resolution_degrees=self.resolution_degrees,
+                )
+            )
+        return field
+
+    def get(
+        self,
+        latitude: float,
+        longitude: float,
+        start_time: datetime,
+        duration_hours: float,
+        time_step_seconds: int,
+    ) -> EnvironmentField:
+        return self._series(latitude, longitude, start_time, duration_hours, time_step_seconds)
+
+
 def _cache_time(dt: datetime) -> str:
     """Stable UTC string key component for a datetime (naive or aware)."""
     from datetime import timezone as _tz
@@ -468,7 +540,7 @@ def _cache_time(dt: datetime) -> str:
 def resolve_provider(source: Optional[str] = None) -> EnvironmentProvider:
     """Return the provider for ``source``, or the controlled provider default.
 
-    Validated sources: ``CONTROLLED``, ``CMEMS``, ``ERA5``.
+    Validated sources: ``CONTROLLED``, ``CMEMS``, ``ERA5``, ``LIVE``.
     """
     cfg = get_environment_config()
     key = (source or "CONTROLLED").strip().upper()
@@ -485,5 +557,9 @@ def resolve_provider(source: Optional[str] = None) -> EnvironmentProvider:
                 "ERA5 requested but UNAVAILABLE (CDS_API_KEY not configured). Use CONTROLLED."
             )
         return ERA5Provider()
+    if key in ("LIVE", "OPENMETEO"):
+        # Real, credential-free 10 m wind (Open-Meteo). Network failures raise
+        # at fetch time and the engine falls back to CONTROLLED honestly.
+        return LiveWeatherProvider()
     # CONTROLLED (default) — always available and reproducible.
     return ControlledEnvironmentProvider()

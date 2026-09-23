@@ -1,0 +1,79 @@
+import { create } from 'zustand'
+
+/**
+ * Shared workspace UI state — the single source of truth for the Phase 3
+ * command-centre chrome: which intelligence module is active, what the
+ * Analysis & Control rail is doing, and whether the rail is collapsed.
+ *
+ * It deliberately holds *presentation* state only. Pipeline outcomes still
+ * live in their domain stores (simulation / sar / backtracking / attribution)
+ * so the UI layer never fabricates results.
+ */
+
+export type ActiveModule =
+  | 'monitoring'
+  | 'detection'
+  | 'characterization'
+  | 'tracking'
+  | 'attribution'
+  | 'investigation'
+
+export const MODULE_LABEL: Record<ActiveModule, string> = {
+  monitoring: 'Live Monitoring',
+  detection: 'Detection',
+  characterization: 'Characterization',
+  tracking: 'Tracking & Drift',
+  attribution: 'Attribution',
+  investigation: 'Investigation',
+}
+
+export type AnalysisType = 'detection' | 'backtracking' | 'forward-drift' | 'vessel-attribution'
+
+/** Analysis lifecycle — mirrors the live challenge phases, never created locally. */
+export type AnalysisStatus = 'idle' | 'starting' | 'running' | 'completed' | 'failed'
+
+export type RightPanelTab = 'quick' | 'simulation' | 'vessels' | 'reports'
+
+type UiStoreState = {
+  activeModule: ActiveModule
+  setActiveModule: (module: ActiveModule) => void
+
+  analysisType: AnalysisType
+  setAnalysisType: (type: AnalysisType) => void
+
+  /** Derived from the challenge sequencer so START ANALYSIS stays honest. */
+  analysisStatus: AnalysisStatus
+  setAnalysisStatus: (status: AnalysisStatus) => void
+
+  rightPanelTab: RightPanelTab
+  setRightPanelTab: (tab: RightPanelTab) => void
+
+  panelCollapsed: boolean
+  setPanelCollapsed: (collapsed: boolean) => void
+  togglePanel: () => void
+
+  /** Historical reference gallery (public-domain DWH archive) visibility. */
+  referenceOpen: boolean
+  setReferenceOpen: (open: boolean) => void
+}
+
+export const useUiStore = create<UiStoreState>((set) => ({
+  activeModule: 'monitoring',
+  setActiveModule: (activeModule) => set({ activeModule }),
+
+  analysisType: 'detection',
+  setAnalysisType: (analysisType) => set({ analysisType }),
+
+  analysisStatus: 'idle',
+  setAnalysisStatus: (analysisStatus) => set({ analysisStatus }),
+
+  rightPanelTab: 'quick',
+  setRightPanelTab: (rightPanelTab) => set({ rightPanelTab }),
+
+  panelCollapsed: false,
+  setPanelCollapsed: (panelCollapsed) => set({ panelCollapsed }),
+  togglePanel: () => set((s) => ({ panelCollapsed: !s.panelCollapsed })),
+
+  referenceOpen: false,
+  setReferenceOpen: (referenceOpen) => set({ referenceOpen }),
+}))

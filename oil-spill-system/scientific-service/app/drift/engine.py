@@ -176,6 +176,8 @@ def _resolve_forcing_provider(
       * ``CMEMS`` — real ocean currents from Copernicus Marine.
       * ``ERA5`` — real 10 m wind from ECMWF CDS.
       * ``REAL`` / ``CMEMS_ERA5`` — combine CMEMS currents with ERA5 wind.
+      * ``LIVE`` / ``OPENMETEO`` — real 10 m wind from Open-Meteo forecast
+        (no credentials needed); ocean currents are 0.
 
     Real providers are enabled only when the corresponding credentials are set
     in the environment (see ``app.environment.config``). If a requested real
@@ -186,6 +188,10 @@ def _resolve_forcing_provider(
     key = (environment_source or "CONTROLLED").strip().upper()
     if key in ("CMEMS", "ERA5", "REAL", "CMEMS_ERA5"):
         return _RealForcingProvider(key, latitude, longitude, start_time, duration_hours, time_step_seconds)
+    if key in ("LIVE", "OPENMETEO"):
+        from ..environment.providers import LiveWeatherProvider
+
+        return LiveWeatherProvider()
     return ControlledEnvironmentProvider(
         u_current=currents.u if currents else 0.0,
         v_current=currents.v if currents else 0.0,
@@ -353,7 +359,7 @@ class ForwardDriftEngine:
             )
         except EnvironmentProviderError as exc:
             if (environment_source or "CONTROLLED").strip().upper() in (
-                "CMEMS", "ERA5", "REAL", "CMEMS_ERA5",
+                "CMEMS", "ERA5", "REAL", "CMEMS_ERA5", "LIVE", "OPENMETEO",
             ):
                 log.warning(
                     "Real environment unavailable (%s); falling back to CONTROLLED forcing.",

@@ -79,5 +79,9 @@ def report_environment_availability() -> dict:
                 "note": "CDS_API_KEY configured." if cfg.era5_available
                 else "Missing CDS_KEY (ERA5 API token) or no network.",
             },
+            "openmeteo": {
+                "status": "AVAILABLE",
+                "note": "Open-Meteo forecast + marine (live, no credentials).",
+            },
         }
     }

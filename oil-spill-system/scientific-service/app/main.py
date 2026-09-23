@@ -12,6 +12,12 @@ Serves the frozen SYSTEM_SPEC §15.2 Python API:
     POST /api/ais/filter             -> window/filter/reconstruct -> candidates.
     POST /api/score-vessels          -> frozen five-factor vessel attribution.
     POST /api/attribution/validate   -> controlled recovery scenarios.
+
+Live environmental data (free, no-key internet feeds):
+
+    GET  /api/environment/live-weather -> Open-Meteo wind + waves snapshot.
+    GET  /api/environment/incidents   -> NASA EONET marine incident feed.
+    GET  /api/environment/depth       -> ETOPO1 ocean depth at a coordinate.
 """
 
 from __future__ import annotations
@@ -39,6 +45,7 @@ from .drift.engine import (
     resolve_oil_type,
 )
 from .environment.config import report_environment_availability
+from .environment.live import fetch_depth, fetch_incidents, fetch_live_weather
 from .models.forward_drift import (
     ForwardDriftRequest,
     ForwardDriftResponse,
@@ -87,7 +94,7 @@ from .models.ais import (
 )
 from .observability import instrument_app
 
-APP_VERSION = "0.5.0"
+APP_VERSION = "0.6.0"
 APP_TITLE = "Oil Spill Scientific Service"
 
 # "Slow start, fast runtime": when SCIENTIFIC_PRELOAD != "0" the service warms
@@ -180,6 +187,36 @@ def ready(response: Response) -> Dict[str, Any]:
 @app.get("/api/environment/availability")
 def environment_availability() -> Dict[str, Any]:
     return report_environment_availability()
+
+
+@app.get("/api/environment/live-weather")
+def environment_live_weather(lat: float, lon: float) -> Dict[str, Any]:
+    """Live wind + wave snapshot from Open-Meteo (free, no credentials).
+
+    Honest UNAVAILABLE (200 with ``available=False``) when the feed is
+    unreachable — the UI never treats an offline feed as data.
+    """
+    if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+        raise HTTPException(status_code=400, detail="lon/lat out of range")
+    return fetch_live_weather(lat, lon)
+
+
+@app.get("/api/environment/incidents")
+def environment_incidents(
+    west: float, south: float, east: float, north: float
+) -> Dict[str, Any]:
+    """Live marine incident feed from NASA EONET v3 (keyword-filtered)."""
+    if west >= east or south >= north:
+        raise HTTPException(status_code=400, detail="Invalid bbox: west<east and south<north")
+    return fetch_incidents(bbox=(west, south, east, north))
+
+
+@app.get("/api/environment/depth")
+def environment_depth(lat: float, lon: float) -> Dict[str, Any]:
+    """Live ocean depth (m) from ETOPO1 via OpenTopoData."""
+    if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+        raise HTTPException(status_code=400, detail="lon/lat out of range")
+    return fetch_depth(lat, lon)
 
 
 @app.get("/api/forward-drift/preview")
@@ -327,6 +364,9 @@ def root() -> Dict[str, Any]:
             "/api/forward-drift",
             "/api/forward-drift/preview",
             "/api/environment/availability",
+            "/api/environment/live-weather",
+            "/api/environment/incidents",
+            "/api/environment/depth",
             "/api/sar/preview",
             "/api/sar/catalog",
             "/api/sar/detect",

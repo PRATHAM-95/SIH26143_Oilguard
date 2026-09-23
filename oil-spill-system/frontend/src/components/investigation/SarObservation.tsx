@@ -7,6 +7,8 @@ import { useSarStore } from '@/store/sarStore'
 export { useSarStore }
 import { useMapStore } from '@/store/mapStore'
 import { VSCO } from '@/styles/vsco'
+import { labelLayer } from '@/components/map/overlays'
+import { circleRing } from '@/components/map/maritime/geo'
 import type { SarCandidateState, SarProvenance } from '@/types/domain'
 
 const PROVENANCE_LABEL: Record<SarProvenance, string> = {
@@ -31,16 +33,36 @@ function provenanceBadge(provenance: SarProvenance | null): string {
       return 'warn'
   }
 }
+
+/** Featured detection: top-confidence oil candidate (or top overall). */
+function featuredCandidate(candidates: SarCandidateState[]): SarCandidateState | null {
+  if (candidates.length === 0) return null
+  const oil = candidates
+    .filter((c) => c.classification === 'OIL_CANDIDATE')
+    .sort((a, b) => b.confidence - a.confidence)[0]
+  return (
+    oil ?? candidates.slice().sort((a, b) => b.confidence - a.confidence)[0]
+  )
+}
+
+function slickRadiusKm(c: SarCandidateState): number {
+  return Math.sqrt(Math.max(c.areaKm2, 0.05) / Math.PI)
+}
+
 /**
  * Build deck.gl layers for the SAR observation: the scene footprint (observed
- * evidence, outline) and the detector's slick candidates (filled polygons
- * coloured by classification). Visibility is gated by the map-store catalogue.
+ * evidence, outline), the detector's slick candidates (organic filled
+ * polygons with dashed boundaries coloured by classification) and a pulsing
+ * "featured" treatment for the highest-confidence oil candidate so the map
+ * reads like a detection surface rather than a scatter of markers.
+ * Visibility is gated by the map-store catalogue.
  */
 export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
   const candidates = useSarStore((s) => s.candidates)
   const footprint = useSarStore((s) => s.footprint)
   const showSlicks = useMapStore((s) => s.visibility.sarSlicks)
   const showFootprint = useMapStore((s) => s.visibility.sarFootprint)
+  const pulse = useMapStore((s) => s.pulse)
 
   return useMemo(() => {
     const layers: NonNullable<MapboxOverlayProps['layers']> = []
@@ -63,9 +85,10 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
             filled: true,
             getLineColor: line,
             getFillColor: [...fill, 34] as [number, number, number, number],
-            getLineWidth: 1800,
-            lineWidthMinPixels: 1.5,
-            lineWidthMaxPixels: 3.5,
+            getLineWidth: oil ? 2200 : 1200,
+            lineWidthMinPixels: oil ? 2 : 1.4,
+            lineWidthMaxPixels: oil ? 4 : 3,
+            getLineDashArray: oil ? () => 5 : undefined,
             pickable: true,
           }),
           new ScatterplotLayer({
@@ -79,9 +102,84 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
             getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
             getRadius: 900,
             radiusMinPixels: 4,
-            radiusMaxPixels: 7,
+            radiusMaxPixels: 6,
             getFillColor: line,
           }),
+        )
+      }
+
+      /* Featured slick — dominant but not map-covering. */
+      const featured = featuredCandidate(candidates)
+      if (featured) {
+        const hot = VSCO.sar.slickHot as [number, number, number]
+        const hotFill = VSCO.sar.slickHotFill as [number, number, number]
+        const glow = circleRing(featured.centroid.lon, featured.centroid.lat, slickRadiusKm(featured) * 2.4, 56)
+        const halo = circleRing(featured.centroid.lon, featured.centroid.lat, slickRadiusKm(featured) * 1.35, 56)
+        const radiusM = 2600 * (pulse ? 1 : 0.62)
+        const isOil = featured.classification === 'OIL_CANDIDATE'
+        layers.push(
+          new PolygonLayer({
+            id: 'sar-slick-featured-glow',
+            stroked: true,
+            filled: true,
+            getPolygon: (d: { polygon: [number, number][] }) => d.polygon,
+            getLineColor: [255, 122, 80, 90],
+            getFillColor: isOil ? [255, 116, 74, 16] : [208, 163, 95, 12],
+            getLineWidth: 3200,
+            lineWidthMinPixels: 1,
+            lineWidthMaxPixels: 2,
+            pickable: true,
+            data: [
+              {
+                polygon: glow,
+                pick: { kind: 'sar_candidate', id: featured.id },
+              },
+            ],
+          }),
+          new PolygonLayer({
+            id: 'sar-slick-featured-halo',
+            data: [{ polygon: halo }],
+            getPolygon: (d: { polygon: [number, number][] }) => d.polygon,
+            stroked: true,
+            filled: false,
+            getLineColor: isOil ? hot : [225, 170, 100],
+            getLineWidth: 1400,
+            lineWidthMinPixels: 1.2,
+            lineWidthMaxPixels: 2.4,
+            getLineDashArray: () => 4,
+            pickable: false,
+          }),
+          new ScatterplotLayer({
+            id: 'sar-slick-featured-pulse',
+            data: [{ coordinates: [featured.centroid.lon, featured.centroid.lat] }],
+            getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
+            getRadius: radiusM,
+            radiusMinPixels: 10,
+            radiusMaxPixels: 20,
+            getFillColor: [255, 96, 74, 120],
+            pickable: false,
+          }),
+          new ScatterplotLayer({
+            id: 'sar-slick-featured-core',
+            data: [{ coordinates: [featured.centroid.lon, featured.centroid.lat] }],
+            getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
+            getRadius: 1100,
+            radiusMinPixels: 3.4,
+            radiusMaxPixels: 5.5,
+            getFillColor: hotFill,
+            pickable: false,
+          }),
+          labelLayer(
+            'sar-slick-featured-label',
+            [
+              {
+                coordinates: [featured.centroid.lon, featured.centroid.lat] as [number, number],
+                text: `SLICK-${featured.id.slice(0, 12).toUpperCase()}`,
+                color: isOil ? [255, 176, 140] : [232, 200, 150],
+              },
+            ],
+            { size: 11 },
+          ),
         )
       }
     }
@@ -103,7 +201,7 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
     }
 
     return layers
-  }, [candidates, footprint, showSlicks, showFootprint])
+  }, [candidates, footprint, showSlicks, showFootprint, pulse])
 }
 
 export function SarObservationPanel({ simulationId }: { simulationId: string | null }) {

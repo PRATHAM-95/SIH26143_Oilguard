@@ -14,6 +14,8 @@ export type MapLayerId =
   | 'vesselTrails'
   | 'wind'
   | 'currents'
+  | 'weather'
+  | 'incidents'
   | 'backtracking'
   | 'sourceProbability'
   | 'uncertainty'
@@ -21,6 +23,7 @@ export type MapLayerId =
   | 'sarSlicks'
   | 'sarFootprint'
   | 'drift'
+  | 'eez'
 
 export type LayerGroup = 'observation' | 'simulation' | 'environment' | 'analysis'
 
@@ -57,7 +60,7 @@ export const MAP_LAYER_CATALOG: Record<MapLayerId, LayerVisibility> = {
     emptyNote: 'No scene ingested — observation required',
   },
   slick: {
-    visible: false,
+    visible: true,
     label: 'Observed spill point',
     group: 'simulation',
     color: '#ba6e30',
@@ -89,6 +92,22 @@ export const MAP_LAYER_CATALOG: Record<MapLayerId, LayerVisibility> = {
     group: 'environment',
     color: '#4f8f9c',
     emptyNote: 'CMEMS not connected — no data, never faked',
+  },
+  weather: {
+    visible: false,
+    label: 'Live weather',
+    group: 'environment',
+    color: '#7ad4ff',
+    note: 'Live wind & waves — Open-Meteo',
+    emptyNote: 'Open-Meteo not connected — no live weather, never faked',
+  },
+  incidents: {
+    visible: false,
+    label: 'Live marine incidents',
+    group: 'environment',
+    color: '#ffb020',
+    note: 'Real events — NASA EONET',
+    emptyNote: 'No live marine incidents — EONET',
   },
   backtracking: {
     visible: false,
@@ -138,6 +157,14 @@ export const MAP_LAYER_CATALOG: Record<MapLayerId, LayerVisibility> = {
     color: '#3aa896',
     note: 'Forward model output — simulated oil movement',
   },
+  eez: {
+    visible: false,
+    label: 'EEZ boundaries',
+    group: 'environment',
+    color: '#5cb2d6',
+    note: 'Maritime Boundaries & EEZ (v11, Marine Regions)',
+    emptyNote: 'Not loaded — boundaries are fetched from Marine Regions on demand',
+  },
 }
 
 export type MapViewState = {
@@ -150,13 +177,92 @@ export type MapViewState = {
 
 export type Bounds = [[number, number], [number, number]]
 
-/** Default target for the western Indian Ocean demonstration region. */
+/**
+ * Default operating extent — the Indian Ocean Region (IOR). The command
+ * centre must open on the whole area of interest, not zoomed into a single
+ * coastal sector.
+ */
 export const DEFAULT_VIEW: MapViewState = {
-  longitude: 72.4,
-  latitude: 14.5,
-  zoom: 5.6,
+  longitude: 70,
+  latitude: 6,
+  zoom: 3.8,
   pitch: 0,
   bearing: 0,
+}
+
+/* ------------------------------------------------------------------ */
+/* Operating regions — bounds in [west, south] / [east, north] order.  */
+/* ------------------------------------------------------------------ */
+
+export type RegionId =
+  | 'io'
+  | 'arabian'
+  | 'bengal'
+  | 'persian'
+  | 'east_africa'
+  | 'seasia'
+
+export type RegionDef = {
+  id: RegionId
+  label: string
+  short: string
+  /** Approximate operating box: [[westLon, southLat], [eastLon, northLat]]. */
+  bounds: Bounds
+  note?: string
+}
+
+export const REGIONS: RegionDef[] = [
+  {
+    id: 'arabian',
+    label: 'Arabian Sea',
+    short: 'AS',
+    bounds: [[50, -5], [78, 26]],
+    note: 'Western shelf of the Indian subcontinent',
+  },
+  {
+    id: 'bengal',
+    label: 'Bay of Bengal',
+    short: 'BB',
+    bounds: [[80, 6], [100, 24]],
+  },
+  {
+    id: 'persian',
+    label: 'Arabian Peninsula',
+    short: 'PE',
+    bounds: [[35, 12], [60, 30]],
+  },
+  {
+    id: 'east_africa',
+    label: 'East Africa',
+    short: 'EA',
+    bounds: [[30, -32], [52, 10]],
+  },
+  {
+    id: 'seasia',
+    label: 'Southeast Asia',
+    short: 'SA',
+    bounds: [[95, 0], [125, 28]],
+  },
+  {
+    id: 'io',
+    label: 'Indian Ocean',
+    short: 'IO',
+    bounds: [[30, -25], [110, 30]],
+    note: 'Primary area of interest — 25.0°S–30.0°N, 30.0°E–110.0°E',
+  },
+]
+
+export const REGION_BY_ID: Record<RegionId, RegionDef> = Object.fromEntries(
+  REGIONS.map((r) => [r.id, r]),
+) as Record<RegionId, RegionDef>
+
+/** Human region name for a coordinate, or null when outside all regions. */
+export function regionFor(lat: number, lon: number): string | null {
+  for (const r of REGIONS) {
+    const [[w, s], [e, n]] = r.bounds
+    if (lat >= s && lat <= n && lon >= w && lon <= e) return r.label
+  }
+  return null
 }
 
 /**
@@ -190,6 +296,10 @@ type MapStoreState = {
   cursor: { lon: number; lat: number } | null
   /** Bounds requested by pages to fit the area of interest. */
   fitBounds: Bounds | null
+  /** Active basemap — dark vector (default) or satellite imagery. */
+  basemap: 'dark' | 'satellite'
+  /** Ambient process pulse (oil-slick emphasis), toggled by a driver. */
+  pulse: boolean
   setView: (view: Partial<MapViewState>) => void
   toggleLayer: (id: MapLayerId) => void
   setLayer: (id: MapLayerId, visible: boolean) => void
@@ -199,6 +309,8 @@ type MapStoreState = {
   setCursor: (cursor: { lon: number; lat: number } | null) => void
   requestFit: (bounds: Bounds) => void
   clearFit: () => void
+  setBasemap: (basemap: 'dark' | 'satellite') => void
+  setPulse: (pulse: boolean) => void
 }
 
 export const useMapStore = create<MapStoreState>((set) => ({
@@ -210,6 +322,8 @@ export const useMapStore = create<MapStoreState>((set) => ({
   selection: null,
   cursor: null,
   fitBounds: null,
+  basemap: 'satellite',
+  pulse: false,
   setView: (view) =>
     set((s) => ({ view: { ...s.view, ...view } })),
   toggleLayer: (id) =>
@@ -222,4 +336,6 @@ export const useMapStore = create<MapStoreState>((set) => ({
   setCursor: (cursor) => set({ cursor }),
   requestFit: (bounds) => set({ fitBounds: bounds }),
   clearFit: () => set({ fitBounds: null }),
+  setBasemap: (basemap) => set({ basemap }),
+  setPulse: (pulse) => set({ pulse }),
 }))

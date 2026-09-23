@@ -10,6 +10,7 @@ import type { ReactNode } from 'react'
 const PROVENANCE_TIERS: { match: RegExp; tone: 'ok' | 'warn' | 'danger' | 'idle'; label: string }[] = [
   { match: /UNAVAILABLE|UNAVAIL|NONE/i, tone: 'danger', label: 'Unavailable' },
   { match: /REAL|CACHED|CMEMS|ERA5|SENTINEL/i, tone: 'ok', label: 'Real / cached' },
+  { match: /LIVE|OPEN[- ]?METEO|ETOPO/i, tone: 'ok', label: 'Live / real' },
   { match: /MIXED|PARTIAL/i, tone: 'warn', label: 'Mixed / partial' },
   { match: /FIXTURE|SYNTHETIC|CONTROLLED|DEMO|SEEDED/i, tone: 'warn', label: 'Controlled / demo' },
 ]

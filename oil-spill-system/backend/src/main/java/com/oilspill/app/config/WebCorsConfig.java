@@ -21,7 +21,8 @@ public class WebCorsConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:3000",
                         "http://127.0.0.1:3000",
-                        "http://localhost:4173")
+                        "http://localhost:4173",
+                        "http://localhost:4179")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
     }

@@ -16,7 +16,7 @@ export const STAGE_LABEL: Record<string, string> = {
   environment: 'Environment',
   forward_drift: 'Forward Drift',
   backtracking: 'Backtracking',
-  ais: 'AIS Analysis',
+  ais: 'AIS',
   attribution: 'Attribution',
   conclusion: 'Conclusion',
 }
