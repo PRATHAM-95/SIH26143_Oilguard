@@ -1,4 +1,6 @@
 export * from './tokens'
+export * from './BrandLockup'
+export * from './SectionEyebrow'
 export * from './ProvenanceLabel'
 export * from './StatusBadge'
 export * from './Button'

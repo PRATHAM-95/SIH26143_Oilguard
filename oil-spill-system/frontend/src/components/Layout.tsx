@@ -1,5 +1,8 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { RouteTransitionBoundary } from '@/ui/motion/RouteTransitionBoundary'
+import { EntryReveal } from '@/ui/motion/EntryReveal'
+import { SectionEyebrow } from '@/ui/design-system'
 import { useHealthProbe } from '@/hooks/useHealthProbe'
 import { useConnectionStore } from '@/store/connectionStore'
 import { useInvestigationStore } from '@/store/investigationStore'
@@ -93,13 +96,7 @@ function SecondaryPageHeader({
   return (
     <div className="flex items-center justify-between w-full h-full text-xs">
       <div className="flex items-center gap-2">
-        <span className="text-sonar text-sm" aria-hidden="true">◈</span>
-        <div className="flex flex-col">
-          <span className="font-sans font-medium text-foam text-[11px] leading-tight">
-            {currentWorkspace.label}
-          </span>
-          <span className="text-[8px] tracking-wider text-dim">OilGuard maritime intelligence</span>
-        </div>
+        <SectionEyebrow code={currentWorkspace.code} label={currentWorkspace.label} />
       </div>
 
       <div className="flex items-center gap-3">
@@ -168,14 +165,29 @@ function SecondaryPageHeader({
 
 export default function Layout() {
   useHealthProbe()
+  const navigate = useNavigate()
   const location = useLocation()
+  const consumedWelcomeEntry = useRef(false)
+  const fromWelcome = Boolean(location.state?.fromWelcome)
+
+  // Consume the welcome -> command-center entry flag exactly once so a
+  // refresh, back/forward, or any ordinary internal navigation can never
+  // re-trigger the one-shot EntryReveal.
+  useEffect(() => {
+    if (location.state?.fromWelcome === true && !consumedWelcomeEntry.current) {
+      consumedWelcomeEntry.current = true
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }, [location, navigate])
+
   const isCommandCenter = location.pathname === '/'
   const isTheater = location.pathname !== '/report'
   const currentWorkspace = WORKSPACE_MAP[location.pathname] ?? { label: 'Workspace', code: 'WS' }
   const pathname = location.pathname
 
   return (
-    <AppShell
+    <EntryReveal active={fromWelcome}>
+      <AppShell
       isTheater={isTheater}
       spine={
         <div className="flex flex-col items-center h-full w-full py-2.5" aria-label="Operational Navigation Spine">
@@ -225,6 +237,7 @@ export default function Layout() {
       <RouteTransitionBoundary>
         <Outlet />
       </RouteTransitionBoundary>
-    </AppShell>
+      </AppShell>
+    </EntryReveal>
   )
 }

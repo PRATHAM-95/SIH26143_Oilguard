@@ -2,6 +2,7 @@ import { useDataProvenance } from '@/ui/hooks/useDataProvenance'
 import { useUtcClock } from '@/hooks/useUtcClock'
 import { useConnectionStore } from '@/store/connectionStore'
 import { useSimulationStore } from '@/store/simulationStore'
+import { BrandLockup } from '@/ui/design-system'
 
 export function OperationalBar() {
   const clock = useUtcClock()
@@ -15,6 +16,7 @@ export function OperationalBar() {
   return (
     <div className="flex items-center justify-between h-10 px-4 border-b border-[var(--border-default)] bg-[var(--bg-canvas)] text-xs font-mono select-none">
       <div className="flex items-center space-x-6 text-ink-3">
+        <BrandLockup />
         <span className="text-ink-1">{caseRef}</span>
         <span>{clock.slice(11, 19)} ZULU</span>
       </div>

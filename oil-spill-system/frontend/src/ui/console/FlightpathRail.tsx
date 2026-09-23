@@ -74,13 +74,23 @@ export function FlightpathRail({ leftCollapsed }: { leftCollapsed: boolean }) {
   const completedCount = stages.filter((s) => s.status === 'completed').length
   const progressRatio = STAGE_ORDER.length > 0 ? completedCount / STAGE_ORDER.length : 0
 
+  // Presentation-only current-stage readout derived from existing STAGE_ORDER /
+  // STAGE_LABEL values. No IDs, order, or stage logic are modified.
+  const completedIds = stages.filter((s) => s.status === 'completed').map((s) => s.stageId)
+  const currentStageId =
+    focusedStageId ??
+    stages.find((s) => s.status === 'running')?.stageId ??
+    completedIds[completedIds.length - 1] ??
+    null
+  const headerReadout = currentStageId ? STAGE_LABEL[currentStageId] : '8-Stage Sequence'
+
   return (
     <nav className="h-full flex flex-col bg-[var(--bg-canvas)]" aria-label="Investigation Flightpath">
       <div className={`p-4 border-b border-[var(--border-default)] flex items-center ${leftCollapsed ? 'justify-center' : ''}`}>
         {!leftCollapsed && (
           <div>
             <h2 className="text-xs font-semibold text-ink-1 tracking-wider">Flightpath</h2>
-            <p className="text-[10px] font-mono text-ink-3 mt-0.5">8-Stage Sequence</p>
+            <p className="text-[10px] font-mono text-ink-3 mt-0.5">{headerReadout}</p>
           </div>
         )}
         {leftCollapsed && (

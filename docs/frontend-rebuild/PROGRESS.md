@@ -779,3 +779,59 @@ Saved in `docs/frontend-rebuild/screenshots/M9/`:
 
 ### Milestone Status
 - **M9 is COMPLETE AND FINAL**. All milestones M0 through M9 are complete. The OilGuard frontend rebuild is verified, hardened, accessible, and ready for submission.
+
+## Milestone M10: Cinematic Product Experience Integration (COMPLETED)
+
+Focused integration milestone that unifies the cinematic `/welcome` and the operational workstation into ONE coherent premium product while preserving every M0–M9 behavior and all protected contracts exactly.
+
+### What Was Done
+
+1. **Shared Brand Lockup (`src/ui/design-system/BrandLockup.tsx`)**:
+   - Pure presentational component (`statusLabel?`, `className?`) — no store, hooks, API, or animation.
+   - `OILGUARD` wordmark (`text-foam`) + `/` + `MARITIME FORENSIC INTELLIGENCE` descriptor (`text-dim`, `hidden sm:inline`).
+   - Dotless by design; replaces the previous pulsing green status-dot treatment.
+2. **Section Eyebrow (`src/ui/design-system/SectionEyebrow.tsx`)**:
+   - Editorial `CODE · LABEL` mono micro-marker (`code` in `text-sonar`, separator in `text-dim`, label in `text-mist`).
+   - Intentionally NOT a pill/badge — no background, no border radius.
+   - Exported from `src/ui/design-system/index.ts` (purely additive).
+3. **One-Shot Entry Transition (`src/ui/motion/EntryReveal.tsx`)**:
+   - Transform-only `y: 4px -> 0` settle using `MOTION.duration.layout` (380ms) and `MOTION.ease.out`.
+   - Does NOT animate opacity — the existing `RouteTransitionBoundary` owns the fade, so the two compose into one coherent 300–500ms arrival instead of stacking competing fades.
+   - Latched via `useState(active)` so the reveal runs exactly once per Layout mount; reduced motion (`prefers-reduced-motion`) renders children instantly, no wrapper, no rAF loop.
+4. **Welcome — Command Center Continuity (`src/ui/welcome/WelcomeNarrative.tsx`)**:
+   - Pulsing green status dot removed; replaced with a static Signal Blue `◈` glyph (`aria-hidden`, no animation) plus `BrandLockup`.
+   - Primary CTA navigates with `state: { fromWelcome: true }`; `Layout` consumes the flag exactly once (`useEffect` + `useRef` guard + `navigate(location.pathname, { replace: true, state: null })`), so a refresh, back/forward, or any ordinary internal navigation can never re-trigger the reveal.
+5. **Workstation Coordination**:
+   - `src/components/Layout.tsx`: secondary-page header brand block now uses `SectionEyebrow` (`WORKSPACE_MAP` code · label); `AppShell` wrapped in one-shot `EntryReveal active={fromWelcome}`; `fromWelcome` consumed/replaced once. Route/shell structure, spine, nav semantics, and `RouteTransitionBoundary` untouched.
+   - `src/ui/shell/OperationalBar.tsx`: `BrandLockup` added to the left cluster before `caseRef`; the workstation top bar now carries the same wordmark as the welcome screen.
+   - `src/ui/console/ContextualConsole.tsx`: header gains `SectionEyebrow code="CC" label="Command Center"` and serif `h2` accent (`text-sm font-serif text-ink-1 tracking-tight`); RadarIcon and monotonic subtext preserved.
+   - `src/ui/flightpath/FlightpathRail.tsx`: header micro-readout derives the current stage label from existing `STAGE_ORDER` / `STAGE_LABEL` (read-only, presentation only; behaves identically on Command Center and Investigation); fallback stays "8-Stage Sequence" for empty states. No stage IDs, order, or logic modified.
+   - `src/index.css`: zero changes required (all utilities already present).
+
+### Verification & Quality Gates (full stack: backend :8082 + frontend :3000)
+   - `npx tsc --noEmit`: 0 errors (exit code 0).
+   - `npm run lint`: 0 errors, 0 warnings (exit code 0).
+   - `npm run test -- --run`: 10/10 passed (exit code 0).
+   - `npm run build`: production build succeeded; WelcomePage / EvidenceStackViewport / ExplodedEvidenceStack lazy chunks preserved with gzip compression.
+   - `npx playwright test scripts/welcome.pw.ts`: 6/6 passed.
+   - `npx playwright test scripts/m8-motion.pw.ts`: 5/5 passed.
+   - `npx playwright test scripts/evidence-stack.pw.ts`: 7/7 passed.
+   - `npx playwright test scripts/m5-report-qa.pw.ts`: 5/5 passed.
+   - `npx playwright test scripts/axe-audit.pw.ts`: 11/11 passed (0 critical/serious violations across all 7 routes).
+   - `npx playwright test scripts/shots.pw.ts` (SHOT_DIR=`docs/frontend-rebuild/screenshots/M10`): 24/24 passed across 1920x1080 / 1440x900 / 1280x800 / 768x1024, zero horizontal overflow, zero console errors.
+   - Environment note: with the Java backend down, `evidence-stack` and `m5-report-qa` fail on backend `ERR_CONNECTION_REFUSED` console/resource assertions (zero-fatal-errors policy + backend-dependent report plates). With backend + MongoDB up (`{"status":"UP"}`), all suites pass.
+
+### Real-Browser Verification (targeted chromium harness)
+   - `/welcome`: `OILGUARD` + `MARITIME FORENSIC INTELLIGENCE` visible; zero pulsing elements.
+   - ENTER -> `/`: EntryReveal wrapper observed mid-flight at `translateY(1.29px)` (transform-only, no opacity), settles to `translateY(0)`; zero horizontal overflow; `BrandLockup` in OperationalBar; `CC · COMMAND CENTER` eyebrow and `Contextual Console` serif h2 present; `fromWelcome` consumed (history.state nulled).
+   - Repeat visit to `/` after `/simulation`: no reveal wrapper re-mounted — one-shot confirmed.
+   - Reduced motion: ENTER -> `/` renders AppShell directly with no wrapper, no animation.
+
+### Visual & QA Evidence
+- `docs/frontend-rebuild/screenshots/M10/{1920x1080,1440x900,1280x800,768x1024}/`: all 6 workstation routes x 4 viewports (command-center, simulation, investigation, backtracking, attribution, report).
+
+### Protected Contracts Invariant Check
+   - `git diff 91364db -- backend scientific-service oil-spill-system/frontend/src/store oil-spill-system/frontend/src/lib oil-spill-system/frontend/src/types oil-spill-system/frontend/src/hooks oil-spill-system/frontend/src/routes.ts`: EMPTY pre- and post-commit. Zero violations.
+
+### Milestone Status
+   - **M10 is COMPLETE**. The cinematic welcome and the operational workstation now share one brand lockup, coordinated section eyebrows, and a single coherent one-shot entry transition — delivered without touching any protected contract.

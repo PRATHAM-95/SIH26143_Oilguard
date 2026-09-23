@@ -8,6 +8,7 @@ import { AttributionCard } from './cards/AttributionCard'
 import { ConclusionCard } from './cards/ConclusionCard'
 import { SelectionInspectorCard } from './cards/SelectionInspectorCard'
 import { ChevronDownIcon, RadarIcon } from '@/components/ui/Icon'
+import { SectionEyebrow } from '@/ui/design-system'
 export function ContextualConsole({ rightCollapsed, setRightCollapsed }: { rightCollapsed: boolean, setRightCollapsed: (v: boolean) => void }) {
   const focusedStageId = useInvestigationStore((s) => s.focusedStageId)
   const setFocusedStageId = useInvestigationStore((s) => s.setFocusedStageId)
@@ -62,7 +63,8 @@ export function ContextualConsole({ rightCollapsed, setRightCollapsed }: { right
         <div className="flex items-center space-x-2">
           <RadarIcon size={14} className="text-accent" />
           <div>
-            <h2 className="text-xs font-semibold text-ink-1 tracking-wider">Contextual Console</h2>
+            <SectionEyebrow code="CC" label="Command Center" />
+            <h2 className="text-sm font-serif text-ink-1 tracking-tight mt-0.5">Contextual Console</h2>
             <p className="text-[10px] font-mono text-ink-3 mt-0.5">
               {hasSelection ? 'Feature Inspect' : String(activeStageId)}
             </p>

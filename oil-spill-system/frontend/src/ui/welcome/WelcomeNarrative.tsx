@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { BrandLockup } from '@/ui/design-system'
 import type { SceneScrollState } from './useWelcomeScroll'
 
 interface WelcomeNarrativeProps {
@@ -23,25 +24,21 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
   const activeIdx = scrollState.activeSection
 
   const handleEnter = () => {
-    navigate('/')
+    navigate('/', { state: { fromWelcome: true } })
   }
 
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 sm:p-10 z-10 select-none">
       {/* --- TOP INSTRUMENT BAR --- */}
       <header className="flex items-center justify-between border-b border-[#273340]/60 pb-4 pointer-events-auto">
-        {/* Brand identity & status */}
+        {/* Brand identity — shared wordmark lockup with a static, non-status decorative mark */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#00d98b] animate-pulse" />
-            <span className="font-mono text-xs font-semibold tracking-widest text-[#f8f7f4] uppercase">
-              OILGUARD
+            <span className="text-sonar text-sm" aria-hidden="true">
+              ◈
             </span>
+            <BrandLockup />
           </div>
-          <span className="text-[#273340] text-xs">/</span>
-          <span className="font-mono text-[11px] text-[#727d89] tracking-wider hidden sm:inline">
-            MARITIME FORENSIC INTELLIGENCE
-          </span>
         </div>
 
         {/* Section chapter tabs (clickable for keyboard/mouse convenience) */}
