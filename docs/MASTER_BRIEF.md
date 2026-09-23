@@ -318,7 +318,7 @@ Stop after each and wait for approval.
 - **M2. Command Center.** Map theater with graticule frame, command spine, operational bar, flightpath, layer drawer, contextual console, selection inspector, Ctrl/Cmd+K.
 - **M3. Simulation and Investigation pages** (without the 3D evidence stack).
 - **M4. Backtracking and Attribution,** including ship map markers, score breakdown, virtualized candidate table, and vessel inspector with the representative 3D viewer.
-- **M5. Report / dossier** with print-ready CSS.
+- **M5. Report / dossier** with print-ready CSS, change dossier to report.
 - **M6. `/welcome` cinematic landing:** 3D ocean, tanker, oil-sheen shader, pinned scroll story.
 - **M7. Exploded evidence stack** in `/welcome` and `/investigation`, with 2D fallback.
 - **M8. Motion polish:** stage transitions, number tweening, route transitions, hover and focus refinement.
