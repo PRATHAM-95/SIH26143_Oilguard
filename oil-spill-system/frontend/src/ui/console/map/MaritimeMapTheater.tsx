@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import MapView, { MapFurniture } from '@/components/map/MapView'
 import { AutoEnableLayers } from '@/components/investigation/Stepper'
 import { useMapStore, type MapLayerId } from '@/store/mapStore'
@@ -41,6 +41,9 @@ export function MaritimeMapTheater() {
   const weatherStatus = useWeatherStore((s) => s.status)
   const incidentStatus = useIncidentFeedStore((s) => s.status)
 
+  const [layersOpen, setLayersOpen] = useState(false)
+  const toggleLayers = () => setLayersOpen((o) => !o)
+
   const layers = useMemo(
     () => [
       ...simLayers,
@@ -66,9 +69,9 @@ export function MaritimeMapTheater() {
     ]
   )
 
-  // Toolbar chips light up only for layers where real data exists. The
+  // Catalogue rows light up only for layers where real data exists. The
   // observation/simulation layers always render (app-owned stores); the
-  // environment chips are gated on the live feed status so they stay honest.
+  // environment layers are gated on the live feed status so they stay honest.
   const available = useMemo<Set<MapLayerId>>(() => {
     const s = new Set<MapLayerId>(['sarSlicks', 'vessels', 'sarFootprint'])
     if (eezStatus === 'available') s.add('eez')
@@ -80,9 +83,17 @@ export function MaritimeMapTheater() {
   return (
     <div className="relative w-full h-full maritime-map-stage" role="region" aria-label="Geospatial Intelligence Map">
       <GraticuleFrame />
-      <LayerDrawer />
+      <LayerDrawer
+        open={layersOpen}
+        onClose={() => setLayersOpen(false)}
+        available={available}
+      />
       <EezLoader />
-      <MapLayerToolbar available={available} />
+      <MapLayerToolbar
+        available={available}
+        layersOpen={layersOpen}
+        onLayersToggle={toggleLayers}
+      />
       <NorthArrow />
       <RegionSelector />
       <HistoricalReferenceGallery />

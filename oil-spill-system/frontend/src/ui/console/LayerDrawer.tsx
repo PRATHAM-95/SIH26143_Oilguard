@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import {
   useMapStore,
   MAP_LAYER_CATALOG,
@@ -7,32 +7,48 @@ import {
   MapLayerId,
 } from '@/store/mapStore'
 
-export function LayerDrawer() {
-  const [open, setOpen] = useState(false)
-  const { visibility, toggleLayer } = useMapStore()
+/**
+ * Full catalogue drawer: all catalogue layers grouped by the store's
+ * LAYER_GROUP_ORDER. Opened from the toolbar's single Layers trigger; open
+ * state lives in MaritimeMapTheater. Rows are real buttons (aria-pressed);
+ * no-data layers are disabled, honouring the availability set without
+ * changing toggleLayer semantics. Escape closes the drawer.
+ */
+export function LayerDrawer({
+  open,
+  onClose,
+  available,
+}: {
+  open: boolean
+  onClose: () => void
+  available: Set<MapLayerId> | null
+}) {
+  const visibility = useMapStore((s) => s.visibility)
+  const toggleLayer = useMapStore((s) => s.toggleLayer)
 
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="absolute bottom-4 left-4 z-30 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded p-2 text-ink-3 hover:text-ink-1 hover:border-ink-3 transition-colors shadow-lg"
-        title="Map Layers"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-          <polyline points="2 12 12 17 22 12"></polyline>
-          <polyline points="2 17 12 22 22 17"></polyline>
-        </svg>
-      </button>
-    )
-  }
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  if (!open) return null
+
+  const hasData = (id: MapLayerId) => available == null || available.has(id)
 
   return (
-    <div className="absolute bottom-4 left-4 z-30 w-80 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded shadow-2xl flex flex-col max-h-[70vh]">
+    <div
+      id="cc-layers-panel"
+      className="absolute bottom-4 left-4 z-30 w-80 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded shadow-2xl flex flex-col max-h-[70vh]"
+    >
       <div className="flex items-center justify-between p-3 border-b border-[var(--border-default)] bg-[var(--bg-canvas)]">
         <h3 className="font-semibold text-sm">Map Layers</h3>
         <button
-          onClick={() => setOpen(false)}
+          onClick={onClose}
+          aria-label="Close the layer catalogue"
           className="text-ink-3 hover:text-ink-1 transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -41,8 +57,8 @@ export function LayerDrawer() {
           </svg>
         </button>
       </div>
-      
-      <div className="overflow-y-auto p-2">
+
+      <div className="overflow-y-auto p-2" role="group" aria-label="Layer catalogue">
         {LAYER_GROUP_ORDER.map((group) => {
           const layersInGroup = (Object.keys(MAP_LAYER_CATALOG) as MapLayerId[]).filter(
             (id) => MAP_LAYER_CATALOG[id].group === group
@@ -59,45 +75,47 @@ export function LayerDrawer() {
                 {layersInGroup.map((id) => {
                   const meta = MAP_LAYER_CATALOG[id]
                   const isVisible = visibility[id]
+                  const isAvailable = hasData(id)
 
                   return (
-                    <div 
+                    <button
                       key={id}
-                      className="group flex flex-col px-2 py-1.5 rounded hover:bg-[var(--border-default)] transition-colors cursor-pointer"
+                      type="button"
+                      disabled={!isAvailable}
+                      aria-pressed={isAvailable ? isVisible : undefined}
                       onClick={() => toggleLayer(id)}
+                      className="group w-full flex flex-col px-2 py-1.5 rounded transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--border-default)] disabled:hover:bg-transparent"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div 
+                      <span className="flex items-center justify-between">
+                        <span className="flex items-center space-x-2">
+                          <span
                             className="w-3 h-3 rounded border border-current"
-                            style={{ 
-                              backgroundColor: isVisible ? (meta.color || 'white') : 'transparent',
-                              borderColor: meta.color || 'white'
+                            style={{
+                              backgroundColor: isVisible ? meta.color || 'white' : 'transparent',
+                              borderColor: meta.color || 'white',
                             }}
+                            aria-hidden="true"
                           />
                           <span className={`text-sm ${isVisible ? 'text-ink-1' : 'text-ink-3 group-hover:text-ink-1'}`}>
                             {meta.label}
                           </span>
-                        </div>
-                        <input 
-                          type="checkbox"
-                          checked={isVisible}
-                          readOnly
-                          className="pointer-events-none accent-[var(--accent)]"
-                        />
-                      </div>
-                      
+                        </span>
+                        <span className="text-[10px] font-mono text-ink-3">
+                          {isAvailable ? (isVisible ? 'on' : 'off') : 'no data'}
+                        </span>
+                      </span>
+
                       {meta.emptyNote && !isVisible && (
-                        <div className="text-[10px] text-ink-muted mt-1 ml-5">
+                        <span className="text-[10px] text-ink-muted mt-1 ml-5">
                           {meta.emptyNote}
-                        </div>
+                        </span>
                       )}
                       {meta.note && isVisible && (
-                        <div className="text-[10px] text-ink-muted mt-1 ml-5">
+                        <span className="text-[10px] text-ink-muted mt-1 ml-5">
                           {meta.note}
-                        </div>
+                        </span>
                       )}
-                    </div>
+                    </button>
                   )
                 })}
               </div>
