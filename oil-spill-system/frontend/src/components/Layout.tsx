@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/Icon'
 
 const NAV = [
-  { to: '/', label: 'Command center', icon: CommandIcon, code: 'CC' },
+  { to: '/command-center', label: 'Command center', icon: CommandIcon, code: 'CC' },
   { to: '/simulation', label: 'Fleet simulation', icon: ShipIcon, code: 'SIM' },
   { to: '/investigation', label: 'Investigation pipeline', icon: RadarIcon, code: 'INV' },
   { to: '/backtracking', label: 'Source backtracking', icon: BacktraceIcon, code: 'BCK' },
@@ -30,7 +30,7 @@ const NAV = [
 ]
 
 const WORKSPACE_MAP: Record<string, { label: string; code: string }> = {
-  '/': { label: 'Command center', code: 'CC' },
+  '/command-center': { label: 'Command center', code: 'CC' },
   '/simulation': { label: 'Fleet simulation', code: 'SIM' },
   '/investigation': { label: 'Investigation pipeline', code: 'INV' },
   '/backtracking': { label: 'Source backtracking', code: 'BCK' },
@@ -71,7 +71,7 @@ function SpineHealthMonitor() {
 }
 
 /** Pages that maintain an active WebSocket stream and show stream state. */
-const STREAM_PAGES = new Set(['/', '/simulation', '/investigation'])
+const STREAM_PAGES = new Set(['/command-center', '/simulation', '/investigation'])
 
 function SecondaryPageHeader({
   currentWorkspace,
@@ -180,7 +180,7 @@ export default function Layout() {
     }
   }, [location, navigate])
 
-  const isCommandCenter = location.pathname === '/'
+  const isCommandCenter = location.pathname === '/command-center'
   const isTheater = location.pathname !== '/report'
   const currentWorkspace = WORKSPACE_MAP[location.pathname] ?? { label: 'Workspace', code: 'WS' }
   const pathname = location.pathname
@@ -193,7 +193,7 @@ export default function Layout() {
         <div className="flex flex-col items-center h-full w-full py-2.5" aria-label="Operational Navigation Spine">
           {/* Brand Emblem */}
           <div className="spine-brand">
-            <NavLink to="/" className="spine-brand-link" title="OilGuard Maritime Command Center">
+            <NavLink to="/command-center" className="spine-brand-link" title="OilGuard Maritime Command Center">
               <span className="spine-brand-glyph" aria-hidden="true">◈</span>
               <span className="spine-brand-beacon" aria-hidden="true" />
             </NavLink>
@@ -205,7 +205,7 @@ export default function Layout() {
               <NavLink
                 key={to}
                 to={to}
-                end={to === '/'}
+                end={to === '/command-center'}
                 title={label}
                 aria-label={label}
                 className={({ isActive }) => `spine-nav-item ${isActive ? 'spine-nav-item--active' : ''}`}

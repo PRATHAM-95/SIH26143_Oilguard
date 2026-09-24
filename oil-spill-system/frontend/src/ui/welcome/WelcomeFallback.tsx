@@ -35,7 +35,7 @@ export const WelcomeFallback: React.FC<WelcomeFallbackProps> = () => {
 
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/command-center')}
           className="font-mono text-xs tracking-wider px-4 py-2 rounded border border-[#273340] bg-[#111923] text-[#b2bbc5] hover:text-[#f8f7f4] hover:border-[#0057ff] transition-all cursor-pointer"
         >
           ENTER COMMAND CENTER →
@@ -69,7 +69,7 @@ export const WelcomeFallback: React.FC<WelcomeFallbackProps> = () => {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8">
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/command-center')}
               className="px-8 py-4 bg-[#0057ff] hover:bg-[#0046d4] text-[#f8f7f4] font-sans font-semibold text-base rounded shadow-lg shadow-[#0057ff]/20 transition-all cursor-pointer text-center"
             >
               ENTER COMMAND CENTER →

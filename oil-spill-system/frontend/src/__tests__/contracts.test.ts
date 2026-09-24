@@ -5,8 +5,11 @@ import { MAP_LAYER_CATALOG } from '../store/mapStore'
 
 describe('Protected Architecture Contracts (M0-M9)', () => {
   it('asserts the 6 protected route paths from the router source match literal expected contracts', () => {
+    // M11: approved root-journey change — '/' hosts the cinematic Welcome and
+    // the Command Center moved to '/command-center'. '/welcome' stays a direct
+    // alias; all specialist routes are preserved verbatim.
     const EXPECTED_ROUTES = [
-      '/',
+      '/command-center',
       '/simulation',
       '/investigation',
       '/backtracking',

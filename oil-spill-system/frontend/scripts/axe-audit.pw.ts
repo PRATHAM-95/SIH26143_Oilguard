@@ -15,7 +15,7 @@ test.beforeAll(() => {
 })
 
 const AUDIT_ROUTES = [
-  { path: '/', name: 'command-center' },
+  { path: '/command-center', name: 'command-center' },
   { path: '/simulation', name: 'simulation' },
   { path: '/investigation', name: 'investigation' },
   { path: '/backtracking', name: 'backtracking' },
@@ -50,7 +50,7 @@ test.describe('M9 Final Accessibility Audit — Axe-core on All Routes', () => {
   }
 
   test('Skip Link is keyboard-accessible and moves focus to #main-content', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await page.goto(`${BASE_URL}/command-center`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(500)
 
     // Initially, skip link is visually sr-only

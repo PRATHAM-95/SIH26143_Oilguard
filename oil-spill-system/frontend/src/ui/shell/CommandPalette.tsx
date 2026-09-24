@@ -35,7 +35,7 @@ export function CommandPalette() {
         
         <Command.Group heading="Navigation" className="px-2 py-1 text-xs font-semibold text-ink-3 tracking-wider">
           <Command.Item
-            onSelect={() => { navigate('/'); setOpen(false) }}
+            onSelect={() => { navigate('/command-center'); setOpen(false) }}
             className="px-2 py-2 rounded hover:bg-[var(--border-default)] cursor-pointer text-sm aria-selected:bg-[var(--border-default)] aria-selected:ring-1 aria-selected:ring-signal-blue/50 active:scale-[0.97] transition-all duration-100 ease-out flex items-center outline-none"
           >
             Command Center

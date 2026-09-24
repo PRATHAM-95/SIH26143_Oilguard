@@ -24,7 +24,7 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
   const activeIdx = scrollState.activeSection
 
   const handleEnter = () => {
-    navigate('/', { state: { fromWelcome: true } })
+    navigate('/command-center', { state: { fromWelcome: true } })
   }
 
   return (

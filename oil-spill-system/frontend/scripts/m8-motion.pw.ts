@@ -38,7 +38,7 @@ for (const vp of VIEWPORTS) {
       })
 
       // 1. Visit Command Center
-      await page.goto(`${BASE_URL}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 })
+      await page.goto(`${BASE_URL}/command-center`, { waitUntil: 'domcontentloaded', timeout: 30_000 })
       await page.waitForTimeout(600)
 
       // Take screenshot of Command Center with Flightpath
@@ -86,7 +86,7 @@ for (const vp of VIEWPORTS) {
         path: path.join(M8_SCREENSHOT_DIR, `m8-investigation-route-${vp.label}.png`),
       })
 
-      // 5. Test navigation from /welcome to /: verifies normal transition outside Layout
+      // 5. Test navigation from /welcome to /command-center: verifies normal transition outside Layout
       await page.goto(`${BASE_URL}/welcome`, { waitUntil: 'domcontentloaded', timeout: 30_000 })
       await page.waitForTimeout(600)
 
@@ -100,7 +100,7 @@ for (const vp of VIEWPORTS) {
       const ctaBtn = page.getByRole('button', { name: /COMMAND CENTER/i }).first()
       if (await ctaBtn.isVisible()) {
         await ctaBtn.click({ force: true })
-        await expect(page).toHaveURL(`${BASE_URL}/`, { timeout: 10_000 })
+        await expect(page).toHaveURL(`${BASE_URL}/command-center`, { timeout: 10_000 })
         await page.waitForTimeout(400)
         await expect(flightpath).toBeVisible()
       }
@@ -118,7 +118,7 @@ test.describe('M8 Reduced Motion & Honesty Checks', () => {
     })
     const page = await context.newPage()
 
-    await page.goto(`${BASE_URL}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 })
+    await page.goto(`${BASE_URL}/command-center`, { waitUntil: 'domcontentloaded', timeout: 30_000 })
     await page.waitForTimeout(400)
 
     // Check that flightpath is visible

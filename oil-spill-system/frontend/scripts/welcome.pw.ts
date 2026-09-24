@@ -100,13 +100,13 @@ for (const vp of VIEWPORTS) {
         path: path.join(M6_SCREENSHOT_DIR, `welcome-${vp.label}-05-enter.png`),
       })
 
-      // Verify primary CTA button click navigates to '/'
+      // Verify primary CTA button click navigates to '/command-center'
       const ctaBtn = page.getByRole('button', { name: /COMMAND CENTER/i }).first()
       await expect(ctaBtn).toBeVisible()
       await ctaBtn.click({ force: true })
 
-      // Client-side SPA navigation assertion
-      await expect(page).toHaveURL(`${BASE_URL}/`, { timeout: 10_000 })
+      // Client-side SPA navigation assertion (M11: Command Center at /command-center)
+      await expect(page).toHaveURL(`${BASE_URL}/command-center`, { timeout: 10_000 })
 
       // Assert no fatal console errors
       expect(consoleErrors.filter((e) => !e.includes('favicon'))).toHaveLength(0)
@@ -135,7 +135,7 @@ test('Reduced motion mode renders static accessible view with working CTA', asyn
   const ctaBtn = page.getByRole('button', { name: /COMMAND CENTER/i }).first()
   await expect(ctaBtn).toBeVisible()
   await ctaBtn.click({ force: true })
-  await expect(page).toHaveURL(`${BASE_URL}/`, { timeout: 10_000 })
+  await expect(page).toHaveURL(`${BASE_URL}/command-center`, { timeout: 10_000 })
 
   await context.close()
 })
@@ -172,7 +172,7 @@ test('WebGL disabled renders designed 2D architectural fallback', async ({ brows
   const ctaBtn = page.getByRole('button', { name: /ENTER COMMAND CENTER/i }).first()
   await expect(ctaBtn).toBeVisible()
   await ctaBtn.click()
-  await expect(page).toHaveURL(`${BASE_URL}/`, { timeout: 10_000 })
+  await expect(page).toHaveURL(`${BASE_URL}/command-center`, { timeout: 10_000 })
 
   await context.close()
 })

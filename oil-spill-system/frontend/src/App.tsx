@@ -13,7 +13,7 @@ import { APP_ROUTE_PATHS, type AppRoutePath } from './routes'
 const WelcomePage = lazy(() => import('./ui/pages/WelcomePage'))
 
 const ROUTE_COMPONENTS: Record<AppRoutePath, React.ComponentType> = {
-  '/': CommandCenter,
+  '/command-center': CommandCenter,
   '/simulation': Simulation,
   '/investigation': Investigation,
   '/backtracking': Backtracking,
@@ -21,18 +21,23 @@ const ROUTE_COMPONENTS: Record<AppRoutePath, React.ComponentType> = {
   '/report': Report,
 }
 
+/**
+ * M11: the cinematic welcome is the root experience. '/' and '/welcome' both
+ * render the same shared WelcomePage module; the operational Command Center
+ * lives at '/command-center'. No duplicate scene — one lazy module.
+ */
+const WelcomeElement = (
+  <Suspense fallback={<WelcomeLoadingShell />}>
+    <WelcomePage />
+  </Suspense>
+)
+
 function App() {
   return (
     <Routes>
-      {/* M6: Standalone cinematic 3D welcome route outside operational shell */}
-      <Route
-        path="/welcome"
-        element={
-          <Suspense fallback={<WelcomeLoadingShell />}>
-            <WelcomePage />
-          </Suspense>
-        }
-      />
+      {/* M6/M11: Standalone cinematic 3D welcome — root experience + alias */}
+      <Route path="/" element={WelcomeElement} />
+      <Route path="/welcome" element={WelcomeElement} />
 
       {/* Operational workstation routes within Layout shell */}
       <Route element={<Layout />}>

@@ -19,7 +19,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const ROUTES = ['/', '/simulation', '/investigation', '/backtracking', '/attribution', '/report']
+const ROUTES = ['/command-center', '/simulation', '/investigation', '/backtracking', '/attribution', '/report']
 
 const VIEWPORTS = [
   { label: '1920x1080', width: 1920, height: 1080 },

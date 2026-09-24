@@ -13,7 +13,7 @@ test.describe('M9 Final E2E Investigation Pipeline Verification', () => {
   test('executes 8-stage forensic pipeline and verifies honest telemetry & completion', async ({ page }) => {
     test.setTimeout(90_000)
 
-    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await page.goto(`${BASE_URL}/command-center`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(1000)
 
     // Trigger challenge runner through the browser runtime
@@ -54,7 +54,7 @@ test.describe('M9 Final E2E Investigation Pipeline Verification', () => {
     })
 
     // Navigate back to Command Center
-    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await page.goto(`${BASE_URL}/command-center`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(1000)
 
     // Verify Contextual Console displays honest states without fake fallbacks
