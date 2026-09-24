@@ -322,7 +322,7 @@ export const useMapStore = create<MapStoreState>((set) => ({
   selection: null,
   cursor: null,
   fitBounds: null,
-  basemap: 'satellite',
+  basemap: 'dark',
   pulse: false,
   setView: (view) =>
     set((s) => ({ view: { ...s.view, ...view } })),

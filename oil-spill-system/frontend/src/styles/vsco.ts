@@ -1,3 +1,5 @@
+import type { StyleSpecification } from 'maplibre-gl'
+
 /**
  * Application design tokens — single source of truth for the visual language.
  *
@@ -23,12 +25,43 @@ export const DARK_MAP_STYLE: string =
   'https://tiles.openfreemap.org/styles/dark'
 
 /**
+ * Satellite map style: Esri World Imagery raster tiles.
+ *
+ * - Public Esri tile service, no API key required for routine use.
+ * - Rendered as a raster source over the SAME MapLibre instance when the
+ *   basemap switch is set to satellite.
+ * - Attribution: Esri, Maxar, Earthstar Geographics, and the GIS User
+ *   Community.
+ */
+export const SATELLITE_MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    'esri-world-imagery': {
+      type: 'raster',
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      ],
+      tileSize: 256,
+      attribution: 'Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+    },
+  },
+  layers: [
+    {
+      id: 'esri-world-imagery',
+      type: 'raster',
+      source: 'esri-world-imagery',
+    },
+  ],
+}
+
+/**
  * Semantic tokens shared with the deck.gl overlays. Deck reads colour here,
  * CSS mirrors it in index.css — the map and the UI can never drift apart.
  */
 export const VSCO = {
   styles: {
     dark: DARK_MAP_STYLE,
+    satellite: SATELLITE_MAP_STYLE,
   },
 
   base: {

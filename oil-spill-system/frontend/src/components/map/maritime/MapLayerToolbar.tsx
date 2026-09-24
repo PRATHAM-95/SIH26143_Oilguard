@@ -57,18 +57,15 @@ const CHIPS: ChipDef[] = [
  * Horizontal layer toolbar floating over the top of the map: the eight
  * operational toggles (Oil Spills / Vessels / EEZ / Satellite Passes /
  * Currents / Wind / Live Weather / Live Incidents), an AREA OF INTEREST
- * readout, the basemap switch and the "MAP LAYERS" entry into the full
- * catalogue. Chips reflect the current on/off state; chips without data are
- * disabled and annotated (never faked).
+ * readout and the basemap switch. The full catalogue lives in the app's own
+ * on-map LayerDrawer, so no duplicate toggle is rendered here. Chips reflect
+ * the current on/off state; chips without data are disabled and annotated
+ * (never faked).
  */
 export function MapLayerToolbar({
   available,
-  layersOpen,
-  onToggleLayers,
 }: {
   available: Set<MapLayerId> | null
-  layersOpen: boolean
-  onToggleLayers: (open: boolean) => void
 }) {
   const visibility = useMapStore((s) => s.visibility)
   const setLayer = useMapStore((s) => s.setLayer)
@@ -76,12 +73,6 @@ export function MapLayerToolbar({
   const basemap = useMapStore((s) => s.basemap)
   const setBasemap = useMapStore((s) => s.setBasemap)
   const region = REGION_BY_ID.io
-
-  const activeCount = available
-    ? (Object.entries(visibility) as [MapLayerId, boolean][]).filter(
-        ([id]) => available.has(id),
-      ).filter(([, v]) => v).length
-    : (Object.values(visibility) as boolean[]).filter(Boolean).length
 
   return (
     <div className="mm-toolbar cc-glass" role="toolbar" aria-label="Map layers">
@@ -160,19 +151,6 @@ export function MapLayerToolbar({
           <span className="mm-layers-glyph" aria-hidden="true">
             ◈
           </span>
-        </button>
-
-        <button
-          type="button"
-          className={`mm-layers-btn${layersOpen ? ' mm-layers-btn--open' : ''}`}
-          aria-expanded={layersOpen}
-          onClick={() => onToggleLayers(!layersOpen)}
-        >
-          Map layers
-          <span className="mm-layers-chev" aria-hidden="true">
-            ▾
-          </span>
-          <span className="mm-layers-count">{activeCount} on</span>
         </button>
       </div>
     </div>

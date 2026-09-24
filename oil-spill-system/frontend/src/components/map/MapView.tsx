@@ -95,6 +95,7 @@ const baseStyle = {
 export default function MapView({ layers, onViewStateChange, onSelect, children }: MapViewProps) {
   const view = useMapStore((s) => s.view)
   const setView = useMapStore((s) => s.setView)
+  const basemap = useMapStore((s) => s.basemap)
 
   onSelectRef.current = onSelect ?? null
 
@@ -104,7 +105,7 @@ export default function MapView({ layers, onViewStateChange, onSelect, children 
         reuseMaps
         style={baseStyle}
         initialViewState={view}
-        mapStyle={VSCO.styles.dark}
+        mapStyle={basemap === 'satellite' ? VSCO.styles.satellite : VSCO.styles.dark}
         onMove={(e) => {
           setView({
             longitude: e.viewState.longitude,

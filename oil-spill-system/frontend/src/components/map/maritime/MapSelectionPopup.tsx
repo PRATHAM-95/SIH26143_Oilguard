@@ -124,7 +124,7 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
     const coordLabel = coord ? dms(coord.lat, coord.lon) : 'position unavailable'
     const regionName = coord ? regionFor(coord.lat, coord.lon) : null
 
-    let body: ReactNode = null
+    let body: ReactNode
     let footer: ReactNode = null
 
     if (candidate) {
