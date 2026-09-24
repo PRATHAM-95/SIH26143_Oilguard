@@ -9,8 +9,8 @@ import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+  <BrowserRouter basename="/SIH26143_Oilguard">
+  <App />
+</BrowserRouter>
   </React.StrictMode>,
 )
