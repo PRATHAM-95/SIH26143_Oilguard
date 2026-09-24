@@ -1,88 +1,51 @@
 import React, { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import type { WelcomeScrollRef } from './useWelcomeScroll'
 
 interface TankerModelProps {
+  scrollRef: WelcomeScrollRef
   reducedMotion?: boolean
-  opacity?: number
 }
 
 export const TankerModel: React.FC<TankerModelProps> = ({
+  scrollRef,
   reducedMotion = false,
-  opacity = 1.0,
 }) => {
   const groupRef = useRef<THREE.Group>(null)
   const radarRef = useRef<THREE.Mesh>(null)
 
-  // Materials with dark maritime palette
+  // Materials built ONCE and retained; opacity is written imperatively each frame.
+  // `transparent` is fixed true so the opacity uniform path never needs a recompile.
   const materials = useMemo(() => {
+    const makeStandard = (color: number, roughness: number, metalness: number) =>
+      new THREE.MeshStandardMaterial({
+        color,
+        roughness,
+        metalness,
+        transparent: true,
+        opacity: 1,
+      })
+    const makeBasic = (color: number) =>
+      new THREE.MeshBasicMaterial({
+        color,
+        transparent: true,
+        opacity: 1,
+      })
+
     return {
-      hullDark: new THREE.MeshStandardMaterial({
-        color: 0x111923, // Deck dark neutral
-        roughness: 0.82,
-        metalness: 0.25,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      waterlineBoot: new THREE.MeshStandardMaterial({
-        color: 0x241517, // Subdued deep oxide/anti-fouling band
-        roughness: 0.88,
-        metalness: 0.1,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      deckPlate: new THREE.MeshStandardMaterial({
-        color: 0x16202c, // Deck surface
-        roughness: 0.75,
-        metalness: 0.3,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      superstructure: new THREE.MeshStandardMaterial({
-        color: 0x273340, // Chartline slate tone
-        roughness: 0.65,
-        metalness: 0.35,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      bridgeGlass: new THREE.MeshStandardMaterial({
-        color: 0x050c14,
-        roughness: 0.2,
-        metalness: 0.85,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      pipes: new THREE.MeshStandardMaterial({
-        color: 0x3d4b5c,
-        roughness: 0.5,
-        metalness: 0.6,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      funnel: new THREE.MeshStandardMaterial({
-        color: 0x0e151e,
-        roughness: 0.7,
-        metalness: 0.4,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      accentRed: new THREE.MeshBasicMaterial({
-        color: 0xff4d5a,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      accentGreen: new THREE.MeshBasicMaterial({
-        color: 0x00d98b,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
-      mastWhite: new THREE.MeshBasicMaterial({
-        color: 0xf8f7f4,
-        transparent: opacity < 1.0,
-        opacity,
-      }),
+      hullDark: makeStandard(0x111923, 0.82, 0.25), // Deck dark neutral
+      waterlineBoot: makeStandard(0x241517, 0.88, 0.1), // Subdued deep oxide/anti-fouling band
+      deckPlate: makeStandard(0x16202c, 0.75, 0.3), // Deck surface
+      superstructure: makeStandard(0x273340, 0.65, 0.35), // Chartline slate tone
+      bridgeGlass: makeStandard(0x050c14, 0.2, 0.85),
+      pipes: makeStandard(0x3d4b5c, 0.5, 0.6),
+      funnel: makeStandard(0x0e151e, 0.7, 0.4),
+      accentRed: makeBasic(0xff4d5a),
+      accentGreen: makeBasic(0x00d98b),
+      mastWhite: makeBasic(0xf8f7f4),
     }
-  }, [opacity])
+  }, [])
 
   // Custom tapered bow geometry using buffer vertices
   const bowGeometry = useMemo(() => {
@@ -106,8 +69,13 @@ export const TankerModel: React.FC<TankerModelProps> = ({
     return geom
   }, [])
 
-  // Stately tanker bobbing (pitch, roll, heave)
+  // Stately tanker bobbing (pitch, roll, heave) — the living idle scene
   useFrame(({ clock }) => {
+    const opacity = scrollRef.current.vesselOpacity
+    Object.values(materials).forEach((material) => {
+      material.opacity = opacity
+    })
+
     if (radarRef.current && !reducedMotion) {
       radarRef.current.rotation.y += 0.04
     }

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, memo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import OceanPlane from './OceanPlane'
@@ -6,64 +6,112 @@ import TankerModel from './TankerModel'
 import OilSheen from './OilSheen'
 import ReconstructionGraphics from './ReconstructionGraphics'
 import { ExplodedEvidenceStack } from '../three/evidence/ExplodedEvidenceStack'
+import type { EvidenceStackDrive } from '../three/evidence/EvidenceStackLayer'
 import { useEvidenceStackData } from '../hooks/useEvidenceStackData'
-import type { EvidencePhase } from '../three/evidence/phases'
-import type { SceneScrollState } from './useWelcomeScroll'
+import { type WelcomeScrollRef } from './useWelcomeScroll'
 
 interface WelcomeSceneProps {
-  scrollState: SceneScrollState
+  scrollRef: WelcomeScrollRef
+  activeSection: number
   reducedMotion?: boolean
+  showStackLabels: boolean
 }
 
-// Camera controller component running inside Canvas
+// Zero-allocation, frame-rate-independent camera controller running inside Canvas.
+// Reads the latest scene frame imperatively from the scroll ref each frame.
 function CameraRig({
-  targetPos,
-  targetLookAt,
+  scrollRef,
   reducedMotion,
 }: {
-  targetPos: [number, number, number]
-  targetLookAt: [number, number, number]
+  scrollRef: WelcomeScrollRef
   reducedMotion?: boolean
 }) {
-  const lookAtRef = useRef<THREE.Vector3>(new THREE.Vector3(...targetLookAt))
+  const lookAtRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 0, 0))
+  const posTarget = useRef<THREE.Vector3>(new THREE.Vector3(0, 0, 0))
+  const lookTarget = useRef<THREE.Vector3>(new THREE.Vector3(0, 0, 0))
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, delta) => {
+    const { cameraPosition, cameraTarget } = scrollRef.current
+    posTarget.current.set(cameraPosition[0], cameraPosition[1], cameraPosition[2])
+    lookTarget.current.set(cameraTarget[0], cameraTarget[1], cameraTarget[2])
+
     if (reducedMotion) {
-      camera.position.set(...targetPos)
-      camera.lookAt(...targetLookAt)
+      camera.position.copy(posTarget.current)
+      lookAtRef.current.copy(lookTarget.current)
+      camera.lookAt(lookAtRef.current)
       return
     }
 
-    // Smooth damping toward target position (frame-rate independent lerp)
-    camera.position.lerp(new THREE.Vector3(...targetPos), 0.08)
-
-    // Smooth damping toward lookAt point
-    lookAtRef.current.lerp(new THREE.Vector3(...targetLookAt), 0.08)
+    // Single smoothing stage, frame-rate independent (no double-smoothing)
+    const damp = 1 - Math.exp(-8 * delta)
+    camera.position.lerp(posTarget.current, damp)
+    lookAtRef.current.lerp(lookTarget.current, damp)
     camera.lookAt(lookAtRef.current)
   })
 
   return null
 }
 
-export const WelcomeScene: React.FC<WelcomeSceneProps> = ({
-  scrollState,
+// Drives the evidence stack's imperative state from the single scroll ref.
+function StackDriver({
+  scrollRef,
+  driveRef,
+}: {
+  scrollRef: WelcomeScrollRef
+  driveRef: React.MutableRefObject<EvidenceStackDrive>
+}) {
+  useFrame(() => {
+    const progress = scrollRef.current.progress
+    // Stack choreography within the Reconstruction section's viewing window
+    const scene04Norm = Math.max(0, Math.min(1, (progress - 0.5) / 0.34))
+
+    let phase: EvidenceStackDrive['phase']
+    if (scene04Norm < 0.35) {
+      phase = 'stacked'
+    } else if (scene04Norm < 0.7) {
+      phase = 'exploded'
+    } else {
+      phase = 'converged'
+    }
+
+    let separation: number
+    if (scene04Norm < 0.35) {
+      separation = (scene04Norm / 0.35) * 0.35
+    } else if (scene04Norm < 0.7) {
+      separation = 0.35 + ((scene04Norm - 0.35) / 0.35) * 0.65
+    } else {
+      separation = 0.35
+    }
+
+    // Restrained deterministic counter-drift parallax derived purely from progress
+    const drift = (progress - 0.5) * 1.2
+
+    driveRef.current.separation = separation
+    driveRef.current.phase = phase
+    driveRef.current.opacity = scrollRef.current.reconstructionOpacity
+    driveRef.current.driftX = -drift * 0.5
+  })
+
+  return null
+}
+
+export const WelcomeScene = memo(function WelcomeScene({
+  scrollRef,
+  activeSection,
   reducedMotion = false,
-}) => {
+  showStackLabels = true,
+}: WelcomeSceneProps) {
   const stackData = useEvidenceStackData(true)
+  const stackDriveRef = useRef<EvidenceStackDrive>({
+    separation: 0,
+    phase: 'stacked',
+    opacity: 0,
+    driftX: 0,
+  })
 
-  // In Scene 04: scroll progress is approximately 0.58 to 0.82
-  const progress = scrollState.progress
-  const scene04Norm = Math.max(0, Math.min(1, (progress - 0.58) / 0.24))
-
-  // Determine stack phase & separation from scroll progress
-  const stackPhase: EvidencePhase =
-    scene04Norm < 0.35 ? 'stacked' : scene04Norm < 0.7 ? 'exploded' : 'converged'
-  const stackSeparation =
-    scene04Norm < 0.35
-      ? (scene04Norm / 0.35) * 0.35
-      : scene04Norm < 0.7
-        ? 0.35 + ((scene04Norm - 0.35) / 0.35) * 0.65
-        : 0.35
+  // Reconstruction & evidence layers mount with the Reconstruction section
+  // (or always under reduced motion, preserving the static scene composition)
+  const showReconstruction = activeSection >= 2 || reducedMotion
 
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none">
@@ -84,11 +132,7 @@ export const WelcomeScene: React.FC<WelcomeSceneProps> = ({
         }}
       >
         {/* Camera choreography controller */}
-        <CameraRig
-          targetPos={scrollState.cameraPosition}
-          targetLookAt={scrollState.cameraTarget}
-          reducedMotion={reducedMotion}
-        />
+        <CameraRig scrollRef={scrollRef} reducedMotion={reducedMotion} />
 
         {/* --- LIGHTING --- */}
         {/* Maritime ambient fill */}
@@ -112,39 +156,35 @@ export const WelcomeScene: React.FC<WelcomeSceneProps> = ({
         {/* --- 3D SCENE OBJECTS --- */}
         <OceanPlane reducedMotion={reducedMotion} />
 
-        <TankerModel
-          reducedMotion={reducedMotion}
-          opacity={scrollState.vesselOpacity}
-        />
+        <TankerModel scrollRef={scrollRef} reducedMotion={reducedMotion} />
 
-        <OilSheen
-          reducedMotion={reducedMotion}
-          opacity={scrollState.sheenOpacity}
-        />
+        <OilSheen scrollRef={scrollRef} reducedMotion={reducedMotion} />
 
-        <ReconstructionGraphics
-          reducedMotion={reducedMotion}
-          opacity={scrollState.reconstructionOpacity}
-        />
+        {showReconstruction && (
+          <ReconstructionGraphics
+            scrollRef={scrollRef}
+            reducedMotion={reducedMotion}
+          />
+        )}
 
-        {/* 9-Layer Exploded Evidence Stack in Scene 04 */}
-        {scrollState.reconstructionOpacity > 0.01 && (
+        {/* 9-Layer Exploded Evidence Stack in the Reconstruction section */}
+        {showReconstruction && (
+          <StackDriver scrollRef={scrollRef} driveRef={stackDriveRef} />
+        )}
+        {showReconstruction && (
           <ExplodedEvidenceStack
             layers={stackData.layers}
-            phase={stackPhase}
-            separation={stackSeparation}
-            opacity={scrollState.reconstructionOpacity}
+            driveRef={stackDriveRef}
             position={[-5, 0.4, -12]}
             rotation={[0, -0.15, 0]}
             scale={0.7}
-            showLabels={true}
+            showLabels={showStackLabels}
             reducedMotion={reducedMotion}
           />
         )}
       </Canvas>
     </div>
   )
-}
+})
 
 export default WelcomeScene
-

@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BrandLockup } from '@/ui/design-system'
-import type { SceneScrollState } from './useWelcomeScroll'
+import type { ParallaxListener } from './useWelcomeScroll'
 
 interface WelcomeNarrativeProps {
-  scrollState: SceneScrollState
+  activeSection: number
   onJumpToSection?: (sectionIndex: number) => void
+  subscribeParallax?: (listener: ParallaxListener) => () => void
+  reducedMotion?: boolean
 }
 
 const SECTIONS = [
@@ -17,11 +19,32 @@ const SECTIONS = [
 ]
 
 export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
-  scrollState,
+  activeSection,
   onJumpToSection,
+  subscribeParallax,
+  reducedMotion = false,
 }) => {
   const navigate = useNavigate()
-  const activeIdx = scrollState.activeSection
+  const activeIdx = activeSection
+
+  const storyRef = useRef<HTMLElement | null>(null)
+  const footerRef = useRef<HTMLElement | null>(null)
+
+  // Restrained deterministic DOM parallax — layers drift at different rates,
+  // driven per-frame by the scroll ref subscription (no React re-renders).
+  useEffect(() => {
+    if (reducedMotion || !subscribeParallax) return
+    return subscribeParallax((progress) => {
+      if (storyRef.current) {
+        const storyOffset = (0.5 - progress) * 30
+        storyRef.current.style.transform = `translate3d(0, ${storyOffset.toFixed(2)}px, 0)`
+      }
+      if (footerRef.current) {
+        const footerOffset = -progress * 12
+        footerRef.current.style.transform = `translate3d(0, ${footerOffset.toFixed(2)}px, 0)`
+      }
+    })
+  }, [subscribeParallax, reducedMotion])
 
   const handleEnter = () => {
     navigate('/command-center', { state: { fromWelcome: true } })
@@ -78,7 +101,10 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
       </header>
 
       {/* --- CENTER NARRATIVE VIEWPORT STAGE --- */}
-      <main className="flex-1 flex items-center justify-start my-auto py-8">
+      <main
+        ref={storyRef}
+        className="flex-1 flex items-center justify-start my-auto py-8"
+      >
         <div className="w-full max-w-2xl">
           {/* Section 01: Ocean */}
           <div
@@ -307,7 +333,10 @@ export const WelcomeNarrative: React.FC<WelcomeNarrativeProps> = ({
       </main>
 
       {/* --- FOOTER PRODUCT CHROME BANNER --- */}
-      <footer className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-[#273340]/60 pt-4 gap-2 font-mono text-[11px] text-[#727d89] pointer-events-auto">
+      <footer
+        ref={footerRef}
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-[#273340]/60 pt-4 gap-2 font-mono text-[11px] text-[#727d89] pointer-events-auto"
+      >
         <div className="flex items-center gap-4">
           <span className="text-[#b2bbc5]">OILGUARD // MARITIME FORENSIC INTELLIGENCE</span>
           <span className="text-[#273340] hidden sm:inline">|</span>

@@ -2,14 +2,15 @@ import React, { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { sheenVertexShader, sheenFragmentShader } from './shaders/sheenShader'
+import type { WelcomeScrollRef } from './useWelcomeScroll'
 
 interface OilSheenProps {
-  opacity?: number
+  scrollRef: WelcomeScrollRef
   reducedMotion?: boolean
 }
 
 export const OilSheen: React.FC<OilSheenProps> = ({
-  opacity = 0,
+  scrollRef,
   reducedMotion = false,
 }) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null)
@@ -30,9 +31,11 @@ export const OilSheen: React.FC<OilSheenProps> = ({
 
   useFrame((_, delta) => {
     if (!materialRef.current) return
+    const opacity = scrollRef.current.sheenOpacity
     // Smoothly update opacity uniform
     materialRef.current.uniforms.uOpacity.value = opacity
-    if (!reducedMotion) {
+    // Skip the (comparatively expensive) interference time animation while hidden
+    if (opacity > 0.001 && !reducedMotion) {
       materialRef.current.uniforms.uTime.value += delta * 0.7
     }
   })

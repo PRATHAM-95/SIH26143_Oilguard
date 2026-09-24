@@ -1,12 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import type { MutableRefObject } from 'react'
 
-gsap.registerPlugin(ScrollTrigger)
+/**
+ * Single-owner Welcome scroll model.
+ *
+ * One passive native scroll listener writes RAW progress into a ref; a single
+ * requestAnimationFrame driver derives the eased scene frame each rAF and writes
+ * it into `scrollRef.current`. React state only changes when `activeSection`
+ * actually changes. The 3D scene reads `scrollRef.current` imperatively from its
+ * own frame callbacks — no per-scroll React re-renders, no object churn.
+ */
 
-export interface SceneScrollState {
+export interface SceneScrollFrame {
   progress: number
-  activeSection: number
   cameraPosition: [number, number, number]
   cameraTarget: [number, number, number]
   vesselOpacity: number
@@ -14,7 +20,17 @@ export interface SceneScrollState {
   reconstructionOpacity: number
 }
 
-// Keyframe definition for smooth scroll interpolation
+export type WelcomeScrollRef = MutableRefObject<SceneScrollFrame>
+
+export type ParallaxListener = (progress: number) => void
+
+/**
+ * SINGLE SOURCE OF TRUTH for the 5-section choreography.
+ * Chapter-jump targets, narrative section flips and camera arrivals all align
+ * to these progress boundaries.
+ */
+export const WELCOME_SECTION_POSITIONS = [0.0, 0.22, 0.44, 0.68, 0.95] as const
+
 interface CameraKeyframe {
   pos: [number, number, number]
   target: [number, number, number]
@@ -23,6 +39,9 @@ interface CameraKeyframe {
   reconstructionOpacity: number
 }
 
+// Keyframes pinned to the section boundaries so the camera arrives exactly as the
+// chapter activates. The trailing 1.00 keyframe settles the final pose for the
+// Enter section without any further travel.
 const KEYFRAMES: { at: number; frame: CameraKeyframe }[] = [
   {
     at: 0.0, // Scene 01: Ocean vastness
@@ -35,7 +54,7 @@ const KEYFRAMES: { at: number; frame: CameraKeyframe }[] = [
     },
   },
   {
-    at: 0.18, // Transition to Scene 02: Vessel discovery
+    at: 0.22, // Scene 02: Vessel discovery
     frame: {
       pos: [14, 8, 18],
       target: [0, 2.2, 0],
@@ -45,7 +64,7 @@ const KEYFRAMES: { at: number; frame: CameraKeyframe }[] = [
     },
   },
   {
-    at: 0.38, // Transition to Scene 03: Spill inspection
+    at: 0.44, // Scene 03: Spill inspection
     frame: {
       pos: [-5, 4.2, -3],
       target: [-2, 0.4, -11],
@@ -55,7 +74,7 @@ const KEYFRAMES: { at: number; frame: CameraKeyframe }[] = [
     },
   },
   {
-    at: 0.62, // Transition to Scene 04: Tactical reconstruction
+    at: 0.68, // Scene 04: Tactical reconstruction
     frame: {
       pos: [-12, 26, 8],
       target: [-5, 0, -12],
@@ -65,7 +84,17 @@ const KEYFRAMES: { at: number; frame: CameraKeyframe }[] = [
     },
   },
   {
-    at: 1.0, // Scene 05: Operational horizon & Command Center CTA
+    at: 0.95, // Scene 05: Operational horizon & Command Center CTA
+    frame: {
+      pos: [0, 18, 28],
+      target: [0, 1.5, -3],
+      vesselOpacity: 0.95,
+      sheenOpacity: 0.75,
+      reconstructionOpacity: 0.85,
+    },
+  },
+  {
+    at: 1.0, // Final settle — identical to Scene 05 pose (deliberate rest window)
     frame: {
       pos: [0, 18, 28],
       target: [0, 1.5, -3],
@@ -76,7 +105,11 @@ const KEYFRAMES: { at: number; frame: CameraKeyframe }[] = [
   },
 ]
 
-// Helper for linear interpolation between two 3D vectors
+// Smooth sinusoidal cubic easing between keyframes
+function easeSmooth(t: number): number {
+  return t * t * (3 - 2 * t)
+}
+
 function lerp3(
   a: [number, number, number],
   b: [number, number, number],
@@ -93,113 +126,125 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t
 }
 
+function deriveFrame(clamped: number): SceneScrollFrame {
+  let k0 = KEYFRAMES[0]
+  let k1 = KEYFRAMES[1]
+  for (let i = 0; i < KEYFRAMES.length - 1; i++) {
+    if (clamped >= KEYFRAMES[i].at && clamped <= KEYFRAMES[i + 1].at) {
+      k0 = KEYFRAMES[i]
+      k1 = KEYFRAMES[i + 1]
+      break
+    }
+  }
+
+  const segmentSpan = k1.at - k0.at
+  const tRaw = segmentSpan > 0 ? (clamped - k0.at) / segmentSpan : 0
+  const t = easeSmooth(tRaw)
+
+  return {
+    progress: clamped,
+    cameraPosition: lerp3(k0.frame.pos, k1.frame.pos, t),
+    cameraTarget: lerp3(k0.frame.target, k1.frame.target, t),
+    vesselOpacity: lerp(k0.frame.vesselOpacity, k1.frame.vesselOpacity, t),
+    sheenOpacity: lerp(k0.frame.sheenOpacity, k1.frame.sheenOpacity, t),
+    reconstructionOpacity: lerp(
+      k0.frame.reconstructionOpacity,
+      k1.frame.reconstructionOpacity,
+      t
+    ),
+  }
+}
+
 function getActiveSection(progress: number): number {
-  if (progress >= 0.82) return 4
-  if (progress >= 0.58) return 3
-  if (progress >= 0.38) return 2
-  if (progress >= 0.18) return 1
+  const p = Math.max(0, Math.min(1, progress))
+  for (let i = WELCOME_SECTION_POSITIONS.length - 1; i >= 0; i--) {
+    if (p >= WELCOME_SECTION_POSITIONS[i]) return i
+  }
   return 0
+}
+
+export interface WelcomeScrollModel {
+  scrollRef: WelcomeScrollRef
+  activeSection: number
+  /** Register a per-frame progress listener (no React re-renders). Returns unsubscribe. */
+  subscribeParallax: (listener: ParallaxListener) => () => void
 }
 
 export function useWelcomeScroll(
   containerRef: React.RefObject<HTMLDivElement | null>,
   reducedMotion = false
-): SceneScrollState {
-  const [state, setState] = useState<SceneScrollState>(() => ({
-    progress: 0,
-    activeSection: 0,
-    cameraPosition: KEYFRAMES[0].frame.pos,
-    cameraTarget: KEYFRAMES[0].frame.target,
-    vesselOpacity: KEYFRAMES[0].frame.vesselOpacity,
-    sheenOpacity: KEYFRAMES[0].frame.sheenOpacity,
-    reconstructionOpacity: KEYFRAMES[0].frame.reconstructionOpacity,
-  }))
+): WelcomeScrollModel {
+  const scrollRef = useRef<SceneScrollFrame>({ ...deriveFrame(0) })
 
-  const triggerRef = useRef<ScrollTrigger | null>(null)
+  const [activeSection, setActiveSection] = useState<number>(0)
+
+  const rawProgressRef = useRef(0)
+  const lastHandledProgressRef = useRef(-1)
+  const rafRef = useRef<number>(0)
+  const parallaxListenersRef = useRef<Set<ParallaxListener>>(new Set())
 
   useEffect(() => {
     if (reducedMotion) {
       // High-quality static perspective for accessibility / reduced motion
-      setState({
+      scrollRef.current = {
         progress: 0,
-        activeSection: 0,
         cameraPosition: [12, 12, 22],
         cameraTarget: [0, 2, 0],
         vesselOpacity: 1.0,
         sheenOpacity: 0.85,
         reconstructionOpacity: 0.8,
-      })
+      }
+      rawProgressRef.current = 0
+      lastHandledProgressRef.current = 0
+      setActiveSection(0)
       return
     }
 
     const container = containerRef.current
     if (!container) return
 
-    const updateStateFromProgress = (progress: number) => {
-      const clamped = Math.max(0, Math.min(1, progress))
-      const activeSection = getActiveSection(clamped)
-
-      // Find surrounding keyframes
-      let k0 = KEYFRAMES[0]
-      let k1 = KEYFRAMES[1]
-      for (let i = 0; i < KEYFRAMES.length - 1; i++) {
-        if (clamped >= KEYFRAMES[i].at && clamped <= KEYFRAMES[i + 1].at) {
-          k0 = KEYFRAMES[i]
-          k1 = KEYFRAMES[i + 1]
-          break
-        }
-      }
-
-      const segmentSpan = k1.at - k0.at
-      const tRaw = segmentSpan > 0 ? (clamped - k0.at) / segmentSpan : 0
-      // Smooth sinusoidal cubic easing between keyframes
-      const t = tRaw * tRaw * (3 - 2 * tRaw)
-
-      setState({
-        progress: clamped,
-        activeSection,
-        cameraPosition: lerp3(k0.frame.pos, k1.frame.pos, t),
-        cameraTarget: lerp3(k0.frame.target, k1.frame.target, t),
-        vesselOpacity: lerp(k0.frame.vesselOpacity, k1.frame.vesselOpacity, t),
-        sheenOpacity: lerp(k0.frame.sheenOpacity, k1.frame.sheenOpacity, t),
-        reconstructionOpacity: lerp(
-          k0.frame.reconstructionOpacity,
-          k1.frame.reconstructionOpacity,
-          t
-        ),
-      })
-    }
-
-    // Native scroll event listener for immediate, zero-lag progress updates
+    // Sole scroll owner: passive native listener writes raw progress to a ref.
     const handleScroll = () => {
       const maxScroll = container.scrollHeight - window.innerHeight
       if (maxScroll <= 0) return
-      const progress = Math.max(0, Math.min(1, window.scrollY / maxScroll))
-      updateStateFromProgress(progress)
+      rawProgressRef.current = Math.max(
+        0,
+        Math.min(1, window.scrollY / maxScroll)
+      )
+    }
+
+    // Single rAF driver: derive eased frame once per animation frame.
+    // Skips work entirely when raw progress has not changed (idle).
+    const tick = () => {
+      rafRef.current = requestAnimationFrame(tick)
+      const raw = rawProgressRef.current
+      if (raw === lastHandledProgressRef.current) return
+      lastHandledProgressRef.current = raw
+
+      scrollRef.current = deriveFrame(raw)
+
+      const section = getActiveSection(raw)
+      setActiveSection(section)
+
+      parallaxListenersRef.current.forEach((listener) => listener(raw))
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll() // Sync initial scroll position
-
-    // Bind GSAP ScrollTrigger to the scrollable welcome container
-    const trigger = ScrollTrigger.create({
-      trigger: container,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 0.6,
-      onUpdate: (self) => {
-        updateStateFromProgress(self.progress)
-      },
-    })
-
-    triggerRef.current = trigger
+    rafRef.current = requestAnimationFrame(tick)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      trigger.kill()
-      triggerRef.current = null
+      cancelAnimationFrame(rafRef.current)
     }
   }, [containerRef, reducedMotion])
 
-  return state
+  const subscribeParallax = useCallback((listener: ParallaxListener): (() => void) => {
+    parallaxListenersRef.current.add(listener)
+    return () => {
+      parallaxListenersRef.current.delete(listener)
+    }
+  }, [])
+
+  return { scrollRef, activeSection, subscribeParallax }
 }

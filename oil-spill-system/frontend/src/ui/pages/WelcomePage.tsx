@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useTransition } from 'react'
 import WelcomeScene from '../welcome/WelcomeScene'
 import WelcomeNarrative from '../welcome/WelcomeNarrative'
 import WelcomeFallback from '../welcome/WelcomeFallback'
-import { useWelcomeScroll } from '../welcome/useWelcomeScroll'
+import { useWelcomeScroll, WELCOME_SECTION_POSITIONS } from '../welcome/useWelcomeScroll'
 import { prefersReducedMotion } from '../motion/tokens'
 
 // Robust WebGL availability detector
@@ -20,14 +20,18 @@ function checkWebGLSupport(): boolean {
   }
 }
 
-// Keyframe scroll positions for jumping to chapters
-const SECTION_PROGRESS_TARGETS = [0.0, 0.22, 0.44, 0.68, 0.95]
-
 export const WelcomePage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [webGLSupported, setWebGLSupported] = useState<boolean>(true)
   const [reducedMotion, setReducedMotion] = useState<boolean>(false)
   const [, startTransition] = useTransition()
+
+  // Evidence-stack HTML badges are hidden below 768px (mobile clutter control)
+  const [showStackLabels, setShowStackLabels] = useState<boolean>(() =>
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(min-width: 768px)').matches
+      : true
+  )
 
   useEffect(() => {
     // Set document title
@@ -68,16 +72,46 @@ export const WelcomePage: React.FC = () => {
     }
   }, [])
 
-  // Hook managing native scroll progress & GSAP ScrollTrigger
-  const scrollState = useWelcomeScroll(containerRef, reducedMotion)
+  // Show the 9 evidence badges only on viewports that have room for them
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+    const mql = window.matchMedia('(min-width: 768px)')
+    const handleChange = () => setShowStackLabels(mql.matches)
+    handleChange()
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handleChange)
+    } else {
+      mql.addListener(handleChange)
+    }
+    return () => {
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', handleChange)
+      } else {
+        mql.removeListener(handleChange)
+      }
+    }
+  }, [])
 
-  // Jump to specific chapter from header navigation
+  // Single-owner scroll model: one rAF driver, imperative ref for the scene.
+  // React state changes only when the active section actually changes.
+  const { scrollRef, activeSection, subscribeParallax } = useWelcomeScroll(
+    containerRef,
+    reducedMotion
+  )
+
+  // Jump to specific chapter from header navigation — targets are the single
+  // source of truth aligned with camera arrivals & narrative flips.
   const handleJumpToSection = (sectionIndex: number) => {
     const container = containerRef.current
     if (!container) return
-    const targetProgress = SECTION_PROGRESS_TARGETS[sectionIndex] ?? 0
+    const targetProgress = WELCOME_SECTION_POSITIONS[sectionIndex] ?? 0
     const scrollableDistance = container.scrollHeight - window.innerHeight
-    const targetScrollY = container.offsetTop + scrollableDistance * targetProgress
+    // Ceil + 1px overshoot: scrollTop snaps to integers, and a boundary like 0.68
+    // can otherwise settle 1px short (e.g. 1909.44 -> 1909/2808 < 0.68), leaving the
+    // chapter inactive. A hair past the boundary guarantees the section engages.
+    const targetScrollY =
+      container.offsetTop +
+      (targetProgress <= 0 ? 0 : Math.ceil(scrollableDistance * targetProgress) + 1)
 
     window.scrollTo({
       top: targetScrollY,
@@ -99,14 +133,18 @@ export const WelcomePage: React.FC = () => {
       <div className="fixed inset-0 w-screen h-screen overflow-hidden pointer-events-none">
         {/* 3D Scene Layer */}
         <WelcomeScene
-          scrollState={scrollState}
+          scrollRef={scrollRef}
+          activeSection={activeSection}
           reducedMotion={reducedMotion}
+          showStackLabels={showStackLabels}
         />
 
         {/* Narrative HTML / UI Overlay */}
         <WelcomeNarrative
-          scrollState={scrollState}
+          activeSection={activeSection}
           onJumpToSection={handleJumpToSection}
+          subscribeParallax={subscribeParallax}
+          reducedMotion={reducedMotion}
         />
       </div>
 
