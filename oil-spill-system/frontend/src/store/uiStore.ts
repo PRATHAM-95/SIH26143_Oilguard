@@ -55,6 +55,16 @@ type UiStoreState = {
   /** Historical reference gallery (public-domain DWH archive) visibility. */
   referenceOpen: boolean
   setReferenceOpen: (open: boolean) => void
+
+  /**
+   * M11 Phase 2 — Command Center map pane. Presentation-level toggle only:
+   * when false the MaritimeMapTheater is unmounted and the read-only
+   * StationOverview is shown instead. Map/domain state always lives in the
+   * existing domain stores, never here.
+   */
+  mapPaneOpen: boolean
+  setMapPaneOpen: (open: boolean) => void
+  toggleMapPane: () => void
 }
 
 export const useUiStore = create<UiStoreState>((set) => ({
@@ -76,4 +86,8 @@ export const useUiStore = create<UiStoreState>((set) => ({
 
   referenceOpen: false,
   setReferenceOpen: (referenceOpen) => set({ referenceOpen }),
+
+  mapPaneOpen: false,
+  setMapPaneOpen: (mapPaneOpen) => set({ mapPaneOpen }),
+  toggleMapPane: () => set((s) => ({ mapPaneOpen: !s.mapPaneOpen })),
 }))

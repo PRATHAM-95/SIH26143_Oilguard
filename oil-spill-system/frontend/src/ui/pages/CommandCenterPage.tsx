@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { WorkstationShell } from '../shell/WorkstationShell'
-import { MaritimeMapTheater } from '../console/map/MaritimeMapTheater'
+import { CommandCenterMapDeck } from '../console/map/CommandCenterMapDeck'
 import { FlightpathRail } from '../console/FlightpathRail'
 import { ContextualConsole } from '../console/ContextualConsole'
 import { useSimulationConnection } from '@/hooks/useSimulationConnection'
@@ -57,7 +57,7 @@ export default function CommandCenterPage() {
       setLeftCollapsed={setLeftCollapsed}
       setRightCollapsed={setRightCollapsed}
     >
-      <MaritimeMapTheater />
+      <CommandCenterMapDeck />
     </WorkstationShell>
   )
 }

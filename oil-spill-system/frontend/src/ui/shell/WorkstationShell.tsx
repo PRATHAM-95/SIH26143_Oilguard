@@ -44,7 +44,7 @@ export function WorkstationShell({
 
   return (
     <div 
-      className="flex flex-col w-screen h-screen overflow-hidden bg-[var(--bg-canvas)] text-ink-1 font-sans workstation-theater"
+      className="flex flex-col overflow-hidden bg-[var(--bg-canvas)] text-ink-1 font-sans workstation-theater"
       style={{
         '--panel-left-width': `${leftWidth}px`,
         '--panel-right-width': `${rightWidth}px`,
