@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
   const backendUrl = env.VITE_API_URL || 'http://localhost:8082'
 
   return {
+    base: '/SIH26143_Oilguard/',
     plugins: [tailwindcss(), react(), viteCompression({ algorithm: 'gzip', threshold: 10240 })],
     resolve: {
       alias: {
