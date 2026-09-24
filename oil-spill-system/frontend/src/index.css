@@ -5082,9 +5082,10 @@ body {
   );
 }
 
-/* Collapsed console shrinks to its header bar, so reserve no clearance for it. */
+/* Collapsed console keeps a 40px gutter for its expand tab; the mapped
+   clearance tracks that gutter so map controls clear it consistently. */
 .workstation-theater:has(.contextual-console--collapsed) {
-  --console-dock-width: 0px;
+  --console-dock-width: 40px;
   --console-dock-gap: 0px;
 }
 

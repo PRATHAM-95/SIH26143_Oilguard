@@ -14,6 +14,13 @@
 /* ------------------------------------------------------------------ */
 /* MapLayerToolbar — top-centre glass chip bar over the map stage      */
 /* ------------------------------------------------------------------ */
+/* The stage is the query container for the toolbar so chip wrapping tracks
+   the actual map stage width (which already accounts for rail/console state
+   via flex layout) rather than the bare viewport width. */
+.maritime-map-stage {
+  container-type: inline-size;
+}
+
 .mm-toolbar {
   position: absolute;
   /* below the GraticuleFrame's 24px top coordinate band */
@@ -23,6 +30,8 @@
   z-index: var(--z-map-overlay, 30);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
   padding: 6px 10px;
   border-radius: var(--radius-xl, 8px);
@@ -62,14 +71,42 @@
 .mm-toolbar-chips {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: 4px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
 
-.mm-toolbar-chips::-webkit-scrollbar {
-  display: none;
+/* Wide theaters keep the original single-row toolbar; narrower stages anchor
+   the AOI/basemap groups on the first line and let the chips wrap onto their
+   own centered rows so every chip stays visible. The cutoff is the stage width
+   at which the full single-row content (natural width 1574px; toolbar
+   max-width = stage - 40px) actually fits — below it the chips wrap instead of
+   hiding under a scroll strip. */
+@container (min-width: 1614px) {
+  .mm-toolbar,
+  .mm-toolbar-chips {
+    flex-wrap: nowrap;
+  }
+  .mm-toolbar-left,
+  .mm-toolbar-right,
+  .mm-toolbar-chips {
+    order: 0;
+    flex-basis: auto;
+  }
+}
+
+@container (max-width: 1613px) {
+  .mm-toolbar-left {
+    order: 1;
+  }
+  .mm-toolbar-right {
+    order: 2;
+  }
+  .mm-toolbar-chips {
+    order: 3;
+    flex-basis: 100%;
+  }
 }
 
 .mm-chip {

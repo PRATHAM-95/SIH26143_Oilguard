@@ -40,7 +40,9 @@ export function WorkstationShell({
 
   // Map CSS variables
   const leftWidth = leftCollapsed ? 56 : 260
-  const rightWidth = rightCollapsed ? 0 : 360
+  // Collapsed console keeps a 40px gutter so the expand tab stays fully
+  // visible and clickable instead of being clipped at the viewport edge.
+  const rightWidth = rightCollapsed ? 40 : 360
 
   return (
     <div 
