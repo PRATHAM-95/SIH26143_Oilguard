@@ -22,6 +22,7 @@ import {
   useSatellitePassLayers,
   useShippingLaneLayers,
 } from '@/components/map/OperationalLayers'
+import { useBasemapLabelLayers } from '@/components/map/BasemapLabels'
 import { MapLayerToolbar } from '@/components/map/maritime/MapLayerToolbar'
 import { MapSelectionPopup } from '@/components/map/maritime/MapSelectionPopup'
 import { NorthArrow } from '@/components/map/maritime/NorthArrow'
@@ -46,6 +47,7 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
   const laneLayers = useShippingLaneLayers()
   const passLayers = useSatellitePassLayers()
   const fieldLayers = useEnvironmentFieldLayers()
+  const basemapLabelLayers = useBasemapLabelLayers()
 
   const eezStatus = useEezStore((s) => s.status)
   const weatherStatus = useWeatherStore((s) => s.status)
@@ -71,6 +73,10 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
       ...eezLayers,
       ...weatherLayers,
       ...incidentLayers,
+      // Place names go last so they sit above the operational overlays: the
+      // basemap names the water body you are reading the incident in, and
+      // should never be occluded by a slick edge or a pass track.
+      ...basemapLabelLayers,
     ],
     [
       simLayers,
@@ -85,6 +91,7 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
       eezLayers,
       weatherLayers,
       incidentLayers,
+      basemapLabelLayers,
     ]
   )
 

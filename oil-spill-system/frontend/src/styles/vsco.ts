@@ -25,16 +25,51 @@ export const DARK_MAP_STYLE: string =
   'https://tiles.openfreemap.org/styles/dark'
 
 /**
- * Satellite map style: Esri World Imagery raster tiles + the companion
- * boundaries/places reference overlay.
+ * A coarse ring that covers the visible globe, used only as a geometry carrier
+ * for the sea-tint fill layer. It spans slightly past the antimeridian so the
+ * seam never falls inside the viewport.
+ */
+const WORLD_RING = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-170, -80],
+            [190, -80],
+            [190, 80],
+            [-170, 80],
+            [-170, -80],
+          ],
+        ],
+      },
+    },
+  ],
+} as const
+
+/**
+ * Satellite map style: Esri World Imagery raster tiles, graded down for a
+ * dark operations room, plus the companion boundaries/places overlay.
  *
  * - Public Esri tile services, no API key required for routine use.
  * - Rendered as raster sources over the SAME MapLibre instance when the
  *   basemap switch is set to satellite.
+ * - The imagery is graded with the raster paint properties rather than a CSS
+ *   filter, because MapLibre and deck.gl share one canvas: dimming the canvas
+ *   would also dim the operational overlays. Grading at the style level keeps
+ *   every deck.gl layer at full intensity on a dark base.
+ * - `ops-sea-tint` is a plain fill layer over a coarse world ring, which is the
+ *   reliable way to cast colour over a raster (MapLibre always paints
+ *   `background` layers first, regardless of where they sit in the stack).
  * - `World_Boundaries_and_Places` draws coastlines, country borders and place
  *   labels as a transparent overlay on top of the imagery. Without it the
  *   satellite view is context-free: you cannot tell Arabian Sea from Bay of
- *   Bengal. This is the same service family Esri's own basemap uses.
+ *   Bengal. It is held at low opacity so the baked-in city labels recede and
+ *   the curated country / sea labels own the naming hierarchy instead.
  * - Attribution: Esri, Maxar, Earthstar Geographics, and the GIS User
  *   Community.
  */
@@ -57,17 +92,43 @@ export const SATELLITE_MAP_STYLE: StyleSpecification = {
       tileSize: 256,
       attribution: 'Esri, HERE, Garmin, INCREMENT P, and the GIS User Community',
     },
+    'ops-world': {
+      type: 'geojson',
+      data: WORLD_RING as unknown as GeoJSON.FeatureCollection,
+    },
   },
   layers: [
     {
       id: 'esri-world-imagery',
       type: 'raster',
       source: 'esri-world-imagery',
+      paint: {
+        // Night-operations grade: crushed highlights, drained saturation and a
+        // slight cool rotation, so the imagery reads as context and never as
+        // the brightest thing on screen.
+        'raster-brightness-min': 0,
+        'raster-brightness-max': 0.5,
+        'raster-contrast': 0.12,
+        'raster-saturation': -0.45,
+        'raster-hue-rotate': -8,
+      },
+    },
+    {
+      id: 'ops-sea-tint',
+      type: 'fill',
+      source: 'ops-world',
+      paint: {
+        'fill-color': '#08192B',
+        'fill-opacity': 0.24,
+      },
     },
     {
       id: 'esri-reference',
       type: 'raster',
       source: 'esri-reference',
+      paint: {
+        'raster-opacity': 0.42,
+      },
     },
   ],
 }
