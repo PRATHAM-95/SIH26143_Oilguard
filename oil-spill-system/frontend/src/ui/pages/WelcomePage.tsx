@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect, useTransition } from 'react'
 import WelcomeScene from '../welcome/WelcomeScene'
+import WelcomeScene2D from '../welcome/WelcomeScene2D'
 import WelcomeNarrative from '../welcome/WelcomeNarrative'
-import WelcomeFallback from '../welcome/WelcomeFallback'
+import WelcomeProgressRail from '../welcome/WelcomeProgressRail'
 import { useWelcomeScroll, WELCOME_SECTION_POSITIONS } from '../welcome/useWelcomeScroll'
 import { prefersReducedMotion } from '../motion/tokens'
 
@@ -22,7 +23,10 @@ function checkWebGLSupport(): boolean {
 
 export const WelcomePage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [webGLSupported, setWebGLSupported] = useState<boolean>(true)
+  // Detected synchronously during the first render so the correct scene mounts on
+  // the very first paint. Deferring this to an effect would mount the WebGL canvas
+  // first and then swap it, which flashes and can throw on context creation.
+  const [webGLSupported] = useState<boolean>(() => checkWebGLSupport())
   const [reducedMotion, setReducedMotion] = useState<boolean>(false)
   const [, startTransition] = useTransition()
 
@@ -51,12 +55,10 @@ export const WelcomePage: React.FC = () => {
       root.style.height = 'auto'
     }
 
-    // Check WebGL and reduced motion
-    const hasWebGL = checkWebGLSupport()
+    // Check reduced motion (WebGL support is resolved synchronously on first render)
     const isReduced = prefersReducedMotion()
 
     startTransition(() => {
-      setWebGLSupported(hasWebGL)
       setReducedMotion(isReduced)
     })
 
@@ -119,28 +121,41 @@ export const WelcomePage: React.FC = () => {
     })
   }
 
-  // If WebGL is unavailable, render intentional 2D architectural fallback
-  if (!webGLSupported) {
-    return <WelcomeFallback reason="no-webgl" />
-  }
-
   return (
     <div
       ref={containerRef}
       className="welcome-page-root relative w-full bg-[#070b10] text-[#f8f7f4] select-none"
     >
-      {/* Fixed Fullscreen 3D Viewport & Overlay — permanently pinned to screen */}
+      {/* Fixed Fullscreen Scene Viewport & Overlay — permanently pinned to screen */}
       <div className="fixed inset-0 w-screen h-screen overflow-hidden pointer-events-none">
-        {/* 3D Scene Layer */}
-        <WelcomeScene
-          scrollRef={scrollRef}
-          activeSection={activeSection}
-          reducedMotion={reducedMotion}
-          showStackLabels={showStackLabels}
-        />
+        {/* Scene Layer — WebGL when available, CSS/SVG schematic when not.
+            Both read the same scrollRef, so the story arc is identical either way. */}
+        {webGLSupported ? (
+          <WelcomeScene
+            scrollRef={scrollRef}
+            activeSection={activeSection}
+            reducedMotion={reducedMotion}
+            showStackLabels={showStackLabels}
+          />
+        ) : (
+          <WelcomeScene2D
+            scrollRef={scrollRef}
+            activeSection={activeSection}
+            reducedMotion={reducedMotion}
+            showStackLabels={showStackLabels}
+          />
+        )}
 
         {/* Narrative HTML / UI Overlay */}
         <WelcomeNarrative
+          activeSection={activeSection}
+          onJumpToSection={handleJumpToSection}
+          subscribeParallax={subscribeParallax}
+          reducedMotion={reducedMotion}
+        />
+
+        {/* Scroll progress rail — the sliding chapter indicator */}
+        <WelcomeProgressRail
           activeSection={activeSection}
           onJumpToSection={handleJumpToSection}
           subscribeParallax={subscribeParallax}

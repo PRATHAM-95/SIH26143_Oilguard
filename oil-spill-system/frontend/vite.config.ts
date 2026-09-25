@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import viteCompression from 'vite-plugin-compression'
 import path from 'path'
+import fs from 'fs'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -14,6 +15,18 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       react(),
       viteCompression({ algorithm: 'gzip', threshold: 10240 }),
+      {
+        // GitHub Pages serves 404.html for any unknown path under the site root.
+        // Emitting a copy of the SPA shell there means /welcome and every other
+        // deep link survives a refresh or a shared URL instead of dying on
+        // GitHub's own 404 page.
+        name: 'oilguard-spa-404-fallback',
+        closeBundle() {
+          const indexPath = path.resolve(__dirname, 'dist/index.html')
+          if (!fs.existsSync(indexPath)) return
+          fs.copyFileSync(indexPath, path.resolve(__dirname, 'dist/404.html'))
+        },
+      },
       {
         name: 'oilguard-base-path-redirect',
         configureServer(server) {

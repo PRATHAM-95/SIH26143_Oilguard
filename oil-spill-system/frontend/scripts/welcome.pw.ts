@@ -176,13 +176,81 @@ test('Reduced motion mode renders static accessible view with working CTA', asyn
   await context.close()
 })
 
-test('WebGL disabled renders designed 2D architectural fallback', async ({ browser }) => {
+test('Scroll progress rail is visible and tracks scroll position', async ({ browser }) => {
+  for (const vp of [
+    { label: '1440x900', width: 1440, height: 900 },
+    { label: '390x844', width: 390, height: 844 },
+  ]) {
+    const context = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      reducedMotion: 'no-preference',
+    })
+    const page = await context.newPage()
+
+    await page.goto(`${BASE_URL}${APP_BASE_PATH}/welcome`, {
+      waitUntil: 'networkidle',
+      timeout: 30_000,
+    })
+
+    const rail = page.locator('[data-welcome-rail]')
+    const thumb = page.locator('[data-welcome-rail-thumb]')
+    const percent = page.locator('[data-welcome-rail-percent]')
+
+    await expect(rail).toBeVisible()
+    await expect(thumb).toBeVisible()
+    await expect(percent).toHaveText('0%')
+
+    const before = await thumb.boundingBox()
+    expect(before).not.toBeNull()
+
+    await page.mouse.move(vp.width / 2, vp.height / 2)
+    await page.mouse.wheel(0, 1_600)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+
+    // The sliding bar must actually move and report a non-zero position.
+    await expect(percent).not.toHaveText('0%')
+    const after = await thumb.boundingBox()
+    expect(after).not.toBeNull()
+    expect(after!.y).toBeGreaterThan(before!.y)
+
+    // Exactly one chapter tick is active, and it advanced past the first.
+    const activeTicks = page.locator('[data-welcome-rail-tick][data-active]')
+    await expect(activeTicks).toHaveCount(1)
+    await expect(activeTicks).toHaveAttribute('aria-label', /chapter 0[2-5]/)
+
+    await context.close()
+  }
+})
+
+test('Chapter tick jumps to the matching scroll position', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    reducedMotion: 'reduce',
+  })
+  const page = await context.newPage()
+
+  await page.goto(`${BASE_URL}${APP_BASE_PATH}/welcome`, {
+    waitUntil: 'networkidle',
+    timeout: 30_000,
+  })
+
+  await page.locator('[data-welcome-rail-tick]').nth(4).click()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await expect(page.locator('[data-welcome-rail-tick][data-active]')).toHaveAttribute(
+    'aria-label',
+    /chapter 05/
+  )
+
+  await context.close()
+})
+
+test('WebGL disabled keeps the full scrollable welcome experience', async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
   })
   const page = await context.newPage()
 
-  // Simulate WebGL failure by returning null from getContext for webgl
+  // Simulate WebGL failure (hardware acceleration off, blocklisted driver, VM)
   await page.addInitScript(() => {
     const origGetContext = HTMLCanvasElement.prototype.getContext
     HTMLCanvasElement.prototype.getContext = function (type: string, ...args: unknown[]) {
@@ -193,21 +261,37 @@ test('WebGL disabled renders designed 2D architectural fallback', async ({ brows
     }
   })
 
-  await page.goto(`${BASE_URL}${APP_BASE_PATH}/welcome`, { waitUntil: 'networkidle', timeout: 30_000 })
-  await page.waitForTimeout(1000)
+  await page.goto(`${BASE_URL}${APP_BASE_PATH}/welcome`, {
+    waitUntil: 'networkidle',
+    timeout: 30_000,
+  })
+  await page.waitForTimeout(800)
 
-  // Verify fallback is rendered
-  const fallback = page.locator('text=SCHEMATIC VESSEL PROFILE')
-  await expect(fallback).toBeVisible()
+  // The 2D schematic scene replaces the WebGL canvas...
+  await expect(page.locator('[data-welcome-scene="2d"]')).toBeAttached()
+  await expect(page.locator('canvas')).toHaveCount(0)
+
+  // ...but the scroll track, progress rail and chapter narrative all survive.
+  const maxScroll = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight
+  )
+  expect(maxScroll).toBeGreaterThan(0)
+  await expect(page.locator('[data-welcome-rail]')).toBeVisible()
 
   await page.screenshot({
-    path: path.join(M6_SCREENSHOT_DIR, 'welcome-fallback-1440x900.png'),
+    path: path.join(M6_SCREENSHOT_DIR, 'welcome-2d-schematic-1440x900.png'),
   })
 
-  // Verify CTA button works
-  const ctaBtn = page.getByRole('button', { name: /ENTER COMMAND CENTER/i }).first()
+  await page.mouse.move(720, 450)
+  await page.mouse.wheel(0, 1_600)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await expect(page.locator('[aria-current=step]')).toContainText(/0[2-5]/)
+  await expect(page.locator('[data-welcome-rail-percent]')).not.toHaveText('0%')
+
+  // CTA still navigates to the command center
+  const ctaBtn = page.getByRole('button', { name: /COMMAND CENTER/i }).first()
   await expect(ctaBtn).toBeVisible()
-  await ctaBtn.click()
+  await ctaBtn.click({ force: true })
   await expect(page).toHaveURL(`${BASE_URL}${APP_BASE_PATH}/command-center`, { timeout: 10_000 })
 
   await context.close()
