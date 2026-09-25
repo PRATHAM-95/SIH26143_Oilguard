@@ -7,6 +7,7 @@ import { StatusBadge, type OperationalStatusTone } from '@/ui/design-system/Stat
 import { ProvenanceLabel } from '@/ui/design-system/ProvenanceLabel'
 import { TimeScrubber } from './TimeScrubber'
 import { SelectionInspectorCard } from '../cards/SelectionInspectorCard'
+import { VesselContext } from '@/ui/journey/VesselContext'
 import { ChevronDownIcon } from '@/components/ui/Icon'
 
 
@@ -51,15 +52,7 @@ function VesselDetail() {
     return null
   }
 
-  return (
-    <div className="flex flex-col gap-1 text-xs">
-      <div className="flex justify-between"><span className="text-mist">Type</span><span className="text-foam">{vessel.type || 'Unknown'}</span></div>
-      <div className="flex justify-between"><span className="text-mist">MMSI</span><span className="font-mono text-foam tabular-nums">{vessel.mmsi || '—'}</span></div>
-      <div className="flex justify-between"><span className="text-mist">Speed</span><span className="font-mono text-foam tabular-nums">{vessel.speed !== 0 ? `${vessel.speed.toFixed(1)} kn` : '—'}</span></div>
-      <div className="flex justify-between"><span className="text-mist">Heading</span><span className="font-mono text-foam tabular-nums">{vessel.heading !== 0 ? `${vessel.heading.toFixed(0)}°` : '—'}</span></div>
-      <div className="flex justify-between"><span className="text-mist">Position</span><span className="font-mono text-foam tabular-nums">{vessel.position.lat.toFixed(4)}°, {vessel.position.lon.toFixed(4)}°</span></div>
-    </div>
-  )
+  return <VesselContext vessel={vessel} />
 }
 
 function SpillSection() {

@@ -1,0 +1,450 @@
+/* ==========================================================================
+ * M11 Phase 7 — Incident Journey layer
+ * --------------------------------------------------------------------------
+ * Styles ONLY for:
+ *   - JourneyStrip (status bar between the operational bar and the theater)
+ *   - JourneyOverviewCard (Command Center floating overview) + report banner
+ *   - CorridorTrafficCard, VesselContext (console telemetry blocks)
+ * Tokens mirror index.css / styles/vsco.ts and the maritime-overlays.css
+ * precedent. Responsive: nodes collapse to glyphs < 900px; context & CTA text
+ * hide < 640px. No blanket overflow-x rules; every strip keeps its own clamp.
+ * ========================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* Shared micro-kicker + footnote used across the journey surfaces      */
+/* ------------------------------------------------------------------ */
+.journey-kicker {
+  font-family: var(--mono, var(--font-mono));
+  font-size: var(--text-2xs, 10px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3, #4e5965);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.journey-kicker::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--accent, #0057ff);
+  flex-shrink: 0;
+}
+
+.journey-footnote {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-default, #1b2430);
+  font-size: var(--text-2xs, 10px);
+  line-height: 1.4;
+  color: var(--ink-3, #4e5965);
+}
+
+/* ------------------------------------------------------------------ */
+/* JourneyStrip — 40px status bar                                     */
+/* ------------------------------------------------------------------ */
+.journey-strip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border-default, #1b2430);
+  background: var(--bg-surface, #0b1118);
+  overflow: hidden;
+}
+
+.journey-strip__inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+.journey-strip__phase {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.journey-strip__eyebrow {
+  flex-shrink: 0;
+}
+
+.journey-strip__title {
+  font-family: var(--sans, var(--font-sans));
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-primary, #f8f7f4);
+}
+
+.journey-strip__context {
+  font-size: 10px;
+  color: var(--ink-3, #4e5965);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.journey-strip__nodes {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.journey-node {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.journey-node__glyph {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--line, #273340);
+  flex-shrink: 0;
+}
+
+.journey-node--done .journey-node__glyph {
+  background: var(--ok, #00d98b);
+}
+
+.journey-node--running .journey-node__glyph {
+  background: var(--accent, #0057ff);
+  box-shadow: 0 0 0 3px var(--border-accent, rgba(0, 87, 255, 0.18));
+}
+
+.journey-node--failed .journey-node__glyph {
+  background: var(--danger, #ff4d5a);
+}
+
+.journey-node--done .journey-node__label {
+  color: var(--ink-2, #b2bbc5);
+}
+
+.journey-node--running .journey-node__label {
+  color: var(--ink-primary, #f8f7f4);
+}
+
+.journey-node__label {
+  font-family: var(--mono, var(--font-mono));
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3, #4e5965);
+}
+
+.journey-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--border-accent, rgba(0, 87, 255, 0.5));
+  border-radius: var(--radius-sm, 3px);
+  background: var(--accent-subtle, rgba(0, 87, 255, 0.1));
+  color: var(--ink-primary, #f8f7f4);
+  font-family: var(--mono, var(--font-mono));
+  font-size: var(--text-2xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast, 120ms) ease, border-color var(--dur-fast, 120ms) ease;
+}
+
+.journey-cta:hover {
+  background: var(--accent, #0057ff);
+  border-color: var(--accent, #0057ff);
+}
+
+.journey-cta:focus-visible {
+  outline: none;
+  border-color: var(--accent-strong, #3378ff);
+  box-shadow: 0 0 0 2px var(--border-accent, rgba(0, 87, 255, 0.45));
+}
+
+/* ------------------------------------------------------------------ */
+/* JourneyOverviewCard — Command Center floating overview               */
+/* ------------------------------------------------------------------ */
+.journey-card {
+  position: absolute;
+  top: 44px;
+  right: 12px;
+  z-index: 30;
+  width: 290px;
+  max-width: calc(100% - 24px);
+  padding: 12px 14px;
+  border: 1px solid var(--border-default, #1b2430);
+  border-left: 2px solid var(--accent, #0057ff);
+  border-radius: var(--radius-sm, 3px);
+  background: var(--bg-surface, #0b1118);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: none;
+}
+
+.journey-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.journey-card__phase {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--ink-primary, #f8f7f4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.journey-card__context {
+  margin: 6px 0 10px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink-3, #4e5965);
+}
+
+.journey-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.journey-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border: 1px solid var(--line, #273340);
+  border-radius: 2px;
+  font-family: var(--mono, var(--font-mono));
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3, #4e5965);
+}
+
+.journey-chip--ok {
+  color: var(--ok, #00d98b);
+  border-color: rgba(0, 217, 139, 0.45);
+}
+
+.journey-cta--card {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------------ */
+/* CorridorTrafficCard — attribution console traffic picture            */
+/* ------------------------------------------------------------------ */
+.journey-corridor {
+  border: 1px solid var(--border-default, #1b2430);
+  border-radius: var(--radius-sm, 3px);
+  background: var(--bg-panel, #0b1118);
+  padding: 10px 12px;
+  font-size: var(--text-2xs, 10px);
+}
+
+.journey-corridor__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.journey-corridor__count {
+  font-family: var(--mono, var(--font-mono));
+  font-size: 9px;
+  color: var(--ink-3, #4e5965);
+  white-space: nowrap;
+}
+
+.journey-corridor__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.journey-corridor__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  border-bottom: 1px solid var(--border-default, #1b2430);
+}
+
+.journey-corridor__row:last-child {
+  border-bottom: none;
+}
+
+.journey-corridor__rank {
+  flex-shrink: 0;
+  font-family: var(--mono, var(--font-mono));
+  font-weight: 600;
+  color: var(--accent, #0057ff);
+  width: 22px;
+}
+
+.journey-corridor__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-1, #f8f7f4);
+}
+
+.journey-corridor__dist {
+  flex-shrink: 0;
+  font-family: var(--mono, var(--font-mono));
+  color: var(--ink-2, #b2bbc5);
+}
+
+.journey-corridor__foot {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9px;
+  font-family: var(--mono, var(--font-mono));
+  color: var(--ink-3, #4e5965);
+}
+
+/* ------------------------------------------------------------------ */
+/* VesselContext — shared telemetry block                                */
+/* ------------------------------------------------------------------ */
+.journey-vesselctx {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12px;
+}
+
+.journey-vesselctx__ctx {
+  margin-top: 6px;
+  padding: 6px 8px 4px;
+  border: 1px solid var(--border-default, #1b2430);
+  border-radius: var(--radius-sm, 3px);
+  background: var(--bg-canvas, #070b10);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.journey-vesselctx__ctx .journey-kicker {
+  margin-bottom: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* ReportCompletionBanner — conclusive strip on the Incident Dossier    */
+/* ------------------------------------------------------------------ */
+.journey-report-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm, 3px);
+  border: 1px solid rgba(0, 217, 139, 0.4);
+  border-left: 3px solid var(--ok, #00d98b);
+  background: rgba(0, 217, 139, 0.06);
+}
+
+.journey-report-banner__text {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-2, #b2bbc5);
+}
+
+.journey-report-link {
+  flex-shrink: 0;
+  font-family: var(--mono, var(--font-mono));
+  font-size: var(--text-2xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ok, #00d98b);
+  text-decoration: none;
+}
+
+.journey-report-link:hover {
+  text-decoration: underline;
+}
+
+.journey-report-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 217, 139, 0.45);
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive collapse                                                  */
+/* ------------------------------------------------------------------ */
+@media (max-width: 900px) {
+  .journey-node__label,
+  .journey-strip__context,
+  .journey-strip__eyebrow {
+    display: none;
+  }
+
+  .journey-strip {
+    height: 36px;
+    padding: 0 8px;
+  }
+
+  .journey-strip__nodes {
+    gap: 4px;
+  }
+
+  .journey-card {
+    top: 46px;
+    right: 8px;
+    width: 240px;
+  }
+}
+
+@media (max-width: 640px) {
+  .journey-cta__label {
+    display: none;
+  }
+
+  .journey-card {
+    width: 200px;
+    padding: 10px 12px;
+  }
+
+  .journey-corridor__dist {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-cta {
+    transition: none;
+  }
+}

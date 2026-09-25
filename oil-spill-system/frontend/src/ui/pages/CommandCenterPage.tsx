@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { WorkstationShell } from '../shell/WorkstationShell'
 import { CommandCenterMapDeck } from '../console/map/CommandCenterMapDeck'
+import { JourneyOverviewCard } from '../journey/JourneyOverviewCard'
 import { FlightpathRail } from '../console/FlightpathRail'
 import { ContextualConsole } from '../console/ContextualConsole'
 import { useSimulationConnection } from '@/hooks/useSimulationConnection'
@@ -57,7 +58,10 @@ export default function CommandCenterPage() {
       setLeftCollapsed={setLeftCollapsed}
       setRightCollapsed={setRightCollapsed}
     >
-      <CommandCenterMapDeck />
+      <div className="relative w-full h-full">
+        <CommandCenterMapDeck />
+        <JourneyOverviewCard />
+      </div>
     </WorkstationShell>
   )
 }

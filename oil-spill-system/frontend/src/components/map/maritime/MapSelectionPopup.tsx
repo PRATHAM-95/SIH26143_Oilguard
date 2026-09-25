@@ -93,10 +93,8 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
       ? s.candidates.find((c) => c.id === selection.id) ?? null
       : null,
   )
-  const sarHead = useSarStore((s) => ({
-    acquisitionTime: s.acquisitionTime,
-    provenance: s.provenance,
-  }))
+  const sarAcquisitionTime = useSarStore((s) => s.acquisitionTime)
+  const sarProvenance = useSarStore((s) => s.provenance)
   const stages = useInvestigationStore((s) => s.stages)
   const ranked = useMemo(() => stageRankedVessels(stages), [stages])
   const live = useConnectionStore((s) => s.connections.websocket === 'online')
@@ -133,7 +131,7 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
         <>
           <div className="mm-pop-row">
             <span className="mm-pop-k">Detected</span>
-            <span className="mm-pop-v">{sarHead.acquisitionTime ?? sarHead.provenance ?? 'UNAVAILABLE'}</span>
+            <span className="mm-pop-v">{sarAcquisitionTime ?? sarProvenance ?? 'UNAVAILABLE'}</span>
           </div>
           <div className="mm-pop-row">
             <span className="mm-pop-k">Area</span>

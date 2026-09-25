@@ -15,6 +15,8 @@ import { useSimulationStore } from '@/store/simulationStore'
 import { useSarStore } from '@/store/sarStore'
 import { useInvestigationStore } from '@/store/investigationStore'
 import { stageSourceRegionRing, stageUncertaintyKm, stageOrigin } from '@/components/map/InvestigationMap'
+import { findMatchedFleetVessel } from '@/ui/journey/useDemoJourney'
+import { VesselContext } from '@/ui/journey/VesselContext'
 import type { AttributionFactorKey } from '@/types/domain'
 
 const FACTOR_LABELS: Record<string, string> = {
@@ -173,12 +175,17 @@ function OriginView() {
 function AisView({ focus }: { focus: SelectionFocus }) {
   const stages = useInvestigationStore((s) => s.stages)
   const conclusion = useInvestigationStore((s) => s.conclusion)
+  const fleetVessels = useSimulationStore((s) => s.vessels)
   const ranked = useMemo(() => {
     const raw = stages.find((s) => s.stageId === 'attribution')?.summary?.rankedVessels
     return Array.isArray(raw) ? (raw as { rank: number; score: number }[]) : []
   }, [stages])
 
   const candidate = focus.candidate ?? null
+  const matchedFleet = useMemo(
+    () => (candidate ? findMatchedFleetVessel(fleetVessels, candidate.mmsi, candidate.name) : null),
+    [fleetVessels, candidate],
+  )
   if (!candidate) return <div className="text-faint">Candidate data not available.</div>
 
   const first = ranked[0]
@@ -219,6 +226,11 @@ function AisView({ focus }: { focus: SelectionFocus }) {
           value={margin != null ? `${Math.abs(margin * 100).toFixed(1)}%${decisive === false ? ' (not decisive)' : ''}` : '—'}
         />
       </IntelSection>
+      {matchedFleet && (
+        <IntelSection label="Linked fleet telemetry">
+          <VesselContext vessel={matchedFleet} />
+        </IntelSection>
+      )}
       <Disclaimer>
         Ranked candidate — <strong>not a confirmed culprit</strong>. Ranking is a
         composite likelihood for the search window, weighted by spatial,

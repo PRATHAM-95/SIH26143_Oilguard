@@ -17,6 +17,7 @@ import {
   type PositionedCandidate,
 } from '@/components/map/InvestigationMap'
 import { RANK_COLORS } from '@/components/attribution/AttributionMap'
+import { findMatchedFleetVessel } from '@/ui/journey/useDemoJourney'
 
 function rankColor3(rank: number | null | undefined): [number, number, number] | null {
   if (rank == null) return null
@@ -172,11 +173,13 @@ export function useSelectionFocus(): SelectionFocus {
  */
 export function useSelectionRingLayers(): NonNullable<MapboxOverlayProps['layers']> {
   const focus = useSelectionFocus()
+  const vessels = useSimulationStore((s) => s.vessels)
 
   return useMemo(() => {
     if (!focus.selection || !focus.coords) return []
     const [lon, lat] = focus.coords
-    return [
+
+    const layers: NonNullable<MapboxOverlayProps['layers']> = [
       new PolygonLayer({
         id: 'selection-ring',
         data: [{ polygon: circleRing(lon, lat, 1.4) }],
@@ -200,7 +203,33 @@ export function useSelectionRingLayers(): NonNullable<MapboxOverlayProps['layers
         pickable: false,
       }),
     ]
-  }, [focus])
+
+    // M11 Phase 7 — rank-colored halo: when the selected AIS candidate resolves
+    // to a fleet vessel (MMSI/name identity), draw an ephemeral rank-colored
+    // ring around that ship's current position. Presentation-only and never
+    // catalogued — it vanishes the moment the selection clears.
+    if (focus.kind === 'ais_candidate' && focus.candidate) {
+      const matched = findMatchedFleetVessel(vessels, focus.candidate.mmsi, focus.candidate.name)
+      if (matched) {
+        layers.unshift(
+          new PolygonLayer({
+            id: 'fleet-match-halo',
+            data: [{ polygon: circleRing(matched.position.lon, matched.position.lat, 1.9) }],
+            getPolygon: (d: { polygon: [number, number][] }) => d.polygon,
+            stroked: true,
+            filled: false,
+            getLineColor: [...focus.color, 130],
+            getLineWidth: 1100,
+            lineWidthMinPixels: 2.2,
+            lineWidthMaxPixels: 3.6,
+            pickable: false,
+          }),
+        )
+      }
+    }
+
+    return layers
+  }, [focus, vessels])
 }
 
 export function useSelectionClear(): () => void {

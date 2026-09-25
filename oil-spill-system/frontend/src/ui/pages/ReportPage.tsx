@@ -20,6 +20,7 @@ import { AISSection, AttributionSection } from '../report/AttributionSections'
 import { ConclusionSection, ProvenanceSection, LimitationsSection, TechnicalAppendix } from '../report/ConclusionSections'
 import { SectionNav, REPORT_SECTIONS } from '../report/SectionNav'
 import { ReportDivider } from '../report/primitives'
+import { ReportCompletionBanner } from '../journey/JourneyOverviewCard'
 
 /**
  * M5 — REPORT PAGE
@@ -131,6 +132,7 @@ export default function ReportPage() {
           </div>
         )}
 
+        <ReportCompletionBanner />
         <DossierHero />
         <ReportDivider />
         <ExecutiveFinding />

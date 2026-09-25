@@ -3,6 +3,7 @@ import { WorkstationShell } from '../shell/WorkstationShell'
 import { MaritimeMapTheater } from '../console/map/MaritimeMapTheater'
 import { BacktrackingControlRail } from '../console/backtracking/BacktrackingControlRail'
 import { BacktrackingConsole } from '../console/backtracking/BacktrackingConsole'
+import { JourneyStrip } from '../journey/JourneyStrip'
 import { useSimulationConnection } from '@/hooks/useSimulationConnection'
 import { useSimulationStore } from '@/store/simulationStore'
 import { useBacktrackingStore } from '@/store/featureStores'
@@ -73,7 +74,12 @@ export default function BacktrackingPage() {
       setLeftCollapsed={setLeftCollapsed}
       setRightCollapsed={setRightCollapsed}
     >
-      <MaritimeMapTheater />
+      <div className="flex flex-col w-full h-full">
+        <JourneyStrip />
+        <div className="relative flex-1 min-h-0">
+          <MaritimeMapTheater />
+        </div>
+      </div>
     </WorkstationShell>
   )
 }

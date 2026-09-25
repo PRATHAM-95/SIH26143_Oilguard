@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useAttributionStore } from '@/store/featureStores'
+import { useSimulationStore } from '@/store/simulationStore'
 import { useMapStore } from '@/store/mapStore'
 import { ProvenanceLabel } from '@/ui/design-system/ProvenanceLabel'
 import { NumberTween } from '@/ui/motion/NumberTween'
+import { CorridorTrafficCard } from '@/ui/journey/CorridorTrafficCard'
+import { VesselContext } from '@/ui/journey/VesselContext'
+import { findMatchedFleetVessel } from '@/ui/journey/useDemoJourney'
 import type { AttributionFilterOptions } from './AttributionControlRail'
 import type { AttributionFactorKey, AttributionVesselEntry } from '@/types/domain'
 
@@ -59,6 +63,8 @@ export function AttributionConsole({
   const selectMap = useMapStore((s) => s.select)
   const clearSelection = useMapStore((s) => s.clearSelection)
 
+  const fleetVessels = useSimulationStore((s) => s.vessels)
+
   const [selectedRank, setSelectedRank] = useState<number | null>(null)
 
   // Determine active selected vessel: match map selection if available, else local selection, else top candidate
@@ -75,6 +81,16 @@ export function AttributionConsole({
     }
     return vessels[0] ?? null
   }, [mapSelection, selectedRank, vessels])
+
+  // Fleet telemetry link: the matched (Captain-mode) fleet vessel for the active
+  // candidate — surfaced under the inspector so position/telemetry stays honest.
+  const matchedFleet = useMemo(
+    () =>
+      activeCandidate
+        ? findMatchedFleetVessel(fleetVessels, activeCandidate.mmsi, activeCandidate.name) ?? null
+        : null,
+    [fleetVessels, activeCandidate],
+  )
 
   // Filter & sort candidates
   const processedVessels = useMemo(() => {
@@ -289,6 +305,9 @@ export function AttributionConsole({
               )}
             </div>
 
+            {/* 1b. AIS corridor traffic picture (journey layer) */}
+            <CorridorTrafficCard />
+
             {/* 2. Candidate Vessel Table */}
             <div className="rounded border border-[var(--border-default)] bg-[var(--bg-panel)]/50 p-2.5 text-xs space-y-2">
               <div className="flex items-center justify-between">
@@ -431,6 +450,16 @@ export function AttributionConsole({
                     </div>
                   )}
                 </div>
+
+                {/* Linked fleet telemetry — the matched Captain-mode vessel */}
+                {matchedFleet && (
+                  <div className="rounded bg-[var(--bg-canvas)]/70 p-2 space-y-1">
+                    <span className="text-[10px] font-semibold text-ink-3 uppercase tracking-wider block">
+                      Linked fleet telemetry
+                    </span>
+                    <VesselContext vessel={matchedFleet} />
+                  </div>
+                )}
 
                 {/* Five-Factor Score Breakdown */}
                 <div className="space-y-2">

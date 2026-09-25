@@ -6,6 +6,7 @@ import {
   type AttributionFilterOptions,
 } from '../console/attribution/AttributionControlRail'
 import { AttributionConsole } from '../console/attribution/AttributionConsole'
+import { JourneyStrip } from '../journey/JourneyStrip'
 import { useSimulationConnection } from '@/hooks/useSimulationConnection'
 import { useSimulationStore } from '@/store/simulationStore'
 import { useAttributionStore, useBacktrackingStore } from '@/store/featureStores'
@@ -88,7 +89,12 @@ export default function AttributionPage() {
       setLeftCollapsed={setLeftCollapsed}
       setRightCollapsed={setRightCollapsed}
     >
-      <MaritimeMapTheater />
+      <div className="flex flex-col w-full h-full">
+        <JourneyStrip />
+        <div className="relative flex-1 min-h-0">
+          <MaritimeMapTheater />
+        </div>
+      </div>
     </WorkstationShell>
   )
 }
