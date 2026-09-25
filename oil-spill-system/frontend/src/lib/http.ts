@@ -1,5 +1,8 @@
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8082').replace(/\/$/, '')
 
+import { demoRoute } from '@/lib/demo/adapter'
+import { isDemoMode } from '@/lib/demo/mode'
+
 export class ApiError extends Error {
   readonly status: number
 
@@ -26,6 +29,13 @@ export async function request<T>(
   path: string,
   init: { method: string; body?: unknown; signal?: AbortSignal },
 ): Promise<T> {
+  // CONTROLLED DEMO mode short-circuits every REST call into the deterministic
+  // demo adapter. No fetch() is issued, so no localhost/API/WebSocket traffic
+  // ever leaves the browser while the demo is active.
+  if (isDemoMode()) {
+    return demoRoute(init.method, path, init.body) as T
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     method: init.method,
     headers: {

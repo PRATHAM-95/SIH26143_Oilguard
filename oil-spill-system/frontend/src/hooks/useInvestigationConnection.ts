@@ -2,14 +2,21 @@ import { useEffect, useMemo } from 'react'
 import { SocketClient, WsTopics, type WsHandlers } from '@/lib/ws'
 import { useInvestigationStore } from '@/store/investigationStore'
 import { useConnectionStore } from '@/store/connectionStore'
+import { isDemoMode } from '@/lib/demo/mode'
+import { DemoInvestigationDriver } from '@/lib/demo/driver'
 
 /**
- * STEP 11: opens the live JSON WebSocket for an investigation
- * (/ws/investigation/{id}) and drives the investigation store.
+ * STEP 11: subscribes an investigation's event wire and drives the
+ * investigation store.
  *
- * The REST re-hydration source is GET /api/investigation/{id}; the socket is a
- * live update channel only. On (re)connect the full state is re-fetched so
- * reconnect never misses frames sent while disconnected.
+ * Live mode opens the real /ws/investigation/{id} JSON WebSocket and re-fetches
+ * full state (GET /api/investigation/{id}) on every (re)connect so no frame is
+ * missed while disconnected.
+ *
+ * CONTROLLED DEMO mode opens a deterministic demo driver instead: no socket is
+ * created, and the driver replays the remaining stage frames at a fixed cadence
+ * from the demo session (which survives reloads). It does not call load() on
+ * open — page-level bootstrap hydrates from the demo REST adapter instead.
  *
  * @param investigationId the investigation to subscribe to (null = no subscription)
  */
@@ -29,20 +36,32 @@ export function useInvestigationConnection(investigationId: string | null | unde
       return
     }
 
+    const onEvent: WsHandlers['onEvent'] = (event) => {
+      applyWsEvent(event as Parameters<typeof applyWsEvent>[0])
+    }
+    const onStatus: WsHandlers['onStatus'] = (status) => {
+      setConnection('websocket', status === 'open' ? 'online' : 'offline')
+    }
+
+    if (isDemoMode()) {
+      const demo = new DemoInvestigationDriver(investigationId)
+      demo.connect({ onEvent, onStatus })
+      return () => {
+        demo.disconnect()
+        setConnection('websocket', 'offline')
+      }
+    }
+
     const client = new SocketClient(topic)
-    const handlers: WsHandlers = {
-      onEvent: (event) => {
-        applyWsEvent(event as Parameters<typeof applyWsEvent>[0])
-      },
+    client.connect({
+      onEvent,
       onStatus: (status) => {
         setConnection('websocket', status === 'open' ? 'online' : 'offline')
         if (status === 'open') {
           void load(investigationId)
         }
       },
-    }
-
-    client.connect(handlers)
+    })
 
     return () => {
       client.disconnect()

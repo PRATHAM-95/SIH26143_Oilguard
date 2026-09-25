@@ -3,6 +3,7 @@ import { useUtcClock } from '@/hooks/useUtcClock'
 import { useConnectionStore } from '@/store/connectionStore'
 import { useSimulationStore } from '@/store/simulationStore'
 import { BrandLockup } from '@/ui/design-system'
+import { DEMO_MODE_LABEL, isDemoMode } from '@/lib/demo/mode'
 
 export function OperationalBar() {
   const clock = useUtcClock()
@@ -19,6 +20,12 @@ export function OperationalBar() {
         <BrandLockup />
         <span className="text-ink-1">{caseRef}</span>
         <span>{clock.slice(11, 19)} ZULU</span>
+        {isDemoMode() && (
+          <span className="flex items-center gap-1.5 text-amber-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
+            {DEMO_MODE_LABEL}
+          </span>
+        )}
       </div>
 
       <div className="flex items-center space-x-6">

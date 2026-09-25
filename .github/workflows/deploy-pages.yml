@@ -37,6 +37,8 @@ jobs:
       - name: Build frontend
         working-directory: oil-spill-system/frontend
         run: npm run build
+        env:
+          VITE_DEMO_MODE: '1'
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5

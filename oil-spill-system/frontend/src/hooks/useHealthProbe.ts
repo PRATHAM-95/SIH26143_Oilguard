@@ -1,16 +1,29 @@
 import { useEffect } from 'react'
 import { healthApi } from '@/lib/api'
 import { useConnectionStore } from '@/store/connectionStore'
+import { isDemoMode } from '@/lib/demo/mode'
 
 /**
  * Polls the live backend health endpoint and propagates status into the
  * connection store. Runs once per mount of the app shell.
+ *
+ * CONTROLLED DEMO mode short-circuits: the demo adapter is the transport that
+ * is genuinely responding, Mongo and the Python scientific service are not
+ * reachable (flagged unknown), and nothing is polled.
  */
 export function useHealthProbe(): void {
   const setConnection = useConnectionStore((s) => s.setConnection)
   const markApiChecked = useConnectionStore((s) => s.markApiChecked)
 
   useEffect(() => {
+    if (isDemoMode()) {
+      setConnection('api', 'online')
+      setConnection('mongo', 'unknown')
+      setConnection('python', 'unknown')
+      markApiChecked()
+      return
+    }
+
     const check = async () => {
       try {
         const info = await healthApi.getHealth()

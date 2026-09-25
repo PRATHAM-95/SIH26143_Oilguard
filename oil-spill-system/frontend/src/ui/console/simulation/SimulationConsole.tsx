@@ -193,75 +193,75 @@ export function SimulationConsole({ rightCollapsed, setRightCollapsed }: { right
         role="region"
         aria-label="Simulation Console Controls"
       >
-        {hasSelection ? (
-          <SelectionInspectorCard />
-        ) : (
-          <>
-            {/* Scenario controls */}
-            <Panel title="Scenario controls">
-              <div className="flex flex-col gap-2">
-                {error && <p className="text-xs text-danger">{error}</p>}
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    disabled={busy || status === 'simulating' || status === 'observation'}
-                    onClick={() => void createSimulation()}
-                  >
-                    Create simulation
-                  </Button>
-                  <Button
-                    size="sm"
-                    disabled={busy || status !== 'captain_mode'}
-                    onClick={() => void start()}
-                  >
-                    Start simulation
-                  </Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    disabled={busy || !canSpill}
-                    onClick={() => void releaseSpill()}
-                  >
-                    Release oil spill
-                  </Button>
-                  <Button
-                    size="sm"
-                    disabled={!canDrift}
-                    isLoading={driftStatus === 'running'}
-                    onClick={() => void runForwardDrift()}
-                  >
-                    {driftStatus === 'running' ? 'Running drift…' : 'Run forward drift'}
-                  </Button>
-                </div>
-              </div>
-            </Panel>
-
-            {/* Time scrubber */}
-            <Panel title="Time">
-              <TimeScrubber />
-            </Panel>
-
-            {/* Fleet & vessel */}
-            <Panel title="Fleet">
-              <VesselSelector />
-              <div className="mt-3">
-                <VesselDetail />
-              </div>
-            </Panel>
-
-            {/* Spill event */}
-            <Panel title="Spill event">
-              <SpillSection />
-            </Panel>
-
-            {/* Forward drift */}
-            <Panel title="Forward drift">
-              <DriftSection />
-            </Panel>
-          </>
+        {hasSelection && (
+          <div>
+            <SelectionInspectorCard />
+          </div>
         )}
+
+        {/* Scenario controls */}
+        <Panel title="Scenario controls">
+          <div className="flex flex-col gap-2">
+            {error && <p className="text-xs text-danger">{error}</p>}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={busy || status === 'simulating' || status === 'observation'}
+                onClick={() => void createSimulation()}
+              >
+                Create simulation
+              </Button>
+              <Button
+                size="sm"
+                disabled={busy || status !== 'captain_mode'}
+                onClick={() => void start()}
+              >
+                Start simulation
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                disabled={busy || !canSpill}
+                onClick={() => void releaseSpill()}
+              >
+                Release oil spill
+              </Button>
+              <Button
+                size="sm"
+                disabled={!canDrift}
+                isLoading={driftStatus === 'running'}
+                onClick={() => void runForwardDrift()}
+              >
+                {driftStatus === 'running' ? 'Running drift…' : 'Run forward drift'}
+              </Button>
+            </div>
+          </div>
+        </Panel>
+
+        {/* Time scrubber */}
+        <Panel title="Time">
+          <TimeScrubber />
+        </Panel>
+
+        {/* Fleet & vessel */}
+        <Panel title="Fleet">
+          <VesselSelector />
+          <div className="mt-3">
+            <VesselDetail />
+          </div>
+        </Panel>
+
+        {/* Spill event */}
+        <Panel title="Spill event">
+          <SpillSection />
+        </Panel>
+
+        {/* Forward drift */}
+        <Panel title="Forward drift">
+          <DriftSection />
+        </Panel>
 
         {/* Footer */}
         <div className="mt-8 text-center px-4">
