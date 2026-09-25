@@ -53,6 +53,7 @@ export type SimulationEventPayloadMap = {
     type: 'spill_released'
     spillEventId: string
     location: LatLngData
+    position?: LatLngData
     vesselId: string
   }
   oil_particles: {
@@ -179,6 +180,7 @@ export type BacktrackEventPayloadMap = {
   origin_estimated: {
     type: 'origin_estimated'
     origin: LatLngData
+    originEstimate?: LatLngData
     uncertainty_km: number
     confidence: number
   }

@@ -359,7 +359,7 @@ public class AttributionService {
         if (requestedBacktrackRunId != null && !requestedBacktrackRunId.isBlank()) {
             Optional<BacktrackingResult> found = backtrackingRepository.findById(requestedBacktrackRunId);
             if (found.isEmpty()) {
-                throw new IllegalStateException("backtrack run not found: " + requestedBacktrackRunId);
+                throw new BacktrackAnchorNotFound(requestedBacktrackRunId);
             }
             bt = found.get();
         } else {
@@ -385,9 +385,21 @@ public class AttributionService {
         if (a.releaseTime == null) {
             a.releaseTime = sim.getClock();
         }
+        if (a.releaseTime == null) {
+            throw new AnchorNotResolved(sim.getSimulationId());
+        }
         // AIS reconstruction window: 48h before .. 24h after the release.
         a.aisWindowStart = a.releaseTime.minusSeconds(48 * 3600);
         a.aisWindowEnd = a.releaseTime.plusSeconds(24 * 3600);
+        // Without a backtracking run there is no persisted origin_time_range; derive
+        // the filter window from the same reconstruction window used by the AIS query
+        // so the scientific service's required timeRange is always present.
+        if (a.timeRange == null) {
+            Map<String, Object> window = new HashMap<>();
+            window.put("earliest", ISO_Z.format(a.aisWindowStart));
+            window.put("latest", ISO_Z.format(a.aisWindowEnd));
+            a.timeRange = window;
+        }
         return a;
     }
 
@@ -555,6 +567,22 @@ public class AttributionService {
     public static class AttributionNotFound extends RuntimeException {
         public AttributionNotFound(String id) {
             super("attribution run not found: " + id);
+        }
+    }
+
+    /** Attribution anchor could not be resolved: no spill event, backtracking
+     *  run, or simulation clock is available for the simulation. */
+    public static class AnchorNotResolved extends RuntimeException {
+        public AnchorNotResolved(String simulationId) {
+            super("cannot resolve attribution anchor for simulation " + simulationId
+                    + ": no spill event, backtracking run, or simulation clock available");
+        }
+    }
+
+    /** The pinned backtracking run no longer exists. */
+    public static class BacktrackAnchorNotFound extends RuntimeException {
+        public BacktrackAnchorNotFound(String backtrackRunId) {
+            super("backtrack run not found: " + backtrackRunId);
         }
     }
 }

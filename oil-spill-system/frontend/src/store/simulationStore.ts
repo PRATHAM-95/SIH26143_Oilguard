@@ -462,13 +462,14 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
           const existing = s.spill ?? EMPTY_SPILL
           const simId = get().simulationId
           const remembered = simId ? spilledIncidentId(simId) : null
+          const location = event.location ?? event.position
           return {
             status: 'observation' as const,
             spill: {
               spillEventId: event.spillEventId,
               incidentId: existing.incidentId ?? remembered,
               vesselId: event.vesselId,
-              location: { lon: event.location.lon, lat: event.location.lat },
+              location: { lon: location.lon, lat: location.lat },
               time: existing.time,
               oilType: existing.oilType,
               quantityKg: existing.quantityKg,

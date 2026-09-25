@@ -163,13 +163,15 @@ export const useBacktrackingStore = create<BacktrackingStoreState>((set, get) =>
           errors: [event.message ?? 'Backtracking failed.'],
         })
         break
-      case 'origin_estimated':
+      case 'origin_estimated': {
+        const origin = event.origin ?? event.originEstimate
         set({
-          origin: event.origin ? { lon: event.origin.lon, lat: event.origin.lat } : null,
+          origin: origin ? { lon: origin.lon, lat: origin.lat } : null,
           uncertaintyKm: event.uncertainty_km ?? null,
           confidence: event.confidence ?? null,
         })
         break
+      }
       default:
         break
     }

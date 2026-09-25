@@ -36,15 +36,23 @@ export async function request<T>(
     return demoRoute(init.method, path, init.body) as T
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method: init.method,
-    headers: {
-      Accept: 'application/json',
-      ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-    },
-    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
-    signal: init.signal,
-  })
+  let res: Response
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method: init.method,
+      headers: {
+        Accept: 'application/json',
+        ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      },
+      body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+      signal: init.signal,
+    })
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') {
+      throw e
+    }
+    throw new ApiError(0, `Request ${init.method} ${path} failed (network)`)
+  }
 
   if (!res.ok) {
     throw new ApiError(res.status, `Request ${init.method} ${path} failed (${res.status})`)

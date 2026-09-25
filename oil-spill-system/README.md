@@ -198,6 +198,16 @@ Notes:
   in `frontend/.env.local`.
 - Production build: `npm run build` (runs `tsc -b && vite build`).
 
+> **GitHub Pages / static hosting (live-mode limitation):** the Pages build
+> (`base: /SIH26143_Oilguard/`) is a **judge-safe demo only** — `VITE_DEMO_MODE=1`
+> is baked in at build time and every REST call is answered by the in-browser demo
+> adapter, so the hosted frontend makes zero backend network calls. **Live mode
+> cannot run from GitHub Pages**: `API_URL`/`WS_URL` default to `localhost:8082`,
+> and the backend CORS allowlist in `WebCorsConfig.java` permits only localhost
+> dev origins (see the troubleshooting row in §11). Run live mode where the
+> Spring Boot + FastAPI + MongoDB stack is reachable, with `VITE_DEMO_MODE=0`
+> (or `?demo=0`).
+
 ---
 
 ## 6. Environment configuration
