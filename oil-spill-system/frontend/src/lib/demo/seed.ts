@@ -65,12 +65,8 @@ export const DEMO_STAGE_ORDER = [
 ] as const
 export type DemoStageId = (typeof DEMO_STAGE_ORDER)[number]
 
-/**
- * Synthetic scenario origin: mid-Arabian-Sea, clear of the western Indian coast
- * so the incident sits in open water at the default operating camera. Not a real
- * incident.
- */
-export const DEMO_SPILL_LOCATION = { lon: 71.2, lat: 12.4 }
+/** Synthetic scenario origin (open ocean in the Arabian Sea, not a real incident). */
+export const DEMO_SPILL_LOCATION = { lon: 72.62, lat: 16.41 }
 
 /** Synthetic reference epoch; all demo clocks derive from it. */
 const BASE_UTC = Date.parse('2026-06-01T02:00:00Z')
