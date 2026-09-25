@@ -25,11 +25,16 @@ export const DARK_MAP_STYLE: string =
   'https://tiles.openfreemap.org/styles/dark'
 
 /**
- * Satellite map style: Esri World Imagery raster tiles.
+ * Satellite map style: Esri World Imagery raster tiles + the companion
+ * boundaries/places reference overlay.
  *
- * - Public Esri tile service, no API key required for routine use.
- * - Rendered as a raster source over the SAME MapLibre instance when the
+ * - Public Esri tile services, no API key required for routine use.
+ * - Rendered as raster sources over the SAME MapLibre instance when the
  *   basemap switch is set to satellite.
+ * - `World_Boundaries_and_Places` draws coastlines, country borders and place
+ *   labels as a transparent overlay on top of the imagery. Without it the
+ *   satellite view is context-free: you cannot tell Arabian Sea from Bay of
+ *   Bengal. This is the same service family Esri's own basemap uses.
  * - Attribution: Esri, Maxar, Earthstar Geographics, and the GIS User
  *   Community.
  */
@@ -44,12 +49,25 @@ export const SATELLITE_MAP_STYLE: StyleSpecification = {
       tileSize: 256,
       attribution: 'Esri, Maxar, Earthstar Geographics, and the GIS User Community',
     },
+    'esri-reference': {
+      type: 'raster',
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+      ],
+      tileSize: 256,
+      attribution: 'Esri, HERE, Garmin, INCREMENT P, and the GIS User Community',
+    },
   },
   layers: [
     {
       id: 'esri-world-imagery',
       type: 'raster',
       source: 'esri-world-imagery',
+    },
+    {
+      id: 'esri-reference',
+      type: 'raster',
+      source: 'esri-reference',
     },
   ],
 }

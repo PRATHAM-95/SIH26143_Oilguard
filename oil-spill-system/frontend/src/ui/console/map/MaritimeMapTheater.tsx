@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import MapView, { MapFurniture } from '@/components/map/MapView'
 import { AutoEnableLayers } from '@/components/investigation/Stepper'
 import { useMapStore, type MapLayerId } from '@/store/mapStore'
+import { useUiStore } from '@/store/uiStore'
 import { GraticuleFrame } from './GraticuleFrame'
 import { LayerDrawer } from '../LayerDrawer'
 
@@ -26,7 +27,7 @@ import { useIncidentFeedStore } from '@/store/incidentFeedStore'
 import { useEezStore } from '@/store/eezStore'
 import '@/styles/maritime-overlays.css'
 
-export function MaritimeMapTheater() {
+export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boolean } = {}) {
   const simLayers = useSimulationLayers()
   const sarLayers = useSarLayers()
   const invLayers = useInvestigationMapLayers()
@@ -41,8 +42,11 @@ export function MaritimeMapTheater() {
   const weatherStatus = useWeatherStore((s) => s.status)
   const incidentStatus = useIncidentFeedStore((s) => s.status)
 
-  const [layersOpen, setLayersOpen] = useState(false)
-  const toggleLayers = () => setLayersOpen((o) => !o)
+  // The drawer is driven by the shared uiStore so the compact map toolbar in
+  // the command-center shell can open it without duplicating state.
+  const layersOpen = useUiStore((s) => s.layersOpen)
+  const toggleLayers = useUiStore((s) => s.toggleLayers)
+  const setLayersOpen = useUiStore((s) => s.setLayersOpen)
 
   const layers = useMemo(
     () => [
@@ -87,13 +91,16 @@ export function MaritimeMapTheater() {
         open={layersOpen}
         onClose={() => setLayersOpen(false)}
         available={available}
+        className="cc-layerdrawer"
       />
       <EezLoader />
-      <MapLayerToolbar
-        available={available}
-        layersOpen={layersOpen}
-        onLayersToggle={toggleLayers}
-      />
+      {showToolbar ? (
+        <MapLayerToolbar
+          available={available}
+          layersOpen={layersOpen}
+          onLayersToggle={toggleLayers}
+        />
+      ) : null}
       <NorthArrow />
       <RegionSelector />
       <HistoricalReferenceGallery />

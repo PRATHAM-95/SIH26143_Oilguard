@@ -18,10 +18,13 @@ export function LayerDrawer({
   open,
   onClose,
   available,
+  className = '',
 }: {
   open: boolean
   onClose: () => void
   available: Set<MapLayerId> | null
+  /** Extra hook classes so a host shell can reposition the drawer. */
+  className?: string
 }) {
   const visibility = useMapStore((s) => s.visibility)
   const toggleLayer = useMapStore((s) => s.toggleLayer)
@@ -42,7 +45,7 @@ export function LayerDrawer({
   return (
     <div
       id="cc-layers-panel"
-      className="absolute bottom-4 left-4 z-30 w-80 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded shadow-2xl flex flex-col max-h-[70vh]"
+      className={`absolute bottom-4 left-4 z-30 w-80 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded shadow-2xl flex flex-col max-h-[70vh] ${className}`}
     >
       <div className="flex items-center justify-between p-3 border-b border-[var(--border-default)] bg-[var(--bg-canvas)]">
         <h3 className="font-semibold text-sm">Map Layers</h3>

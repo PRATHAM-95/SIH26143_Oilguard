@@ -188,9 +188,15 @@ export default function Layout() {
   return (
     <EntryReveal active={fromWelcome}>
       <AppShell
-      isTheater={isTheater}
-      spine={
-        <div className="flex flex-col items-center h-full w-full py-2.5" aria-label="Operational Navigation Spine">
+        isTheater={isTheater}
+        spine={
+          /*
+           * The command center owns its own full-height labelled sidebar, so
+           * the 56px icon spine is suppressed there to avoid two competing
+           * left rails. Every other workspace keeps the spine.
+           */
+          isCommandCenter ? null : (
+          <div className="flex flex-col items-center h-full w-full py-2.5" aria-label="Operational Navigation Spine">
           {/* Brand Emblem */}
           <div className="spine-brand">
             <NavLink to="/command-center" className="spine-brand-link" title="OilGuard Maritime Command Center">
@@ -227,7 +233,8 @@ export default function Layout() {
             <SpineHealthMonitor />
           </div>
         </div>
-      }
+          )
+        }
       operationalBar={
         !isCommandCenter ? (
           <SecondaryPageHeader currentWorkspace={currentWorkspace} pathname={pathname} />

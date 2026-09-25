@@ -24,10 +24,12 @@ import { useMapStore } from '@/store/mapStore'
 import { useIncidentStore } from '@/store/incidentStore'
 import { useUiStore, type AnalysisType, type RightPanelTab } from '@/store/uiStore'
 import { useWorkspaceStore } from '@/store/workspaceStore'
+import { isDemoMode } from '@/lib/demo/mode'
 
 /* ------------------------------------------------------------------ */
-/* Live activity feed — derived from real store transitions, never    */
-/* fabricated.                                                         */
+/* Live activity feed — derived from real store transitions. The       */
+/* controlled-demo baseline below is the only non-derived content and    */
+/* is gated on demo mode; real pipeline events always displace it.      */
 /* ------------------------------------------------------------------ */
 
 type Activity = {
@@ -36,7 +38,21 @@ type Activity = {
   tone: 'ok' | 'warn' | 'run' | 'danger' | 'dim'
   title: string
   sub?: string
+  /** Seeded demonstration row — not a record of a real pipeline event. */
+  demo?: boolean
 }
+
+/**
+ * Scenario context shown in controlled-demo mode before any live pipeline has
+ * run. Deliberately describes the *exercise*, not fabricated detections, and
+ * is replaced the moment a real event arrives.
+ */
+const DEMO_BASELINE_ACTIVITY: Activity[] = [
+  { id: -1, time: '06:42', tone: 'dim', title: 'Demonstration scenario loaded', sub: 'Indian Ocean operating region', demo: true },
+  { id: -2, time: '06:40', tone: 'dim', title: 'Sentinel-1 acquisition window opens', sub: 'Simulated SAR pass, Arabian Sea sector', demo: true },
+  { id: -3, time: '06:36', tone: 'dim', title: 'AIS feed connected', sub: 'Simulated vessel traffic enabled', demo: true },
+]
+
 
 let activitySeq = 1
 
@@ -140,7 +156,11 @@ function useActivityFeed(): Activity[] {
 }
 
 function ActivityFeed() {
-  const feed = useActivityFeed()
+  const live = useActivityFeed()
+  // Only seed while nothing real has happened, and only under ?demo=1.
+  const feed = live.length === 0 && isDemoMode() ? DEMO_BASELINE_ACTIVITY : live
+  const seeded = feed !== live
+
   if (feed.length === 0) {
     return (
       <div className="activity-empty">
@@ -149,18 +169,29 @@ function ActivityFeed() {
     )
   }
   return (
-    <ol className="activity">
-      {feed.map((a) => (
-        <li key={a.id} className="activity-item">
-          <span className={`activity-dot activity-dot--${a.tone}`} aria-hidden="true" />
-          <div className="activity-body">
-            <div className="activity-title">{a.title}</div>
-            {a.sub ? <div className="activity-sub">{a.sub}</div> : null}
-          </div>
-          <span className="activity-time">{a.time}</span>
-        </li>
-      ))}
-    </ol>
+    <>
+      {seeded ? (
+        <div className="activity-seednote">
+          <span className="activity-seednote-tag">Controlled demo</span>
+          Scenario context — no live pipeline has run in this session yet.
+        </div>
+      ) : null}
+      <ol className="activity">
+        {feed.map((a) => (
+          <li key={a.id} className="activity-item" data-demo={a.demo || undefined}>
+            <span className={`activity-dot activity-dot--${a.tone}`} aria-hidden="true" />
+            <div className="activity-body">
+              <div className="activity-title">
+                {a.title}
+                {a.demo ? <span className="activity-tag">Simulated</span> : null}
+              </div>
+              {a.sub ? <div className="activity-sub">{a.sub}</div> : null}
+            </div>
+            <span className="activity-time">{a.time}</span>
+          </li>
+        ))}
+      </ol>
+    </>
   )
 }
 

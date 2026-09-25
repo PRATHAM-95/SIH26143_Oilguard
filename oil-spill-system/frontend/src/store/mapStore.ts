@@ -178,14 +178,16 @@ export type MapViewState = {
 export type Bounds = [[number, number], [number, number]]
 
 /**
- * Default operating extent — the Indian Ocean Region (IOR). The command
- * centre must open on the whole area of interest, not zoomed into a single
- * coastal sector.
+ * Default operating extent — the Indian Ocean Region. Tuned so the opening
+ * frame carries genuine maritime context rather than a coastal close-up: East
+ * Africa and the Arabian Sea on the west, the Bay of Bengal, Sri Lanka, the
+ * Maldives and into Southeast Asia on the east, with open ocean above and below
+ * the subcontinent.
  */
 export const DEFAULT_VIEW: MapViewState = {
-  longitude: 70,
-  latitude: 6,
-  zoom: 3.8,
+  longitude: 72,
+  latitude: 7,
+  zoom: 3.6,
   pitch: 0,
   bearing: 0,
 }
@@ -296,7 +298,11 @@ type MapStoreState = {
   cursor: { lon: number; lat: number } | null
   /** Bounds requested by pages to fit the area of interest. */
   fitBounds: Bounds | null
-  /** Active basemap — dark vector (default) or satellite imagery. */
+  /**
+   * Active basemap — satellite imagery (default) or dark vector.
+   * Imagery leads because the command center is an earth-observation product;
+   * the dark vector remains available for label legibility over overlays.
+   */
   basemap: 'dark' | 'satellite'
   /** Ambient process pulse (oil-slick emphasis), toggled by a driver. */
   pulse: boolean
@@ -322,7 +328,7 @@ export const useMapStore = create<MapStoreState>((set) => ({
   selection: null,
   cursor: null,
   fitBounds: null,
-  basemap: 'dark',
+  basemap: 'satellite',
   pulse: false,
   setView: (view) =>
     set((s) => ({ view: { ...s.view, ...view } })),

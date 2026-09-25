@@ -1,9 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { WorkstationShell } from '../shell/WorkstationShell'
-import { CommandCenterMapDeck } from '../console/map/CommandCenterMapDeck'
-import { JourneyOverviewCard } from '../journey/JourneyOverviewCard'
-import { FlightpathRail } from '../console/FlightpathRail'
-import { ContextualConsole } from '../console/ContextualConsole'
+import { useEffect, useRef } from 'react'
+import { OilGuardShell } from '../command-center/OilGuardShell'
 import { useSimulationConnection } from '@/hooks/useSimulationConnection'
 import { useInvestigationConnection } from '@/hooks/useInvestigationConnection'
 import { useSimulationStore } from '@/store/simulationStore'
@@ -12,14 +8,21 @@ import { useSarStore } from '@/store/sarStore'
 import { useBacktrackingStore, useAttributionStore } from '@/store/featureStores'
 import { useChallengeStore } from '../console/ChallengeRunner'
 
+/**
+ * Command center route.
+ *
+ * The data spine is unchanged from the previous implementation: the same two
+ * WebSocket connection hooks, the same cold-open bootstrap, and the same
+ * re-hydration effects. Only the presentation changed — the map-centric
+ * `OilGuardShell` replaces the `WorkstationShell` + `FlightpathRail` +
+ * `ContextualConsole` + closed-map-deck composition.
+ */
 export default function CommandCenterPage() {
   const simulationId = useSimulationStore((s) => s.simulationId)
   const refreshState = useSimulationStore((s) => s.refreshState)
   const loadForSimulation = useInvestigationStore((s) => s.loadForSimulation)
   const investigationId = useInvestigationStore((s) => s.investigationId)
   const booted = useRef(false)
-  const [leftCollapsed, setLeftCollapsed] = useState(false)
-  const [rightCollapsed, setRightCollapsed] = useState(false)
 
   // Real-time WebSocket connection sync
   useSimulationConnection(simulationId)
@@ -49,19 +52,5 @@ export default function CommandCenterPage() {
     if (simulationId) void loadForSimulation(simulationId)
   }, [simulationId, loadForSimulation])
 
-  return (
-    <WorkstationShell
-      leftPanel={<FlightpathRail leftCollapsed={leftCollapsed} />}
-      rightPanel={<ContextualConsole rightCollapsed={rightCollapsed} setRightCollapsed={setRightCollapsed} />}
-      leftCollapsed={leftCollapsed}
-      rightCollapsed={rightCollapsed}
-      setLeftCollapsed={setLeftCollapsed}
-      setRightCollapsed={setRightCollapsed}
-    >
-      <div className="relative w-full h-full">
-        <CommandCenterMapDeck />
-        <JourneyOverviewCard />
-      </div>
-    </WorkstationShell>
-  )
+  return <OilGuardShell />
 }

@@ -65,6 +65,15 @@ type UiStoreState = {
   mapPaneOpen: boolean
   setMapPaneOpen: (open: boolean) => void
   toggleMapPane: () => void
+
+  /**
+   * On-map layer catalogue drawer. Presentation only — the layer catalogue
+   * itself and every toggle live in `mapStore`. Shared here so the compact
+   * map toolbar and the drawer it opens cannot drift apart.
+   */
+  layersOpen: boolean
+  setLayersOpen: (open: boolean) => void
+  toggleLayers: () => void
 }
 
 export const useUiStore = create<UiStoreState>((set) => ({
@@ -90,4 +99,8 @@ export const useUiStore = create<UiStoreState>((set) => ({
   mapPaneOpen: false,
   setMapPaneOpen: (mapPaneOpen) => set({ mapPaneOpen }),
   toggleMapPane: () => set((s) => ({ mapPaneOpen: !s.mapPaneOpen })),
+
+  layersOpen: false,
+  setLayersOpen: (layersOpen) => set({ layersOpen }),
+  toggleLayers: () => set((s) => ({ layersOpen: !s.layersOpen })),
 }))
