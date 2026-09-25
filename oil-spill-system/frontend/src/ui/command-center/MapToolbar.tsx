@@ -1,7 +1,7 @@
 import { MAP_LAYER_CATALOG, useMapStore, type MapLayerId } from '@/store/mapStore'
 import { useUiStore } from '@/store/uiStore'
 import { ChevronDownIcon } from '@/components/ui/Icon'
-import { NO_DATA_LAYERS } from './AoiCard'
+import { noDataLayers } from './AoiCard'
 
 /**
  * Compact single-row map toolbar.
@@ -34,24 +34,25 @@ export function MapToolbar() {
   const layersOpen = useUiStore((s) => s.layersOpen)
   const toggleLayers = useUiStore((s) => s.toggleLayers)
 
-  const activeCount = PILLS.filter((p) => visibility[p.id] && !NO_DATA_LAYERS.has(p.id)).length
+  const noData = noDataLayers()
+  const activeCount = PILLS.filter((p) => visibility[p.id] && !noData.has(p.id)).length
 
   return (
     <div className="cc-mtoolbar" role="toolbar" aria-label="Map layers and basemap">
       <div className="cc-mtoolbar-pills">
         {PILLS.map(({ id, label, glyph, color }) => {
           const entry = MAP_LAYER_CATALOG[id]
-          const noData = NO_DATA_LAYERS.has(id)
-          const on = visibility[id] && !noData
+          const missing = noData.has(id)
+          const on = visibility[id] && !missing
           return (
             <button
               key={id}
               type="button"
               className="cc-mpill"
               aria-pressed={on}
-              data-nodata={noData || undefined}
+              data-nodata={missing || undefined}
               style={{ '--pill-color': color } as React.CSSProperties}
-              title={noData ? (entry.emptyNote ?? entry.note) : (entry.note ?? entry.label)}
+              title={missing ? (entry.emptyNote ?? entry.note) : (entry.note ?? entry.label)}
               onClick={() => toggleLayer(id)}
             >
               <span className="cc-mpill-glyph" aria-hidden="true">

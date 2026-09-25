@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'
+import { LineLayer, PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
 import { Panel, KeyValue, EmptyState } from '@/components/ui/Panel'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,7 @@ export { useSarStore }
 import { useMapStore } from '@/store/mapStore'
 import { VSCO } from '@/styles/vsco'
 import { labelLayer } from '@/components/map/overlays'
-import { circleRing } from '@/components/map/maritime/geo'
+import { dashSegments } from '@/components/map/OperationalLayers'
 import type { SarCandidateState, SarProvenance } from '@/types/domain'
 
 const PROVENANCE_LABEL: Record<SarProvenance, string> = {
@@ -45,9 +45,48 @@ function featuredCandidate(candidates: SarCandidateState[]): SarCandidateState |
   )
 }
 
-function slickRadiusKm(c: SarCandidateState): number {
-  return Math.sqrt(Math.max(c.areaKm2, 0.05) / Math.PI)
+/**
+ * Scale a closed polygon about its own centroid.
+ *
+ * The confidence zones of a slick are the *same* organic outline at decreasing
+ * extent, so they are derived by scaling the detector polygon rather than by
+ * stamping circles around it. That keeps the lobed, asymmetric silhouette of the
+ * detection at every level instead of degrading into a perfect circle.
+ */
+function scalePolygon(polygon: [number, number][], k: number): [number, number][] {
+  if (polygon.length === 0) return polygon
+  const n = polygon.length - 1 // ignore the duplicated closing vertex
+  let lon = 0
+  let lat = 0
+  for (let i = 0; i < n; i++) {
+    lon += polygon[i][0]
+    lat += polygon[i][1]
+  }
+  lon /= n
+  lat /= n
+  const scaled = polygon.map(([x, y]) => {
+    // Work in a local metre-ish frame so the scale is isotropic on screen.
+    const dx = (x - lon) * Math.cos((lat * Math.PI) / 180)
+    const dy = y - lat
+    return [lon + (dx * k) / Math.cos((lat * Math.PI) / 180), lat + dy * k] as [number, number]
+  })
+  return scaled
 }
+
+/**
+ * Confidence ramp for the primary incident, outermost first.
+ *
+ * Reads as an oil slick rather than a heat blob: a soft outer sheen, an orange
+ * mid-body, the red high-confidence mass, and a bright yellow core where the
+ * detector is most certain. Alphas stay low so the satellite imagery underneath
+ * remains readable through the slick.
+ */
+const SLICK_ZONES: { k: number; fill: [number, number, number, number]; stroke: [number, number, number, number] }[] = [
+  { k: 1.85, fill: [214, 92, 62, 16], stroke: [232, 116, 82, 54] },
+  { k: 1.0, fill: [240, 138, 52, 40], stroke: [246, 158, 74, 96] },
+  { k: 0.52, fill: [226, 86, 58, 74], stroke: [255, 116, 84, 150] },
+  { k: 0.22, fill: [250, 196, 74, 132], stroke: [255, 216, 120, 190] },
+]
 
 /**
  * Build deck.gl layers for the SAR observation: the scene footprint (observed
@@ -88,7 +127,6 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
             getLineWidth: oil ? 2200 : 1200,
             lineWidthMinPixels: oil ? 2 : 1.4,
             lineWidthMaxPixels: oil ? 4 : 3,
-            getLineDashArray: oil ? () => 5 : undefined,
             pickable: true,
           }),
           new ScatterplotLayer({
@@ -108,65 +146,66 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
         )
       }
 
-      /* Featured slick — dominant but not map-covering. */
+      /* Featured slick — the dominant incident, built as nested organic zones
+         derived from the detector polygon. Never a circular marker. */
       const featured = featuredCandidate(candidates)
       if (featured) {
-        const hot = VSCO.sar.slickHot as [number, number, number]
-        const hotFill = VSCO.sar.slickHotFill as [number, number, number]
-        const glow = circleRing(featured.centroid.lon, featured.centroid.lat, slickRadiusKm(featured) * 2.4, 56)
-        const halo = circleRing(featured.centroid.lon, featured.centroid.lat, slickRadiusKm(featured) * 1.35, 56)
-        const radiusM = 2600 * (pulse ? 1 : 0.62)
         const isOil = featured.classification === 'OIL_CANDIDATE'
+        const outline = featured.polygon as [number, number][]
+        const radiusM = 2600 * (pulse ? 1 : 0.62)
+
+        // One polygon per confidence zone, sharing the detection silhouette.
+        for (const [i, zone] of SLICK_ZONES.entries()) {
+          layers.push(
+            new PolygonLayer({
+              id: `sar-slick-featured-zone-${i}`,
+              data: [
+                {
+                  polygon: scalePolygon(outline, zone.k),
+                  // Only the outermost zone carries the pick payload, so the
+                  // stacked zones resolve to a single pick target.
+                  ...(i === 0 ? { pick: { kind: 'sar_candidate', id: featured.id } } : {}),
+                },
+              ],
+              getPolygon: (d: { polygon: [number, number][] }) => d.polygon,
+              stroked: true,
+              filled: true,
+              getLineColor: isOil ? zone.stroke : [208, 163, 95, zone.stroke[3]],
+              getFillColor: isOil ? zone.fill : [208, 163, 95, zone.fill[3]],
+              getLineWidth: 900,
+              lineWidthMinPixels: i === 0 ? 0.6 : 1,
+              lineWidthMaxPixels: i === 0 ? 1.4 : 2.2,
+              pickable: i === 0,
+            }),
+          )
+        }
+
+        // Dashed perimeter: a real dashed line, built from the outline itself.
+        const perimeter = dashSegments(outline, 6, 4)
+        if (perimeter.length > 0) {
+          layers.push(
+            new LineLayer({
+              id: 'sar-slick-featured-perimeter',
+              data: perimeter.map((path) => ({ path })),
+              getPath: (d: { path: [number, number][] }) => d.path,
+              getColor: isOil ? [255, 168, 96, 200] : [216, 178, 122, 150],
+              getWidth: 1.2,
+              widthMinPixels: 1,
+              widthMaxPixels: 2,
+              pickable: false,
+            }),
+          )
+        }
+
         layers.push(
-          new PolygonLayer({
-            id: 'sar-slick-featured-glow',
-            stroked: true,
-            filled: true,
-            getPolygon: (d: { polygon: [number, number][] }) => d.polygon,
-            getLineColor: [255, 122, 80, 90],
-            getFillColor: isOil ? [255, 116, 74, 16] : [208, 163, 95, 12],
-            getLineWidth: 3200,
-            lineWidthMinPixels: 1,
-            lineWidthMaxPixels: 2,
-            pickable: true,
-            data: [
-              {
-                polygon: glow,
-                pick: { kind: 'sar_candidate', id: featured.id },
-              },
-            ],
-          }),
-          new PolygonLayer({
-            id: 'sar-slick-featured-halo',
-            data: [{ polygon: halo }],
-            getPolygon: (d: { polygon: [number, number][] }) => d.polygon,
-            stroked: true,
-            filled: false,
-            getLineColor: isOil ? hot : [225, 170, 100],
-            getLineWidth: 1400,
-            lineWidthMinPixels: 1.2,
-            lineWidthMaxPixels: 2.4,
-            getLineDashArray: () => 4,
-            pickable: false,
-          }),
           new ScatterplotLayer({
             id: 'sar-slick-featured-pulse',
             data: [{ coordinates: [featured.centroid.lon, featured.centroid.lat] }],
             getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
             getRadius: radiusM,
-            radiusMinPixels: 10,
-            radiusMaxPixels: 20,
-            getFillColor: [255, 96, 74, 120],
-            pickable: false,
-          }),
-          new ScatterplotLayer({
-            id: 'sar-slick-featured-core',
-            data: [{ coordinates: [featured.centroid.lon, featured.centroid.lat] }],
-            getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
-            getRadius: 1100,
-            radiusMinPixels: 3.4,
-            radiusMaxPixels: 5.5,
-            getFillColor: hotFill,
+            radiusMinPixels: 8,
+            radiusMaxPixels: 16,
+            getFillColor: [255, 96, 74, 96],
             pickable: false,
           }),
           labelLayer(

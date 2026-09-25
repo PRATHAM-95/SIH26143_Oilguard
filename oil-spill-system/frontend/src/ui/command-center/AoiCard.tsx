@@ -1,6 +1,7 @@
 import { REGION_BY_ID, type MapLayerId } from '@/store/mapStore'
 import { useSimulationStore } from '@/store/simulationStore'
 import { ChevronDownIcon } from '@/components/ui/Icon'
+import { isDemoMode } from '@/lib/demo/mode'
 
 /**
  * Area-of-interest card.
@@ -50,5 +51,19 @@ export function AoiCard() {
   )
 }
 
-/** Layer ids whose data source is genuinely not connected yet. */
-export const NO_DATA_LAYERS = new Set<MapLayerId>(['currents', 'wind', 'weather', 'incidents'])
+/**
+ * Layer ids whose data source is genuinely not connected.
+ *
+ * The environmental vector layers are the interesting case: ERA5 and CMEMS are
+ * still unconnected, so in live mode they report no data. The controlled demo
+ * carries a synthetic grid for both, so there they are real, toggleable layers
+ * and must not be greyed out.
+ */
+export function noDataLayers(): Set<MapLayerId> {
+  const base = new Set<MapLayerId>(['weather', 'incidents'])
+  if (!isDemoMode()) {
+    base.add('currents')
+    base.add('wind')
+  }
+  return base
+}

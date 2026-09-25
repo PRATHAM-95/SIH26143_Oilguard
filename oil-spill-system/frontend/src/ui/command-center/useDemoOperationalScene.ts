@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { isDemoMode } from '@/lib/demo/mode'
 import { DEMO_SIMULATION_ID, readDemoSession, writeDemoSession } from '@/lib/demo/seed'
 import { rememberActiveSimulation, useSimulationStore } from '@/store/simulationStore'
+import { useMapStore, type MapLayerId } from '@/store/mapStore'
 
 /**
  * Controlled-demo operational scene.
@@ -33,6 +34,33 @@ const PRIMED_SCENE = {
   revealed: true,
 }
 
+/**
+ * Opening operational layers for a fresh demo session.
+ *
+ * The catalogue ships with most layers off so a cold live map stays uncluttered.
+ * The demo is meant to show the full maritime picture, so these are switched on
+ * once, on a pristine session only — after that the user's own choices stand.
+ * Currents and wind are included because the demo carries a synthetic grid for
+ * them; they render faint, so they add context without crowding the ocean.
+ */
+const PRIMED_LAYERS: [MapLayerId, boolean][] = [
+  ['slick', true],
+  ['sarSlicks', true],
+  ['vessels', true],
+  ['eez', true],
+  ['sarFootprint', true],
+  ['shippingLanes', true],
+  ['currents', true],
+  ['wind', true],
+  // Analysis output is only useful once the run that produced it exists.
+  ['attribution', true],
+  // Forward model output is deliberately left off: it is a prediction, and the
+  // opening frame should show observations and the incident, not a forecast.
+  ['drift', false],
+  ['backtracking', false],
+  ['sourceProbability', false],
+]
+
 export function useDemoOperationalScene() {
   const primed = useRef(false)
 
@@ -44,6 +72,9 @@ export function useDemoOperationalScene() {
     if (!session.spilled && session.invPhase === 'none') {
       writeDemoSession(PRIMED_SCENE)
     }
+
+    const map = useMapStore.getState()
+    for (const [id, on] of PRIMED_LAYERS) map.setLayer(id, on)
 
     if (!useSimulationStore.getState().simulationId) {
       rememberActiveSimulation(DEMO_SIMULATION_ID)

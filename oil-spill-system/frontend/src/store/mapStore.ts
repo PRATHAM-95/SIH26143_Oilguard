@@ -22,6 +22,7 @@ export type MapLayerId =
   | 'attribution'
   | 'sarSlicks'
   | 'sarFootprint'
+  | 'shippingLanes'
   | 'drift'
   | 'eez'
 
@@ -84,14 +85,16 @@ export const MAP_LAYER_CATALOG: Record<MapLayerId, LayerVisibility> = {
     label: 'Wind field',
     group: 'environment',
     color: '#8aa4bd',
-    emptyNote: 'ERA5 not connected — no data, never faked',
+    note: 'Synthetic demo grid in demo mode',
+    emptyNote: 'ERA5 not connected — no live wind, never faked',
   },
   currents: {
     visible: false,
     label: 'Ocean currents',
     group: 'environment',
     color: '#4f8f9c',
-    emptyNote: 'CMEMS not connected — no data, never faked',
+    note: 'Synthetic demo grid in demo mode',
+    emptyNote: 'CMEMS not connected — no live current, never faked',
   },
   weather: {
     visible: false,
@@ -146,9 +149,19 @@ export const MAP_LAYER_CATALOG: Record<MapLayerId, LayerVisibility> = {
   },
   sarFootprint: {
     visible: false,
-    label: 'SAR scene coverage',
+    label: 'Satellite passes',
     group: 'observation',
-    color: '#60a5cd',
+    color: '#7fd3f7',
+    note: 'Sentinel-1 pass tracks and scene footprint',
+    emptyNote: 'No pass ingested — observation required',
+  },
+  shippingLanes: {
+    visible: false,
+    label: 'Shipping lanes',
+    group: 'environment',
+    color: '#93a7ba',
+    note: 'Regional trade corridor network',
+    emptyNote: 'No lane source connected — never faked',
   },
   drift: {
     visible: false,

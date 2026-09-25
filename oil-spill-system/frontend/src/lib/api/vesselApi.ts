@@ -10,6 +10,17 @@ export type VesselDto = {
   position: VesselPosition
   speed: number
   heading: number
+  /* Optional AIS enrichment. The live provider is not implemented yet, so these
+     stay optional everywhere: consumers must degrade gracefully when absent
+     rather than assume a populated record. */
+  imo?: string | null
+  /** Navigational status, e.g. Underway / Anchored / Moored. */
+  status?: string | null
+  /** ISO instant of the last AIS position report. */
+  lastSeen?: string | null
+  /** Declared destination, when the feed carries it. */
+  destination?: string | null
+  flag?: string | null
 }
 
 /**

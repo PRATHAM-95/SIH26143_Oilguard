@@ -65,8 +65,12 @@ export const DEMO_STAGE_ORDER = [
 ] as const
 export type DemoStageId = (typeof DEMO_STAGE_ORDER)[number]
 
-/** Synthetic scenario origin (open ocean, not a real incident). */
-export const DEMO_SPILL_LOCATION = { lon: 75.198, lat: 12.487 }
+/**
+ * Synthetic scenario origin: mid-Arabian-Sea, clear of the western Indian coast
+ * so the incident sits in open water at the default operating camera. Not a real
+ * incident.
+ */
+export const DEMO_SPILL_LOCATION = { lon: 71.2, lat: 12.4 }
 
 /** Synthetic reference epoch; all demo clocks derive from it. */
 const BASE_UTC = Date.parse('2026-06-01T02:00:00Z')
@@ -178,72 +182,416 @@ export function demoClock(session: DemoSessionState = readDemoSession()): string
 
 // --- fleet ------------------------------------------------------------------
 
-/** Synthetic demo fleet (8 vessels). All identities/positions are fabricated. */
+/**
+ * Regional trade corridors. The waypoints are real shipping waypoints (Bab
+ * el-Mandeb, Strait of Hormuz, Gulf of Oman, the west India coast approach,
+ * Colombo, the Bay of Bengal and the Andaman/Malacca approach) so the synthetic
+ * traffic follows plausible lane geometry instead of scattering uniformly.
+ *
+ * These double as the demo shipping-lane overlay, so the lanes the vessels
+ * follow are exactly the lanes drawn on the map.
+ */
+export type DemoCorridor = {
+  id: string
+  label: string
+  path: [number, number][]
+}
+
+export const DEMO_SHIPPING_CORRIDORS: DemoCorridor[] = [
+  {
+    id: 'east-africa-coast',
+    label: 'East Africa Coastal',
+    path: [
+      [40.4, -3.2],
+      [41.8, 0.4],
+      [43.1, 4.0],
+      [44.6, 7.6],
+      [46.2, 10.4],
+      [48.4, 11.9],
+      [50.6, 12.2],
+    ],
+  },
+  {
+    id: 'gulf-of-aden',
+    label: 'Gulf of Aden',
+    path: [
+      [43.3, 12.7],
+      [44.9, 12.3],
+      [46.8, 12.0],
+      [48.6, 12.4],
+      [50.4, 12.9],
+      [52.2, 12.6],
+    ],
+  },
+  {
+    id: 'hormuz-gulf-of-oman',
+    label: 'Hormuz – Gulf of Oman',
+    path: [
+      [56.3, 26.6],
+      [57.4, 25.4],
+      [58.6, 24.1],
+      [59.9, 22.7],
+      [61.6, 21.4],
+    ],
+  },
+  {
+    id: 'oman-arabian-sea',
+    label: 'Oman – Central Arabian Sea',
+    path: [
+      [59.9, 22.7],
+      [62.3, 20.4],
+      [64.6, 18.2],
+      [66.8, 16.1],
+      [68.6, 14.6],
+    ],
+  },
+  {
+    id: 'arabian-sea-west-india',
+    label: 'Arabian Sea – West India',
+    path: [
+      [66.8, 16.1],
+      [68.4, 14.4],
+      [70.2, 13.1],
+      [71.8, 12.6],
+      [73.1, 12.1],
+      [74.5, 11.4],
+      [76.2, 9.9],
+    ],
+  },
+  {
+    id: 'india-srilanka',
+    label: 'India – Sri Lanka',
+    path: [
+      [76.2, 9.9],
+      [77.8, 8.4],
+      [79.4, 7.2],
+      [80.7, 6.4],
+      [81.5, 5.8],
+      [82.4, 6.4],
+      [84.1, 6.3],
+    ],
+  },
+  {
+    id: 'bay-of-bengal',
+    label: 'Bay of Bengal',
+    path: [
+      [84.1, 6.3],
+      [86.6, 7.8],
+      [88.7, 10.1],
+      [90.4, 12.6],
+      [91.8, 15.2],
+    ],
+  },
+  {
+    id: 'andaman-malacca',
+    label: 'Andaman – Malacca Approach',
+    path: [
+      [91.8, 15.2],
+      [93.9, 11.4],
+      [96.2, 8.2],
+      [98.4, 5.9],
+      [100.6, 3.4],
+      [102.4, 1.6],
+    ],
+  },
+  {
+    id: 'maldives-lane',
+    label: 'Maldives Lane',
+    path: [
+      [71.9, 3.4],
+      [72.8, 5.1],
+      [74.1, 7.3],
+      [75.6, 9.4],
+      [76.2, 9.9],
+    ],
+  },
+]
+
+/** Linear interpolation along a corridor, `t` in [0, 1]. */
+function pointAlong(path: [number, number][], t: number): [number, number] {
+  const clamped = Math.min(1, Math.max(0, t))
+  const scaled = clamped * (path.length - 1)
+  const i = Math.min(path.length - 2, Math.floor(scaled))
+  const f = scaled - i
+  const [lon0, lat0] = path[i]
+  const [lon1, lat1] = path[i + 1]
+  return [lon0 + (lon1 - lon0) * f, lat0 + (lat1 - lat0) * f]
+}
+
+/** Initial great-circle bearing from `a` to `b`, degrees clockwise from north. */
+function bearingBetween(a: [number, number], b: [number, number]): number {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const toDeg = (d: number) => (d * 180) / Math.PI
+  const dLon = toRad(b[0] - a[0])
+  const lat0 = toRad(a[1])
+  const lat1 = toRad(b[1])
+  const y = Math.sin(dLon) * Math.cos(lat1)
+  const x = Math.cos(lat0) * Math.sin(lat1) - Math.sin(lat0) * Math.cos(lat1) * Math.cos(dLon)
+  return (toDeg(Math.atan2(y, x)) + 360) % 360
+}
+
+/**
+ * Great-circle distance in km. Mirrors the map helper of the same name, kept
+ * local so this data module stays free of store/render dependencies.
+ */
+function distanceKm(a: { lon: number; lat: number }, b: { lon: number; lat: number }): number {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const dLat = toRad(b.lat - a.lat)
+  const dLon = toRad(b.lon - a.lon)
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2
+  return 2 * 6371 * Math.asin(Math.sqrt(s))
+}
+
+/**
+ * Attribution search radius for the demo scenario, in km. Chosen so exactly
+ * DEMO_CANDIDATE_COUNT synthetic vessels fall inside it: the map, the
+ * attribution run and the activity feed all derive from this single value.
+ */
+export const DEMO_ATTRIBUTION_RADIUS_KM = 60
+export const DEMO_CANDIDATE_COUNT = 3
+
+type FleetSpec = {
+  name: string
+  mmsi: string
+  type: string
+  corridor: string
+  t: number
+  /** Lateral offset in degrees, so ships ride the lane instead of lying on it. */
+  offset: number
+  speed: number
+  status: 'Underway' | 'Anchored' | 'Moored' | 'Drifting'
+  /** Minutes since the last AIS position report. */
+  ageMin: number
+  destination: string
+  flag: string
+  /** Jitter applied to the corridor bearing, degrees. */
+  jitter?: number
+  /**
+   * Explicit [lon, lat] that replaces corridor interpolation. Used for the
+   * vessels in close attendance on the incident, whose traffic is a crossing
+   * pattern rather than a lane transit.
+   */
+  position?: [number, number]
+}
+
+/**
+ * Synthetic regional fleet distributed along DEMO_SHIPPING_CORRIDORS. Every
+ * identity, position, heading and AIS age is fabricated. Three vessels sit
+ * within DEMO_ATTRIBUTION_RADIUS_KM of the slick and become the scored
+ * candidates; the rest are background traffic across the operating region,
+ * distributed to match the regional traffic pattern (Gulf of Aden, Gulf of Oman,
+ * central Arabian Sea, west India – Sri Lanka, Bay of Bengal, Andaman approach).
+ */
+const DEMO_FLEET_SPEC: FleetSpec[] = [
+  // Gulf of Aden / East Africa inbound
+  { name: 'MV ZAMBEZI TRADER', mmsi: '677091200', type: 'Bulk Carrier', corridor: 'gulf-of-aden', t: 0.22, offset: 0.11, speed: 13.4, status: 'Underway', ageMin: 2, destination: 'JEBEL ALI', flag: 'PA' },
+  { name: 'MV KILIMANJARO STAR', mmsi: '677091214', type: 'Container', corridor: 'gulf-of-aden', t: 0.68, offset: -0.13, speed: 16.8, status: 'Underway', ageMin: 4, destination: 'MOMBASA', flag: 'PA' },
+  { name: 'MV SHIRA RIVER', mmsi: '677091227', type: 'Tanker', corridor: 'east-africa-coast', t: 0.74, offset: 0.14, speed: 11.2, status: 'Underway', ageMin: 7, destination: 'COLOMBO', flag: 'TZ' },
+  { name: 'MV TANA BRIDGE', mmsi: '677091239', type: 'Fishing', corridor: 'east-africa-coast', t: 0.31, offset: -0.1, speed: 5.1, status: 'Anchored', ageMin: 34, destination: 'LIKONI', flag: 'TZ' },
+
+  // Gulf of Oman / Strait of Hormuz
+  { name: 'MT HORMUZ VICTORY', mmsi: '423118004', type: 'LNG Carrier', corridor: 'hormuz-gulf-of-oman', t: 0.18, offset: 0.09, speed: 17.6, status: 'Underway', ageMin: 1, destination: 'DAHEJ', flag: 'LR' },
+  { name: 'MV MUSCAT MERCHANT', mmsi: '423118017', type: 'Cargo', corridor: 'hormuz-gulf-of-oman', t: 0.62, offset: -0.12, speed: 12.3, status: 'Underway', ageMin: 3, destination: 'NHAVA SHEVA', flag: 'OM' },
+  { name: 'MT SULTAN OF OMAN', mmsi: '423118029', type: 'Product Tanker', corridor: 'hormuz-gulf-of-oman', t: 0.88, offset: 0.13, speed: 9.8, status: 'Underway', ageMin: 6, destination: 'FUJAIRAH', flag: 'OM' },
+
+  // Central Arabian Sea — includes the three scored candidates. These three
+  // sit in close attendance on the slick: approaching from the north-east,
+  // crossing from the south-west and standing off to the north-west, all inside
+  // DEMO_ATTRIBUTION_RADIUS_KM and none of them on top of the slick.
+  { name: 'GMV ARIES', mmsi: '440123456', type: 'Cargo', corridor: 'arabian-sea-west-india', t: 0.55, offset: 0, speed: 11.8, status: 'Underway', ageMin: 2, destination: 'COCHIN', flag: 'PA', position: [71.55, 12.63] },
+  { name: 'GMV BERGAMOT', mmsi: '440123468', type: 'Tanker', corridor: 'arabian-sea-west-india', t: 0.63, offset: 0, speed: 9.4, status: 'Underway', ageMin: 3, destination: 'MUNDRA', flag: 'MH', position: [70.8, 12.18] },
+  { name: 'MV CHENAB EXPRESS', mmsi: '440123470', type: 'Bulk Carrier', corridor: 'oman-arabian-sea', t: 0.81, offset: 0, speed: 10.7, status: 'Underway', ageMin: 5, destination: 'MANGALORE', flag: 'PK', position: [71.05, 12.85] },
+  { name: 'MV SEA SPRINTER', mmsi: '440123482', type: 'Container', corridor: 'oman-arabian-sea', t: 0.34, offset: -0.16, speed: 18.3, status: 'Underway', ageMin: 1, destination: 'SALALAH', flag: 'CY' },
+  { name: 'MT EVEREST SPIRIT', mmsi: '440123494', type: 'LNG Carrier', corridor: 'oman-arabian-sea', t: 0.57, offset: 0.22, speed: 14.6, status: 'Underway', ageMin: 8, destination: 'KARACHI', flag: 'BS' },
+  { name: 'MV INDIA GATEWAY', mmsi: '440123506', type: 'Cargo', corridor: 'arabian-sea-west-india', t: 0.14, offset: -0.18, speed: 12.9, status: 'Underway', ageMin: 4, destination: 'NHAVA SHEVA', flag: 'IN' },
+
+  // West India – Sri Lanka
+  { name: 'MV MALABAR VOYAGER', mmsi: '440123518', type: 'Container', corridor: 'india-srilanka', t: 0.24, offset: 0.12, speed: 16.1, status: 'Underway', ageMin: 2, destination: 'COLOMBO', flag: 'IN' },
+  { name: 'MV NORDIC STAR', mmsi: '440123520', type: 'Tanker', corridor: 'india-srilanka', t: 0.71, offset: -0.14, speed: 8.7, status: 'Underway', ageMin: 11, destination: 'COCHIN', flag: 'NO' },
+  { name: 'CAPE MAY', mmsi: '440123532', type: 'Bulk Carrier', corridor: 'india-srilanka', t: 0.46, offset: 0.15, speed: 10.2, status: 'Underway', ageMin: 6, destination: 'CHITTOGONG', flag: 'MT' },
+
+  // Bay of Bengal / Andaman approach
+  { name: 'OCEAN PEARL', mmsi: '440123544', type: 'Product Tanker', corridor: 'bay-of-bengal', t: 0.38, offset: -0.13, speed: 11.1, status: 'Underway', ageMin: 3, destination: 'SINGAPORE', flag: 'SG' },
+  { name: 'MV SRI LANKA PRIDE', mmsi: '440123556', type: 'Container', corridor: 'bay-of-bengal', t: 0.76, offset: 0.11, speed: 15.4, status: 'Underway', ageMin: 5, destination: 'YANGON', flag: 'LK' },
+  { name: 'MV ARABIAN DAWN', mmsi: '440123568', type: 'Fishing', corridor: 'andaman-malacca', t: 0.44, offset: -0.1, speed: 4.6, status: 'Drifting', ageMin: 41, destination: 'PORT BLAIR', flag: 'IN' },
+  { name: 'PACIFIC DAWN', mmsi: '440123570', type: 'Cargo', corridor: 'andaman-malacca', t: 0.8, offset: 0.12, speed: 13.7, status: 'Underway', ageMin: 9, destination: 'PENANG', flag: 'SG' },
+  { name: 'MV OCEAN VOYAGER', mmsi: '440123582', type: 'Tug', corridor: 'maldives-lane', t: 0.52, offset: -0.08, speed: 6.3, status: 'Anchored', ageMin: 27, destination: 'MALE', flag: 'MV' },
+]
+
+/** Size of the synthetic regional fleet, derived so no count is hand-written. */
+export const DEMO_FLEET_SIZE = DEMO_FLEET_SPEC.length
+
+/** Synthetic demo fleet. All identities, positions and AIS ages are fabricated. */
 export function demoFleet(): VesselDto[] {
-  const mk = (
-    index: number,
-    name: string,
-    mmsi: string,
-    type: string,
-    lat: number,
-    lon: number,
-    speed: number,
-    heading: number,
-  ): VesselDto => ({
-    id: `SAMPLE-VSL-${String(index).padStart(3, '0')}`,
-    mmsi,
-    name,
-    type,
-    position: { latitude: lat, longitude: lon },
-    speed,
-    heading,
+  return DEMO_FLEET_SPEC.map((spec, index) => {
+    const corridor = DEMO_SHIPPING_CORRIDORS.find((c) => c.id === spec.corridor)
+    const path = corridor?.path ?? DEMO_SHIPPING_CORRIDORS[0].path
+    const here = pointAlong(path, spec.t)
+    const ahead = pointAlong(path, Math.min(1, spec.t + 0.04))
+    const [baseLon, baseLat] = here
+    // Lane vessels ride beside the lane (never exactly on it); an explicit
+    // position overrides both.
+    const [lon, lat] = spec.position ?? [baseLon, baseLat + spec.offset]
+    // Deterministic per-vessel bearing jitter so no two ships share a heading.
+    const jitter = spec.jitter ?? ((index * 37) % 25) - 12
+    return {
+      id: `DEMO-VSL-${String(index + 1).padStart(3, '0')}`,
+      mmsi: spec.mmsi,
+      name: spec.name,
+      type: spec.type,
+      position: { latitude: Number(lat.toFixed(4)), longitude: Number(lon.toFixed(4)) },
+      speed: spec.status === 'Underway' ? spec.speed : 0,
+      heading: Math.round((bearingBetween(here, ahead) + jitter + 360) % 360),
+      imo: `DEMO${String(9300000 + index * 137)}`,
+      status: spec.status,
+      lastSeen: syntheticIso(-spec.ageMin / 60),
+      destination: spec.destination,
+      flag: spec.flag,
+    }
   })
-  return [
-    mk(1, 'SAMPLE TANKER AURORA', '999117003', 'Tanker', 12.494, 75.188, 8.2, 122),
-    mk(2, 'SAMPLE FISHERY VESSEL', '999224101', 'Fishing', 12.512, 75.221, 4.1, 84),
-    mk(3, 'SAMPLE CARGO CARRIER', '999117014', 'Cargo', 12.469, 75.242, 12.6, 210),
-    mk(4, 'SAMPLE PILOT CRAFT', '999431506', 'Pilot', 12.534, 75.171, 6.9, 18),
-    mk(5, 'SAMPLE FISHERY VESSEL', '999224112', 'Fishing', 12.458, 75.194, 3.7, 265),
-    mk(6, 'SAMPLE BULK CARRIER', '999331203', 'Bulk', 12.551, 75.209, 10.4, 340),
-    mk(7, 'SAMPLE PATROL CRAFT', '999990651', 'Patrol', 12.481, 75.153, 14.2, 45),
-    mk(8, 'SAMPLE TANKER BRAVO', '999117019', 'Tanker', 12.523, 75.248, 7.4, 158),
-  ]
+}
+
+/**
+ * The vessels the attribution run scores, derived from geometry rather than
+ * hand-listed so the highlighted vessels on the map and the ranked candidates in
+ * the panel can never disagree.
+ *
+ * `center` matters: when a journey releases the spill from a particular vessel,
+ * attribution is scored around that position, so the candidates must be the
+ * vessels nearest *that* point rather than a fixed set.
+ */
+export function demoCandidateVessels(center: { lon: number; lat: number } = DEMO_SPILL_LOCATION): VesselDto[] {
+  return demoFleet()
+    .map((v) => ({
+      vessel: v,
+      km: distanceKm(
+        { lon: v.position.longitude, lat: v.position.latitude },
+        center,
+      ),
+    }))
+    .filter((x) => x.km <= DEMO_ATTRIBUTION_RADIUS_KM)
+    .sort((a, b) => a.km - b.km)
+    .slice(0, DEMO_CANDIDATE_COUNT)
+    .map((x) => x.vessel)
+}
+
+/**
+ * Organic slick outline.
+ *
+ * A slick is not a circle: real detections are lobed, elongated and asymmetric.
+ * The radius is modulated by three harmonics at different frequencies, so the
+ * ring gets lobes and bays instead of a regular polygon, and the whole outline
+ * is then rotated to the reported orientation. `scale` is the half-extent in
+ * degrees; `elongation` stretches it along the orientation axis.
+ */
+function slickRing(
+  center: { lon: number; lat: number },
+  scale: number,
+  seedOffset: number,
+  elongation = 1.7,
+  rotationDeg = 0,
+  samples = 26,
+): [number, number][] {
+  const rand = mulberry32(DEMO_SEED + seedOffset)
+  // Per-slick harmonic coefficients, so no two slicks share a silhouette.
+  const h1 = 0.18 + rand() * 0.16
+  const h2 = 0.1 + rand() * 0.13
+  const h3 = 0.06 + rand() * 0.09
+  const phase = rand() * Math.PI * 2
+  const rot = (rotationDeg * Math.PI) / 180
+  const cosRot = Math.cos(rot)
+  const sinRot = Math.sin(rot)
+  const lonScale = 1 / Math.max(0.35, Math.cos((center.lat * Math.PI) / 180))
+  const ring: [number, number][] = []
+  for (let i = 0; i <= samples; i++) {
+    const a = (i / samples) * Math.PI * 2
+    const lobe =
+      1 + h1 * Math.sin(2 * a + phase) + h2 * Math.sin(3 * a + phase * 1.7) + h3 * Math.sin(5 * a - phase)
+    // Elongate along the rotation axis, then rotate into place.
+    const ex = scale * Math.cos(a) * lobe * elongation
+    const ey = scale * Math.sin(a) * lobe
+    const rx = ex * cosRot - ey * sinRot
+    const ry = ex * sinRot + ey * cosRot
+    ring.push([
+      Math.round((center.lon + rx * lonScale) * 1e5) / 1e5,
+      Math.round((center.lat + ry) * 1e5) / 1e5,
+    ])
+  }
+  return ring
+}
+
+/** Convex-ish hull bbox helper for the slick candidates. */
+function approxBboxOf(ring: [number, number][]) {
+  const lons = ring.map(([x]) => x)
+  const lats = ring.map(([, y]) => y)
+  return {
+    north: Math.max(...lats),
+    south: Math.min(...lats),
+    east: Math.max(...lons),
+    west: Math.min(...lons),
+  }
 }
 
 /** Deterministic close-out of the synthetic slick ring around some centre. */
 function aroundOrigin(center: { lon: number; lat: number }, factor: number, jitter: number): [number, number][] {
-  const rand = mulberry32(DEMO_SEED + Math.round(factor * 1000) + jitter)
-  const { lon, lat } = center
-  const ring: [number, number][] = []
-  const samples = 7
-  for (let i = 0; i < samples; i++) {
-    const a = (i / samples) * Math.PI * 2
-    ring.push([
-      Math.round((lon + factor * Math.cos(a) + (rand() - 0.5) * 0.02) * 1000) / 1000,
-      Math.round((lat + factor * 0.7 * Math.sin(a) + (rand() - 0.5) * 0.02) * 1000) / 1000,
-    ])
-  }
-  ring.push(ring[0])
-  return ring
+  return slickRing(center, factor, Math.round(factor * 1000) + jitter)
 }
 
 // --- SAR observation --------------------------------------------------------
 
+/**
+ * Secondary slick candidates: smaller, lower-confidence observations scattered
+ * across the operating region so the map reads as a detection sweep rather than
+ * a single isolated detection.
+ */
+const DEMO_SECONDARY_SLICKS: { id: string; lon: number; lat: number; scale: number; rotation: number; confidence: number }[] = [
+  { id: 'DEMO-CAND-0004', lon: 66.4, lat: 15.8, scale: 0.028, rotation: 118, confidence: 0.44 },
+  { id: 'DEMO-CAND-0005', lon: 79.6, lat: 8.4, scale: 0.022, rotation: 24, confidence: 0.37 },
+  { id: 'DEMO-CAND-0006', lon: 86.2, lat: 12.9, scale: 0.019, rotation: 156, confidence: 0.29 },
+]
+
+/**
+ * The leading attribution candidate, derived from the fleet so the summary, the
+ * investigation record and the highlighted map vessel always name the same ship.
+ */
+function topCandidateSummary(): { mmsi: string; name: string; rank: number } | null {
+  const top = demoCandidateVessels()[0]
+  return top ? { mmsi: top.mmsi, name: top.name, rank: 1 } : null
+}
+
 function sarCandidates(): SarSlickCandidateDto[] {
   const { lon, lat } = DEMO_SPILL_LOCATION
-  const primaryRing = aroundOrigin({ lon, lat }, 0.045, 1)
-  const uncertainRing = aroundOrigin({ lon, lat }, 0.02, 2)
-  const lookAlikeRing = aroundOrigin({ lon, lat }, 0.012, 3)
-  const approxBbox = (ring: [number, number][]) => {
-    const lons = ring.map(([x]) => x)
-    const lats = ring.map(([, y]) => y)
+  // Primary slick: the largest detection, elongated along the reported
+  // orientation with a lobed, asymmetric outline.
+  const primaryRing = slickRing({ lon, lat }, 0.052, 11, 1.9, 38)
+  // Look-alike sits inside the primary footprint — same scene, rejected class.
+  const lookAlikeRing = slickRing({ lon: lon - 0.03, lat: lat + 0.018 }, 0.012, 31, 1.4, 205)
+  const approxBbox = approxBboxOf
+  const secondary = DEMO_SECONDARY_SLICKS.map((s) => {
+    const ring = slickRing({ lon: s.lon, lat: s.lat }, s.scale, 47 + s.id.length + Math.round(s.lon), 1.5, s.rotation)
     return {
-      north: Math.max(...lats),
-      south: Math.min(...lats),
-      east: Math.max(...lons),
-      west: Math.min(...lons),
+      candidate_id: s.id,
+      classification: 'UNCERTAIN' as const,
+      confidence: s.confidence,
+      polygon: ring,
+      centroid: [s.lon, s.lat] as [number, number],
+      bbox: approxBbox(ring),
+      area_km2: Math.round(s.scale * s.scale * 7300 * 100) / 100,
+      perimeter_km: Math.round(s.scale * 5.4 * 100) / 100,
+      length_km: Math.round(s.scale * 2 * 1.5 * 111 * 100) / 100,
+      width_km: Math.round(s.scale * 2 * 111 * 100) / 100,
+      aspect_ratio: 1.5,
+      orientation_deg: s.rotation,
+      shape_factor: 0.49,
+      pixel_area: Math.round(s.scale * s.scale * 1.4e7),
+      contrast_db: Math.round((-0.4 - s.confidence * 1.6) * 100) / 100,
+      incidence_deg: 33.9,
+      look_alike_hints: ['low contrast', 'wind-current alignment unconfirmed'],
+      warnings: [DEMO_PROVENANCE_NOTE],
     }
-  }
+  })
   return [
     {
       candidate_id: 'DEMO-CAND-0001',
@@ -266,31 +614,11 @@ function sarCandidates(): SarSlickCandidateDto[] {
       warnings: [DEMO_PROVENANCE_NOTE],
     },
     {
-      candidate_id: 'DEMO-CAND-0002',
-      classification: 'UNCERTAIN',
-      confidence: 0.38,
-      polygon: uncertainRing,
-      centroid: [Math.round((lon + 0.03) * 1000) / 1000, Math.round((lat - 0.02) * 1000) / 1000],
-      bbox: approxBbox(uncertainRing),
-      area_km2: 1.04,
-      perimeter_km: 4.12,
-      length_km: 1.47,
-      width_km: 1.02,
-      aspect_ratio: 1.39,
-      orientation_deg: 12.1,
-      shape_factor: 0.52,
-      pixel_area: 18440,
-      contrast_db: -0.87,
-      incidence_deg: 34.1,
-      look_alike_hints: ['low contrast'],
-      warnings: [DEMO_PROVENANCE_NOTE],
-    },
-    {
       candidate_id: 'DEMO-CAND-0003',
       classification: 'LOOK_ALIKE',
       confidence: 0.21,
       polygon: lookAlikeRing,
-      centroid: [Math.round((lon - 0.045) * 1000) / 1000, Math.round((lat + 0.028) * 1000) / 1000],
+      centroid: [Math.round((lon - 0.03) * 1000) / 1000, Math.round((lat + 0.018) * 1000) / 1000],
       bbox: approxBbox(lookAlikeRing),
       area_km2: 0.42,
       perimeter_km: 2.31,
@@ -305,6 +633,7 @@ function sarCandidates(): SarSlickCandidateDto[] {
       look_alike_hints: ['biogenic film', 'low backscatter'],
       warnings: [DEMO_PROVENANCE_NOTE],
     },
+    ...secondary,
   ]
 }
 
@@ -439,18 +768,14 @@ export function backtrackingDto(center: { lon: number; lat: number } = DEMO_SPIL
 const FACTOR_KEYS = ['spatial', 'temporal', 'trajectory', 'anomaly', 'environmental'] as const
 type FactorKey = (typeof FACTOR_KEYS)[number]
 
-function rankedVessels(): RankedVesselDto[] {
-  const fleet = demoFleet()
-  const scores: Record<string, number> = {
-    'SAMPLE-VSL-001': 0.84,
-    'SAMPLE-VSL-008': 0.41,
-    'SAMPLE-VSL-002': 0.36,
-    'SAMPLE-VSL-003': 0.31,
-    'SAMPLE-VSL-006': 0.27,
-    'SAMPLE-VSL-004': 0.23,
-    'SAMPLE-VSL-005': 0.19,
-    'SAMPLE-VSL-007': 0.14,
-  }
+/**
+ * Ranked candidates for the demo attribution run.
+ *
+ * Ranking is derived from real geometry — distance to the slick — rather than a
+ * hand-written table, so the three highlighted vessels on the map are exactly
+ * the three vessels the panel ranks.
+ */
+function rankedVessels(center: { lon: number; lat: number } = DEMO_SPILL_LOCATION): RankedVesselDto[] {
   const factorBase: Record<FactorKey, number> = {
     spatial: 0.9,
     temporal: 0.86,
@@ -458,20 +783,26 @@ function rankedVessels(): RankedVesselDto[] {
     anomaly: 0.74,
     environmental: 0.8,
   }
-  return fleet
-    .map((v) => {
-      const i = Number(v.id.split('-').pop())
-      const scale = Array.isArray(i) ? 1 : (i - 1) / 7
-      const score = Math.round(scores[v.id] * 1000) / 1000
+  // demoCandidateVessels() is already ordered nearest-first.
+  return demoCandidateVessels(center)
+    .map((v, i) => {
+      const lon = v.position.longitude
+      const lat = v.position.latitude
+      const km = distanceKm({ lon, lat }, center)
+      const scale = DEMO_CANDIDATE_COUNT > 1 ? i / (DEMO_CANDIDATE_COUNT - 1) : 0
+      // Proximity dominates, so the closest vessel leads. The top score lands
+      // near 0.84, keeping the existing conclusion thresholds and copy valid.
+      const proximity = 1 - Math.min(1, km / DEMO_ATTRIBUTION_RADIUS_KM)
+      const score = Math.round((0.44 + 0.44 * proximity + 0.05 * (1 - scale)) * 1000) / 1000
       const factors = Object.fromEntries(
-        FACTOR_KEYS.map((k) => [k, Math.round((factorBase[k] * (1 - 0.45 * scale)) * 1000) / 1000]),
+        FACTOR_KEYS.map((k) => [k, Math.round((factorBase[k] * (1 - 0.3 * scale)) * 1000) / 1000]),
       ) as Record<FactorKey, number>
       return {
         rank: 0,
         mmsi: v.mmsi,
         name: v.name,
         vessel_type: v.type,
-        imo: `DEMO${String(9000000 + i)}`,
+        imo: v.imo ?? null,
         score,
         factors,
         factor_evidence: Object.fromEntries(
@@ -480,23 +811,23 @@ function rankedVessels(): RankedVesselDto[] {
             {
               note: `${DEMO_PROVENANCE_NOTE} — synthetic ${k} factor`,
               weight: factors[k],
-              distance_km: Math.round((2 + i * 3.1) * 10) / 10,
-              position: { lon: v.position.longitude, lat: v.position.latitude },
+              distance_km: Math.round(km * 10) / 10,
+              position: { lon, lat },
             },
           ]),
         ),
         data_quality: {
-          reliability: i === 1 ? 'HIGH' : 'MEDIUM',
+          reliability: i === 0 ? 'HIGH' : 'MEDIUM',
           notes: [DEMO_PROVENANCE_NOTE],
-          messages_in_window: 214 - i * 7,
-          median_cadence_min: 9 + i * 2,
+          messages_in_window: 214 - i * 37,
+          median_cadence_min: 9 + i * 4,
           interpolation_fraction: 0.04,
-          coverage_gaps: i === 1 ? 0 : (i % 3) + 1,
-          anomalies: i === 1 ? [] : ['sparse coverage'],
+          coverage_gaps: i === 0 ? 0 : i,
+          anomalies: i === 0 ? [] : ['sparse coverage'],
         },
-        min_distance_km: Math.round((1.6 + i * 2.2) * 10) / 10,
+        min_distance_km: Math.round(km * 10) / 10,
         time_of_closest_approach: syntheticIso(-4.9),
-        closest_position: { lon: v.position.longitude, lat: v.position.latitude },
+        closest_position: { lon, lat },
         warnings: [DEMO_PROVENANCE_NOTE],
       }
     })
@@ -505,6 +836,9 @@ function rankedVessels(): RankedVesselDto[] {
 
 export function attributionDto(center: { lon: number; lat: number } = DEMO_SPILL_LOCATION): AttributionRunDto {
   const { lon, lat } = center
+  const inScope = demoCandidateVessels(center)
+  const ranked = rankedVessels(center)
+  const total = demoFleet().length
   return {
     attributionRunId: DEMO_ATTRIBUTION_RUN_ID,
     simulationId: DEMO_SIMULATION_ID,
@@ -522,20 +856,20 @@ export function attributionDto(center: { lon: number; lat: number } = DEMO_SPILL
       environmental: 0.1,
     },
     conclusion: 'candidate',
-    ranking: {
-      top_score: 0.84,
-      second_score: 0.41,
-      margin: 0.43,
-      decisive: true,
-    },
-    rankedVessels: rankedVessels(),
+    ranking: (() => {
+      const top = ranked[0]?.score ?? 0
+      const second = ranked[1]?.score ?? 0
+      const margin = Math.round((top - second) * 100) / 100
+      return { top_score: top, second_score: second, margin, decisive: margin > 0.2 }
+    })(),
+    rankedVessels: ranked,
     warnings: [DEMO_PROVENANCE_NOTE],
     scoreWarnings: [],
     errors: [],
     origin: { lat, lon },
     timeRange: { earliest: syntheticIso(-6), latest: syntheticIso(-4.5), preferred: syntheticIso(-5) },
     releaseTime: syntheticIso(-5),
-    radiusKm: 15,
+    radiusKm: DEMO_ATTRIBUTION_RADIUS_KM,
     maxGapMin: 90,
     seed: DEMO_SEED,
     environmentSource: DEMO_PROVENANCE,
@@ -543,14 +877,14 @@ export function attributionDto(center: { lon: number; lat: number } = DEMO_SPILL
       sourceState: DEMO_PROVENANCE,
       provider: DEMO_AIS_SOURCE,
       dataset: 'SYNTHETIC AIS',
-      vesselCount: 8,
+      vesselCount: total,
       elapsedMs: 420,
       warnings: [DEMO_PROVENANCE_NOTE],
     },
     filter: {
-      kept: 8,
-      dropped: 0,
-      stats: { total: 8, inside_radius: 8 },
+      kept: inScope.length,
+      dropped: total - inScope.length,
+      stats: { total, inside_radius: inScope.length },
     },
     createdAt: syntheticIso(-4),
   }
@@ -643,11 +977,21 @@ function stageSummary(
         },
       }
     case 'ais':
-      return { referenceId: DEMO_ATTRIBUTION_RUN_ID, referenceType: 'attributionRun', summary: { provider: DEMO_AIS_SOURCE, vesselCount: 8, sourceState: DEMO_PROVENANCE } }
-    case 'attribution':
-      return { referenceId: DEMO_ATTRIBUTION_RUN_ID, referenceType: 'attributionRun', summary: { rankedVessels: 8, margin: 0.43, decisive: true } }
+      return { referenceId: DEMO_ATTRIBUTION_RUN_ID, referenceType: 'attributionRun', summary: { provider: DEMO_AIS_SOURCE, vesselCount: DEMO_FLEET_SIZE, sourceState: DEMO_PROVENANCE } }
+    case 'attribution': {
+      const ranking = attributionDto().ranking
+      return {
+        referenceId: DEMO_ATTRIBUTION_RUN_ID,
+        referenceType: 'attributionRun',
+        summary: {
+          rankedVessels: DEMO_CANDIDATE_COUNT,
+          margin: ranking?.margin ?? 0,
+          decisive: ranking?.decisive ?? false,
+        },
+      }
+    }
     case 'conclusion':
-      return { referenceId: DEMO_ATTRIBUTION_RUN_ID, referenceType: 'attributionRun', summary: { conclusion: 'candidate', mmsi: '999117003' } }
+      return { referenceId: DEMO_ATTRIBUTION_RUN_ID, referenceType: 'attributionRun', summary: { conclusion: 'candidate', mmsi: demoCandidateVessels()[0]?.mmsi ?? null } }
     default:
       return undefined
   }
@@ -676,7 +1020,7 @@ function demoConclusion(status: 'candidate' | null = 'candidate') {
     topScore: status ? 0.84 : null,
     margin: status ? 0.43 : null,
     decisive: status ? true : null,
-    candidate: status ? { mmsi: '999117003', name: 'SAMPLE TANKER AURORA', rank: 1 } : null,
+    candidate: status ? topCandidateSummary() : null,
     thresholdsUsed: status ? { topScore: 0.5, margin: 0.2 } : null,
     why: status ? 'Closest-approach geometry and trajectory agreement dominate the composite score.' : null,
     referenceAttributionRunId: status ? DEMO_ATTRIBUTION_RUN_ID : null,
@@ -789,17 +1133,52 @@ export function reportRecord(): InvestigationReport {
 
 const DEMO_REASON = `${DEMO_PROVENANCE_NOTE} — live feed bypassed.`
 
+/**
+ * Synthetic environmental grid for the demo session.
+ *
+ * The live ERA5/CMEMS integrations are not connected, so this grid is the only
+ * thing the current and wind overlays may ever draw from in demo mode. It is a
+ * coarse regional lattice over the operating box: each axis keeps a large-scale
+ * drift with a smaller gyre term, so the vector field reads as ocean-like
+ * without pretending to be a real forecast.
+ */
 export function demoEnvironmentGrid(axis: 'current' | 'wind') {
-  const { lon, lat } = DEMO_SPILL_LOCATION
-  const base = axis === 'wind' ? { u: 2.1, v: 0.4 } : { u: 0.52, v: 0.08 }
+  const west = 46
+  const east = 96
+  const south = -2
+  const north = 24
+  const cols = 9
+  const rows = 5
+  const fields: { lat: number; lon: number; u: number; v: number }[] = []
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const lat = south + ((north - south) * r) / (rows - 1)
+      const lon = west + ((east - west) * c) / (cols - 1)
+      // Monsoon drift: strong westerly in summer, easing north of the equator.
+      const seasonal = Math.cos((lat * Math.PI) / 180)
+      // A slow gyre so the field curves instead of running in straight lines.
+      const gyre = Math.sin(((lon - 70) * Math.PI) / 42) * 0.45
+      if (axis === 'wind') {
+        fields.push({
+          lat: Number(lat.toFixed(2)),
+          lon: Number(lon.toFixed(2)),
+          u: Number((3.4 * seasonal + gyre * 1.6).toFixed(3)),
+          v: Number((0.6 * seasonal - 0.9 * gyre).toFixed(3)),
+        })
+      } else {
+        fields.push({
+          lat: Number(lat.toFixed(2)),
+          lon: Number(lon.toFixed(2)),
+          u: Number((0.34 * seasonal + gyre * 0.22).toFixed(3)),
+          v: Number((0.08 * seasonal - 0.12 * gyre).toFixed(3)),
+        })
+      }
+    }
+  }
   return {
-    source: `${DEMO_PROVENANCE} ${axis === 'current' ? 'CURRENT' : 'WIND'}`,
-    fields: [
-      { lat: lat - 0.1, lon: lon - 0.1, ...base },
-      { lat: lat - 0.1, lon: lon + 0.1, ...base },
-      { lat: lat + 0.1, lon: lon - 0.1, ...base },
-      { lat: lat + 0.1, lon: lon + 0.1, ...base },
-    ],
+    source: `${DEMO_PROVENANCE} ${axis === 'wind' ? 'WIND' : 'CURRENT'}`,
+    note: DEMO_PROVENANCE_NOTE,
+    fields,
   }
 }
 
@@ -878,7 +1257,7 @@ export function demoSpillDto(session: DemoSessionState = readDemoSession()) {
   return {
     spillEventId: DEMO_SPILL_EVENT_ID,
     incidentId: DEMO_INCIDENT_ID,
-    vesselId: 'SAMPLE-VSL-001',
+    vesselId: demoCandidateVessels({ lon: session.spillLon, lat: session.spillLat })[0]?.id ?? null,
     time: syntheticIso(0),
     oilType: 'GENERIC CRUDE',
     quantityKg: 5000,
