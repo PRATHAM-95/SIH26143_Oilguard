@@ -184,33 +184,32 @@ export function useWelcomeScroll(
   const parallaxListenersRef = useRef<Set<ParallaxListener>>(new Set())
 
   useEffect(() => {
-    if (reducedMotion) {
-      // High-quality static perspective for accessibility / reduced motion
-      scrollRef.current = {
-        progress: 0,
-        cameraPosition: [12, 12, 22],
-        cameraTarget: [0, 2, 0],
-        vesselOpacity: 1.0,
-        sheenOpacity: 0.85,
-        reconstructionOpacity: 0.8,
-      }
-      rawProgressRef.current = 0
-      lastHandledProgressRef.current = 0
-      setActiveSection(0)
-      return
-    }
-
     const container = containerRef.current
     if (!container) return
 
-    // Sole scroll owner: passive native listener writes raw progress to a ref.
+    const getProgress = () => {
+      const documentRange = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight
+      ) - window.innerHeight
+      const containerRange = container.scrollHeight - container.clientHeight
+      const hasDocumentScroll = documentRange > 0
+      const hasContainerScroll = containerRange > 0
+
+      let progress = 0
+      if (hasContainerScroll && (!hasDocumentScroll || container.scrollTop > 0)) {
+        progress = container.scrollTop / containerRange
+      } else if (hasDocumentScroll) {
+        progress = window.scrollY / documentRange
+      } else if (hasContainerScroll) {
+        progress = container.scrollTop / containerRange
+      }
+
+      return Math.max(0, Math.min(1, progress))
+    }
+
     const handleScroll = () => {
-      const maxScroll = container.scrollHeight - window.innerHeight
-      if (maxScroll <= 0) return
-      rawProgressRef.current = Math.max(
-        0,
-        Math.min(1, window.scrollY / maxScroll)
-      )
+      rawProgressRef.current = getProgress()
     }
 
     // Single rAF driver: derive eased frame once per animation frame.
@@ -229,12 +228,26 @@ export function useWelcomeScroll(
       parallaxListenersRef.current.forEach((listener) => listener(raw))
     }
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handleScroll()
+      }
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll() // Sync initial scroll position
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+    window.addEventListener('pageshow', handleScroll)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    handleScroll()
     rafRef.current = requestAnimationFrame(tick)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
+      container.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+      window.removeEventListener('pageshow', handleScroll)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       cancelAnimationFrame(rafRef.current)
     }
   }, [containerRef, reducedMotion])

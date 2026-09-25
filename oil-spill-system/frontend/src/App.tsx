@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Navigate, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import CommandCenter from './ui/pages/CommandCenterPage'
 import Simulation from './ui/pages/SimulationPage'
@@ -22,9 +22,9 @@ const ROUTE_COMPONENTS: Record<AppRoutePath, React.ComponentType> = {
 }
 
 /**
- * M11: the cinematic welcome is the root experience. '/' and '/welcome' both
- * render the same shared WelcomePage module; the operational Command Center
- * lives at '/command-center'. No duplicate scene — one lazy module.
+ * M11: the cinematic welcome is the root experience. The root entry redirects
+ * to the canonical '/welcome' route; the operational Command Center lives at
+ * '/command-center'. No duplicate scene — one lazy module.
  */
 const WelcomeElement = (
   <Suspense fallback={<WelcomeLoadingShell />}>
@@ -35,8 +35,8 @@ const WelcomeElement = (
 function App() {
   return (
     <Routes>
-      {/* M6/M11: Standalone cinematic 3D welcome — root experience + alias */}
-      <Route path="/" element={WelcomeElement} />
+      {/* M6/M11: Standalone cinematic 3D welcome — canonical route */}
+      <Route path="/" element={<Navigate to="/welcome" replace />} />
       <Route path="/welcome" element={WelcomeElement} />
 
       {/* Operational workstation routes within Layout shell */}

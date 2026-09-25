@@ -150,7 +150,7 @@ export const WelcomePage: React.FC = () => {
 
       {/* Native scroll track providing scrollable document distance */}
       <div
-        style={{ height: reducedMotion ? '100vh' : '360vh' }}
+        style={{ height: '360vh' }}
         className="w-full pointer-events-none"
         aria-hidden="true"
       />

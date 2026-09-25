@@ -13,7 +13,8 @@ const VIEWPORTS = [
   { label: '768x1024', width: 768, height: 1024 },
 ]
 
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
+const APP_BASE_PATH = process.env.PLAYWRIGHT_BASE_PATH ?? '/SIH26143_Oilguard'
 const M6_SCREENSHOT_DIR = path.resolve(__dirname, '../../../docs/frontend-rebuild/screenshots/M6')
 
 test.beforeAll(() => {
@@ -38,7 +39,7 @@ for (const vp of VIEWPORTS) {
       })
 
       // 1. Navigate to /welcome
-      await page.goto(`${BASE_URL}/welcome`, { waitUntil: 'networkidle', timeout: 30_000 })
+      await page.goto(`${BASE_URL}${APP_BASE_PATH}/welcome`, { waitUntil: 'networkidle', timeout: 30_000 })
       await page.waitForTimeout(1000)
 
       // Verify no horizontal overflow
@@ -106,7 +107,7 @@ for (const vp of VIEWPORTS) {
       await ctaBtn.click({ force: true })
 
       // Client-side SPA navigation assertion (M11: Command Center at /command-center)
-      await expect(page).toHaveURL(`${BASE_URL}/command-center`, { timeout: 10_000 })
+      await expect(page).toHaveURL(`${BASE_URL}${APP_BASE_PATH}/command-center`, { timeout: 10_000 })
 
       // Assert no fatal console errors
       expect(consoleErrors.filter((e) => !e.includes('favicon'))).toHaveLength(0)
@@ -116,6 +117,33 @@ for (const vp of VIEWPORTS) {
   })
 }
 
+test('Base entry route loads a scrollable welcome scene', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    reducedMotion: 'no-preference',
+  })
+  const page = await context.newPage()
+
+  await page.goto(`${BASE_URL}${APP_BASE_PATH}/`, {
+    waitUntil: 'networkidle',
+    timeout: 30_000,
+  })
+  await expect(page).toHaveURL(`${BASE_URL}${APP_BASE_PATH}/welcome`)
+  await expect(page.locator('canvas')).toBeAttached()
+
+  const maxScroll = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight
+  )
+  expect(maxScroll).toBeGreaterThan(0)
+
+  await page.mouse.move(720, 450)
+  await page.mouse.wheel(0, 1_600)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await expect(page.locator('[aria-current=step]')).toContainText(/0[2-5]/)
+
+  await context.close()
+})
+
 test('Reduced motion mode renders static accessible view with working CTA', async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
@@ -123,7 +151,7 @@ test('Reduced motion mode renders static accessible view with working CTA', asyn
   })
   const page = await context.newPage()
 
-  await page.goto(`${BASE_URL}/welcome`, { waitUntil: 'networkidle', timeout: 30_000 })
+  await page.goto(`${BASE_URL}${APP_BASE_PATH}/welcome`, { waitUntil: 'networkidle', timeout: 30_000 })
   await page.waitForTimeout(1000)
 
   // Take screenshot of reduced motion state
@@ -131,11 +159,19 @@ test('Reduced motion mode renders static accessible view with working CTA', asyn
     path: path.join(M6_SCREENSHOT_DIR, `welcome-reduced-motion-1440x900.png`),
   })
 
+  const maxScroll = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight
+  )
+  expect(maxScroll).toBeGreaterThan(0)
+  await page.evaluate(() => window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) * 0.7))
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await expect(page.locator('[aria-current=step]')).toContainText(/0[2-5]/)
+
   // CTA button should be immediately accessible
   const ctaBtn = page.getByRole('button', { name: /COMMAND CENTER/i }).first()
   await expect(ctaBtn).toBeVisible()
   await ctaBtn.click({ force: true })
-  await expect(page).toHaveURL(`${BASE_URL}/command-center`, { timeout: 10_000 })
+  await expect(page).toHaveURL(`${BASE_URL}${APP_BASE_PATH}/command-center`, { timeout: 10_000 })
 
   await context.close()
 })
@@ -157,7 +193,7 @@ test('WebGL disabled renders designed 2D architectural fallback', async ({ brows
     }
   })
 
-  await page.goto(`${BASE_URL}/welcome`, { waitUntil: 'networkidle', timeout: 30_000 })
+  await page.goto(`${BASE_URL}${APP_BASE_PATH}/welcome`, { waitUntil: 'networkidle', timeout: 30_000 })
   await page.waitForTimeout(1000)
 
   // Verify fallback is rendered
@@ -172,7 +208,7 @@ test('WebGL disabled renders designed 2D architectural fallback', async ({ brows
   const ctaBtn = page.getByRole('button', { name: /ENTER COMMAND CENTER/i }).first()
   await expect(ctaBtn).toBeVisible()
   await ctaBtn.click()
-  await expect(page).toHaveURL(`${BASE_URL}/command-center`, { timeout: 10_000 })
+  await expect(page).toHaveURL(`${BASE_URL}${APP_BASE_PATH}/command-center`, { timeout: 10_000 })
 
   await context.close()
 })

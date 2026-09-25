@@ -10,7 +10,30 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: '/SIH26143_Oilguard/',
-    plugins: [tailwindcss(), react(), viteCompression({ algorithm: 'gzip', threshold: 10240 })],
+    plugins: [
+      tailwindcss(),
+      react(),
+      viteCompression({ algorithm: 'gzip', threshold: 10240 }),
+      {
+        name: 'oilguard-base-path-redirect',
+        configureServer(server) {
+          server.middlewares.use((request, response, next) => {
+            const requestUrl = request.url ?? ''
+            const pathname = requestUrl.split('?')[0]
+            if (pathname !== '/SIH26143_Oilguard') {
+              next()
+              return
+            }
+
+            const queryIndex = requestUrl.indexOf('?')
+            const query = queryIndex >= 0 ? requestUrl.slice(queryIndex) : ''
+            response.statusCode = 308
+            response.setHeader('Location', `/SIH26143_Oilguard/${query}`)
+            response.end()
+          })
+        },
+      },
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
