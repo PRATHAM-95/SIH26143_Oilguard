@@ -164,7 +164,11 @@ function ActivityFeed() {
   if (feed.length === 0) {
     return (
       <div className="activity-empty">
-        No recent activity. Run or join a live challenge and pipeline events will stream here.
+        <span className="activity-empty-title">No active incident</span>
+        <span className="activity-empty-body">
+          Run Detection or launch a controlled challenge to populate the
+          operational workspace.
+        </span>
       </div>
     )
   }
@@ -873,9 +877,12 @@ function VesselSearchTab() {
       </div>
 
       {results.length === 0 ? (
-        <div className="activity-empty">
-          NO VESSELS IN SCOPE — start a challenge to populate the fleet.
-        </div>
+    <div className="activity-empty">
+      <span className="activity-empty-title">No vessels in scope</span>
+      <span className="activity-empty-body">
+        Start a challenge to ingest AIS traffic for the selected region.
+      </span>
+    </div>
       ) : (
         <ul className="vessel-results">
           {results.map((r) => (
@@ -936,9 +943,12 @@ function ReportsTab() {
           <ArrowRightIcon size={14} />
         </Link>
       ) : (
-        <div className="activity-empty">
-          NO REPORTS YET — an investigated case with detected slick is required.
-        </div>
+    <div className="activity-empty">
+      <span className="activity-empty-title">No case reports yet</span>
+      <span className="activity-empty-body">
+        Reports are generated once an investigated case has a detected slick.
+      </span>
+    </div>
       )}
 
       <Link to="/attribution" className="card link-card">

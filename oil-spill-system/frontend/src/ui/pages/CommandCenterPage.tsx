@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { OilGuardShell } from '../command-center/OilGuardShell'
+import { useDemoOperationalScene } from '../command-center/useDemoOperationalScene'
 import { useSimulationConnection } from '@/hooks/useSimulationConnection'
 import { useInvestigationConnection } from '@/hooks/useInvestigationConnection'
 import { useSimulationStore } from '@/store/simulationStore'
@@ -23,6 +24,9 @@ export default function CommandCenterPage() {
   const loadForSimulation = useInvestigationStore((s) => s.loadForSimulation)
   const investigationId = useInvestigationStore((s) => s.investigationId)
   const booted = useRef(false)
+
+  // Controlled-demo hydration (no-op outside ?demo=1).
+  useDemoOperationalScene()
 
   // Real-time WebSocket connection sync
   useSimulationConnection(simulationId)
@@ -51,6 +55,16 @@ export default function CommandCenterPage() {
   useEffect(() => {
     if (simulationId) void loadForSimulation(simulationId)
   }, [simulationId, loadForSimulation])
+
+  // Feature layers must follow the active simulation, not just the cold open —
+  // otherwise a simulation adopted later (or the controlled demo) shows an
+  // empty chart.
+  useEffect(() => {
+    if (!simulationId) return
+    void useSarStore.getState().loadObservation(simulationId)
+    void useBacktrackingStore.getState().loadRuns(simulationId)
+    void useAttributionStore.getState().loadRuns(simulationId)
+  }, [simulationId])
 
   return <OilGuardShell />
 }

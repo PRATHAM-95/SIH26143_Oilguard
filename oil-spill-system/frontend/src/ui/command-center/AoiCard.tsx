@@ -1,5 +1,6 @@
 import { REGION_BY_ID, type MapLayerId } from '@/store/mapStore'
 import { useSimulationStore } from '@/store/simulationStore'
+import { ChevronDownIcon } from '@/components/ui/Icon'
 
 /**
  * Area-of-interest card.
@@ -18,20 +19,19 @@ export function AoiCard() {
 
   return (
     <section className="cc-aoi" aria-label="Area of interest">
-      <div className="cc-aoi-top">
-        <div className="cc-aoi-kicker">Area of Interest</div>
-        <span className="cc-aoi-caret" aria-hidden="true">
-          ▾
-        </span>
-      </div>
+      <div className="cc-aoi-kicker">Area of Interest</div>
 
-      <h2 className="cc-aoi-title">{region.label} Region</h2>
+      {/* The whole region line is the disclosure target, not just the caret. */}
+      <button type="button" className="cc-aoi-region" title="Change the active area of interest">
+        <span className="cc-aoi-title">{region.label} Region</span>
+        <span className="cc-aoi-caret" aria-hidden="true">
+          <ChevronDownIcon size={13} />
+        </span>
+      </button>
 
       <div className="cc-aoi-coords">
         <span className="cc-aoi-coord">{extent}</span>
-        <span className="cc-aoi-coord-div" aria-hidden="true">
-          |
-        </span>
+        <span className="cc-aoi-coord-div" aria-hidden="true" />
         <span className="cc-aoi-coord">{longitude}</span>
       </div>
 

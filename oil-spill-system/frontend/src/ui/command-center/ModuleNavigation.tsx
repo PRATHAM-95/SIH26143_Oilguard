@@ -4,6 +4,7 @@ import { useSarStore } from '@/store/sarStore'
 import { useSimulationStore } from '@/store/simulationStore'
 import { useConnectionStore } from '@/store/connectionStore'
 import { REGION_BY_ID } from '@/store/mapStore'
+import { isDemoMode } from '@/lib/demo/mode'
 import { runLiveChallenge, useChallengeStore, type ChallengePhase } from '@/ui/console/ChallengeRunner'
 
 /**
@@ -45,6 +46,7 @@ export function ModuleNavigation() {
   const sarCount = useSarStore((s) => s.candidates.length)
   const hasSpill = useSimulationStore((s) => s.spill != null)
   const connections = useConnectionStore((s) => s.connections)
+  const demo = isDemoMode()
 
   const busy = BUSY_PHASES.includes(phase)
 
@@ -54,6 +56,12 @@ export function ModuleNavigation() {
     (k) => connections[k] === 'offline',
   )
 
+  // In the controlled demo no live socket is ever expected — the deterministic
+  // adapter answers every call locally. Reporting that as an outage would be
+  // wrong, so it degrades to an advisory instead of an incident.
+  const expectedSocketGap = demo && connections.websocket !== 'online'
+  const outage = downLinks.filter((k) => !(expectedSocketGap && k === 'websocket'))
+
   const activeSignals: string[] = []
   if (busy) activeSignals.push('Pipeline running')
   if (investigationStatus === 'RUNNING') activeSignals.push('Investigation active')
@@ -61,24 +69,32 @@ export function ModuleNavigation() {
   if (sarCount > 0) activeSignals.push(`${sarCount} SAR candidate${sarCount === 1 ? '' : 's'}`)
 
   const tone =
-    phase === 'failed' || downLinks.length > 0 ? 'down' : activeSignals.length > 0 ? 'warn' : 'ok'
+    phase === 'failed' || outage.length > 0
+      ? 'down'
+      : expectedSocketGap || activeSignals.length > 0
+        ? 'warn'
+        : 'ok'
 
   const headline =
     phase === 'failed'
       ? 'Pipeline Error'
-      : downLinks.length > 0
+      : outage.length > 0
         ? 'Backend Offline'
-        : activeSignals.length > 0
-          ? `${activeSignals.length} Active Alert${activeSignals.length === 1 ? '' : 's'}`
-          : 'No Active Alerts'
+        : expectedSocketGap
+          ? 'Simulated Feed'
+          : activeSignals.length > 0
+            ? `${activeSignals.length} Active Alert${activeSignals.length === 1 ? '' : 's'}`
+            : 'No Active Alerts'
 
   const detail =
     challengeError ??
-    (downLinks.length > 0
-      ? `${downLinks.join(', ')} unreachable`
-      : activeSignals.length > 0
-        ? activeSignals.join(' · ')
-        : 'System nominal')
+    (outage.length > 0
+      ? `${outage.join(', ')} unreachable`
+      : expectedSocketGap
+        ? 'Demo session · live socket not required'
+        : activeSignals.length > 0
+          ? activeSignals.join(' · ')
+          : 'System nominal')
 
   return (
     <div className="cc-nav">

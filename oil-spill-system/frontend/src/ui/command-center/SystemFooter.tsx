@@ -2,6 +2,7 @@ import { useSimulationStore } from '@/store/simulationStore'
 import { useConnectionStore } from '@/store/connectionStore'
 import { useUiStore } from '@/store/uiStore'
 import { MODULE_LABEL } from '@/store/uiStore'
+import { isDemoMode } from '@/lib/demo/mode'
 
 /**
  * System footer.
@@ -15,14 +16,22 @@ export function SystemFooter() {
   const simulationId = useSimulationStore((s) => s.simulationId)
   const connections = useConnectionStore((s) => s.connections)
   const activeModule = useUiStore((s) => s.activeModule)
+  const demo = isDemoMode()
 
-  // Same predicate as the module-nav alert, so the two never disagree.
-  const downLinks = (['api', 'websocket', 'mongo'] as const).filter(
-    (k) => connections[k] === 'offline',
+  // Same predicate as the module-nav alert, so the two never disagree. A live
+  // socket is never expected under the controlled demo, so its absence is an
+  // advisory, not an outage.
+  const expectedSocketGap = demo && connections.websocket !== 'online'
+  const outage = (['api', 'websocket', 'mongo'] as const).filter(
+    (k) => connections[k] === 'offline' && !(expectedSocketGap && k === 'websocket'),
   )
-  const degraded = downLinks.length > 0
-  const health = degraded ? 'Attention Required' : 'All Systems Operational'
-  const tone = degraded ? 'warn' : 'ok'
+  const degraded = outage.length > 0
+  const health = degraded
+    ? 'Attention Required'
+    : expectedSocketGap
+      ? 'Simulated Environment'
+      : 'All Systems Operational'
+  const tone = degraded ? 'warn' : expectedSocketGap ? 'info' : 'ok'
 
   return (
     <footer className="cc-footer" role="contentinfo">

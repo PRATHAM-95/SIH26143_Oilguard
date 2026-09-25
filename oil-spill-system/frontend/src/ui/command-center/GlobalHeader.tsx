@@ -4,6 +4,7 @@ import { useSarStore } from '@/store/sarStore'
 import { useUtcClock } from '@/hooks/useUtcClock'
 import { useDataProvenance } from '@/ui/hooks/useDataProvenance'
 import { isDemoMode } from '@/lib/demo/mode'
+import { OilGuardMark } from '@/components/ui/Icon'
 
 /**
  * Command Center global header.
@@ -83,11 +84,7 @@ export function GlobalHeader() {
     <header className="cc-header" role="banner">
       <div className="cc-brand">
         <span className="cc-brand-mark" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 3a13 13 0 0 1 0 18 13 13 0 0 1 0-18" />
-            <path d="M3.6 9.5c2.3 1.3 5.3 2 8.4 2s6.1-.7 8.4-2M3.6 14.5c2.3-1.3 5.3-2 8.4-2s6.1.7 8.4 2" />
-          </svg>
+          <OilGuardMark size={22} />
         </span>
         <span className="cc-brand-text">
           <span className="cc-brand-title">Maritime Oil Spill Intelligence</span>

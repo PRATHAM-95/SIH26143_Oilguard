@@ -49,6 +49,23 @@ export function ShipIcon(props: IconProps) {
   )
 }
 
+/**
+ * OilGuard product mark: a satellite acquisition arc over an oil slick on open
+ * water. Drawn on the same 24 grid, 1.6 stroke and round caps as the rest of
+ * the set so the brand and the UI share one optical weight. Communicates
+ * maritime + earth observation rather than generic "technology".
+ */
+export function OilGuardMark(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4.5 8.5a7.5 7.5 0 0 1 15 0" opacity={0.5} />
+      <circle cx="12" cy="6.4" r="1.15" />
+      <ellipse cx="12" cy="13.2" rx="5.6" ry="3.2" />
+      <path d="M3 19.2c1.55 0 1.55 1.1 3.1 1.1s1.55-1.1 3.1-1.1 1.55 1.1 3.1 1.1 1.55-1.1 3.1-1.1 1.55 1.1 3.1 1.1" />
+    </Icon>
+  )
+}
+
 export function RadarIcon(props: IconProps) {
   return (
     <Icon {...props}>

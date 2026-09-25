@@ -1,5 +1,6 @@
 import { MAP_LAYER_CATALOG, useMapStore, type MapLayerId } from '@/store/mapStore'
 import { useUiStore } from '@/store/uiStore'
+import { ChevronDownIcon } from '@/components/ui/Icon'
 import { NO_DATA_LAYERS } from './AoiCard'
 
 /**
@@ -92,9 +93,13 @@ export function MapToolbar() {
           onClick={toggleLayers}
         >
           Map Layers
-          <span className="cc-layersbtn-count">{activeCount}</span>
+          {activeCount > 0 ? (
+            <span className="cc-layersbtn-count">
+              {activeCount} active
+            </span>
+          ) : null}
           <span className="cc-layersbtn-caret" aria-hidden="true">
-            ▾
+            <ChevronDownIcon size={12} />
           </span>
         </button>
       </div>
