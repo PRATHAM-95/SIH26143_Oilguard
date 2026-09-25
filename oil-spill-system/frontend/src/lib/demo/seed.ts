@@ -348,6 +348,28 @@ function distanceKm(a: { lon: number; lat: number }, b: { lon: number; lat: numb
 export const DEMO_ATTRIBUTION_RADIUS_KM = 60
 export const DEMO_CANDIDATE_COUNT = 3
 
+/**
+ * Place a vessel relative to the scenario origin: a bearing (degrees clockwise
+ * from north) and a distance in km.
+ *
+ * The three scored candidates are positioned with this rather than as literal
+ * coordinates. A hard-coded position silently decouples from DEMO_SPILL_LOCATION
+ * the moment the origin moves, and the failure is invisible until the
+ * attribution run reports zero candidates against a map full of ships.
+ */
+function standoffFromOrigin(
+  bearingDeg: number,
+  km: number,
+  origin: { lon: number; lat: number } = DEMO_SPILL_LOCATION,
+): [number, number] {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const br = toRad(bearingDeg)
+  const lat = origin.lat + ((km / 6371) * Math.cos(br) * 180) / Math.PI
+  const lon =
+    origin.lon + ((km / 6371) * Math.sin(br) * 180) / Math.PI / Math.cos(toRad(origin.lat))
+  return [Number(lon.toFixed(4)), Number(lat.toFixed(4))]
+}
+
 type FleetSpec = {
   name: string
   mmsi: string
@@ -395,10 +417,12 @@ const DEMO_FLEET_SPEC: FleetSpec[] = [
   // Central Arabian Sea — includes the three scored candidates. These three
   // sit in close attendance on the slick: approaching from the north-east,
   // crossing from the south-west and standing off to the north-west, all inside
-  // DEMO_ATTRIBUTION_RADIUS_KM and none of them on top of the slick.
-  { name: 'GMV ARIES', mmsi: '440123456', type: 'Cargo', corridor: 'arabian-sea-west-india', t: 0.55, offset: 0, speed: 11.8, status: 'Underway', ageMin: 2, destination: 'COCHIN', flag: 'PA', position: [71.55, 12.63] },
-  { name: 'GMV BERGAMOT', mmsi: '440123468', type: 'Tanker', corridor: 'arabian-sea-west-india', t: 0.63, offset: 0, speed: 9.4, status: 'Underway', ageMin: 3, destination: 'MUNDRA', flag: 'MH', position: [70.8, 12.18] },
-  { name: 'MV CHENAB EXPRESS', mmsi: '440123470', type: 'Bulk Carrier', corridor: 'oman-arabian-sea', t: 0.81, offset: 0, speed: 10.7, status: 'Underway', ageMin: 5, destination: 'MANGALORE', flag: 'PK', position: [71.05, 12.85] },
+  // DEMO_ATTRIBUTION_RADIUS_KM and none of them on top of the slick. Their
+  // positions are standoffs from the scenario origin, not literal coordinates,
+  // so moving the origin keeps attribution intact.
+  { name: 'GMV ARIES', mmsi: '440123456', type: 'Cargo', corridor: 'arabian-sea-west-india', t: 0.55, offset: 0, speed: 11.8, status: 'Underway', ageMin: 2, destination: 'COCHIN', flag: 'PA', position: standoffFromOrigin(50, 34) },
+  { name: 'GMV BERGAMOT', mmsi: '440123468', type: 'Tanker', corridor: 'arabian-sea-west-india', t: 0.63, offset: 0, speed: 9.4, status: 'Underway', ageMin: 3, destination: 'MUNDRA', flag: 'MH', position: standoffFromOrigin(215, 47) },
+  { name: 'MV CHENAB EXPRESS', mmsi: '440123470', type: 'Bulk Carrier', corridor: 'oman-arabian-sea', t: 0.81, offset: 0, speed: 10.7, status: 'Underway', ageMin: 5, destination: 'MANGALORE', flag: 'PK', position: standoffFromOrigin(310, 55) },
   { name: 'MV SEA SPRINTER', mmsi: '440123482', type: 'Container', corridor: 'oman-arabian-sea', t: 0.34, offset: -0.16, speed: 18.3, status: 'Underway', ageMin: 1, destination: 'SALALAH', flag: 'CY' },
   { name: 'MT EVEREST SPIRIT', mmsi: '440123494', type: 'LNG Carrier', corridor: 'oman-arabian-sea', t: 0.57, offset: 0.22, speed: 14.6, status: 'Underway', ageMin: 8, destination: 'KARACHI', flag: 'BS' },
   { name: 'MV INDIA GATEWAY', mmsi: '440123506', type: 'Cargo', corridor: 'arabian-sea-west-india', t: 0.14, offset: -0.18, speed: 12.9, status: 'Underway', ageMin: 4, destination: 'NHAVA SHEVA', flag: 'IN' },
