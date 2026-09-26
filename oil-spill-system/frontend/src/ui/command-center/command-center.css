@@ -1100,10 +1100,14 @@
 
 /* --- Legend (bottom-left stack) --- */
 
+/* Bottom-left corner, anchored above the coordinate readout: 41px clears the
+   readout's 22px box plus a 6px gap. It used to sit at 74px to leave room for
+   the metric scale bar, which is gone - with four rows the legend no longer
+   needed the height, and the leftover gap read as the panel floating. */
 .cc-legend {
   position: absolute;
   left: 12px;
-  bottom: 74px;
+  bottom: 41px;
   z-index: 6;
   min-width: 164px;
   max-height: calc(100% - 150px);
@@ -1126,22 +1130,9 @@
   color: var(--cc-dim);
 }
 
-/* Groups keep a dense legend readable: the label the layer drawer groups by,
-   so an operator finds "Ocean currents" in the same place in both surfaces. */
-.cc-legend-group + .cc-legend-group {
-  margin-top: 6px;
-  padding-top: 5px;
-  border-top: 1px solid var(--cc-line-1);
-}
-
-.cc-legend-groupname {
-  margin-bottom: 3px;
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: #3f5265;
-}
+/* The legend is a flat list now. The group headings and dividers it used to
+   carry are gone from the markup along with the layers they categorised, so
+   there is nothing left here for them to style. */
 
 .cc-legend-list {
   display: flex;
@@ -1267,8 +1258,12 @@
   right: auto;
 }
 
+/* Left-aligned with the legend so the two read as one corner cluster. This was
+   pushed to 130px to clear the MapLibre scale bar that shared this corner; with
+   the scale bar removed, nothing else occupies the bottom-left, and the offset
+   only stranded the readout in the middle of the map. */
 .cc-root .map-furniture {
-  left: 130px;
+  left: 12px;
   bottom: 13px;
 }
 

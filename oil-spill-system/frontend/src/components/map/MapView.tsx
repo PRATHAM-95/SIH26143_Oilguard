@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { Map, NavigationControl, ScaleControl, AttributionControl, useMap, useControl } from 'react-map-gl/maplibre'
+import { Map, NavigationControl, AttributionControl, useMap, useControl } from 'react-map-gl/maplibre'
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useMapStore, type Bounds, type MapSelection } from '@/store/mapStore'
@@ -152,7 +152,12 @@ export default function MapView({ layers, onViewStateChange, onSelect, children 
         <DeckOverlay layers={layers} />
         <FitController />
         <NavigationControl position="bottom-right" visualizePitch />
-        <ScaleControl position="bottom-left" unit="metric" maxWidth={120} />
+        {/* No metric scale bar. It sat under the legend and spent the bottom-left
+            corner on a kilometre ruler with a moving tick: at the regional camera
+            it read "500 km", which says nothing about the incident, and it
+            changed as you panned, so it pulled the eye without answering the
+            question it was on screen to answer. The coordinate readout beside the
+            compass still gives an exact position. */}
         <AttributionControl position="bottom-right" compact />
         {children}
       </Map>

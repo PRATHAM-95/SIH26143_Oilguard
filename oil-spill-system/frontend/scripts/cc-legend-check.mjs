@@ -1,28 +1,60 @@
 /**
- * Legend / layer-catalogue agreement probe.
+ * Legend / layer-drawer agreement probe.
  *
- * The map legend used to be a hand-written list that had already drifted from the
- * layer catalogue: it labelled vessel *tracks* as "Shipping Lane" while the real
- * shipping-lane layer went unmentioned, and it drew rows for layers the map cannot
- * render. This probe fails if that drift comes back.
+ * The map legend used to be a hand-written list that had already drifted from
+ * the layer catalogue: it labelled vessel *tracks* as "Shipping Lane" while the
+ * real shipping-lane layer went unmentioned, and it drew rows for layers the map
+ * cannot render. This probe fails if that drift comes back.
  *
  * It compares the two *rendered* surfaces - the floating legend and the layer
- * catalogue drawer - rather than importing the catalogue module, because the real
+ * drawer - rather than importing the catalogue module, because the real
  * invariant is that the two things an operator sees agree. Both are driven by
  * MAP_LAYER_CATALOG, so any disagreement means one of them has grown a private
  * copy of the list.
  *
+ * Both surfaces were then cut down, deliberately, to stop the map giving three
+ * different answers to "what can I turn on": the legend was thirteen rows in
+ * four labelled groups, and the drawer offered all seventeen catalogue layers
+ * including four that only ever render as a disabled explanation. The legend is
+ * now the incident and the fleet; the drawer is the union of the legend and the
+ * toolbar pills. Those are decisions about what to *show*, so they are pinned
+ * here - a future layer added to the catalogue should be a deliberate edit to
+ * this file, not a silent arrival in the drawer.
+ *
  * Checks:
- *   1. Every legend label exists in the catalogue; no invented rows.
- *   2. A legend row is lit only when the catalogue says the layer is available
- *      and on.
- *   3. Every available, on overlay has a lit legend row.
- *   4. Colours agree between the legend swatch and the catalogue swatch.
- *   5. Legend group order matches the catalogue's group order.
+ *   1. Every legend label exists in the drawer; no invented rows.
+ *   2. A legend row is lit only when the drawer says the layer is available and on.
+ *   3. Colours agree between the legend swatch and the drawer swatch.
+ *   4. The legend is exactly the incident and the fleet, in order.
+ *   5. The drawer is exactly the eight operational layers.
+ *   6. Drawer rows explain themselves in a tooltip, not a second line of text.
+ *   7. Drawer groups follow the store's group order.
+ *   8. No metric scale bar has crept back into the bottom-left corner.
  */
 import { chromium } from 'playwright'
 
-const URL = 'http://localhost:4173/SIH26143_Oilguard/command-center?demo=1'
+const URL = process.env.CC_URL || 'http://localhost:4173/SIH26143_Oilguard/command-center?demo=1'
+
+/** The legend's contract: the incident, the fleet, and what the fleet left. */
+const LEGEND_ROWS = ['Potential oil slick', 'Vessels', 'Vessel tracks', 'Forward drift']
+
+/**
+ * The drawer's contract: the legend plus the four environment/boundary layers
+ * the toolbar row already offers, so the two surfaces describe one set.
+ */
+const DRAWER_ROWS = [
+  'Potential oil slick',
+  'Satellite passes',
+  'Vessels',
+  'Vessel tracks',
+  'Forward drift',
+  'EEZ boundaries',
+  'Ocean currents',
+  'Wind field',
+]
+
+/** Group order as the store declares it. Drawer groups must follow this. */
+const GROUP_ORDER = ['Observation', 'Simulation', 'Environment', 'Analysis']
 
 const browser = await chromium.launch({ channel: 'chrome' })
 const page = await browser.newPage({ viewport: { width: 1825, height: 817 } })
@@ -35,11 +67,10 @@ page.on('pageerror', (e) => errs.push('PAGEERROR ' + e.message.slice(0, 160)))
 await page.goto(URL, { waitUntil: 'networkidle', timeout: 60000 })
 await page.waitForTimeout(4000)
 
-// Scrape the legend first: the catalogue drawer is pinned bottom-left and would
-// sit on top of it.
 const legend = await page.evaluate(() => {
   const state = (el) =>
     el.hasAttribute('data-on') ? 'on' : el.hasAttribute('data-nodata') ? 'nodata' : 'off'
+  const section = document.querySelector('section.cc-legend')
   return {
     rows: [...document.querySelectorAll('.cc-legend-row')].map((el) => ({
       label: (el.textContent || '').trim(),
@@ -47,11 +78,18 @@ const legend = await page.evaluate(() => {
       title: el.getAttribute('title'),
       color: getComputedStyle(el).getPropertyValue('--cc-legend-color').trim().toLowerCase(),
     })),
-    groups: [...document.querySelectorAll('.cc-legend-groupname')].map((el) =>
-      (el.textContent || '').trim(),
-    ),
+    // A flat list reads better than four rows sorted into categories, so the
+    // headings are gone from the markup. Recorded to catch them creeping back.
+    groupHeadings: [...document.querySelectorAll('.cc-legend-groupname')].length,
+    box: section ? { w: Math.round(section.getBoundingClientRect().width) } : null,
   }
 })
+
+// 8. The scale bar sat under the legend and was removed; it is easy to add back
+// by accident from a MapLibre example.
+const scaleBars = await page.evaluate(
+  () => document.querySelectorAll('.maplibregl-ctrl-scale').length,
+)
 
 await page.click('.cc-layersbtn')
 await page.waitForTimeout(500)
@@ -65,22 +103,22 @@ const catalogue = await page.evaluate(() => {
     return '#' + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')
   }
   return {
-    groups: [...root.parentElement.querySelectorAll('h4')].map((el) =>
-      (el.textContent || '').trim(),
-    ),
+    groups: [...root.querySelectorAll('h4')].map((el) => (el.textContent || '').trim()),
     rows: [...root.querySelectorAll('button')].map((btn) => {
-      const all = [...btn.querySelectorAll('span')]
       // Pick by role, not index: the button nests a wrapper span around the
       // swatch and the label, so positional indexing is brittle.
       const swatch = btn.querySelector('span > span[style]')
       const label = btn.querySelector('.text-sm')
       const status = btn.querySelector('.font-mono')
-      const note = all[all.length - 1]
       return {
         label: (label?.textContent || '').trim(),
         status: (status?.textContent || '').trim(),
         color: swatch ? hex(getComputedStyle(swatch).borderColor) : '',
-        note: note && note !== label ? (note.textContent || '').trim() : '',
+        title: btn.getAttribute('title'),
+        // 6: a note rendered as a sibling of the label doubles every row's height.
+        noteLines: [...btn.querySelectorAll('span > span')].filter(
+          (s) => s !== label && s !== status && s.textContent && s.textContent.trim().length > 2,
+        ).length,
       }
     }),
   }
@@ -94,7 +132,7 @@ if (!catalogue) {
   problems.push({ kind: 'no-catalogue' })
 } else {
   const byLabel = new Map(catalogue.rows.map((r) => [r.label, r]))
-  const legendByLabel = new Map(legend.rows.map((r) => [r.label, r]))
+  const legendLabels = legend.rows.map((r) => r.label)
 
   // 1. No invented legend rows.
   for (const row of legend.rows) {
@@ -109,7 +147,7 @@ if (!catalogue) {
     const expected =
       entry.status === 'on' ? 'on' : entry.status === 'no data' ? 'nodata' : 'off'
 
-    // 2. Lit only when the catalogue says available and on.
+    // 2. Lit only when the drawer says available and on.
     if (row.state !== expected) {
       problems.push({
         kind: 'state-mismatch',
@@ -119,7 +157,7 @@ if (!catalogue) {
       })
     }
 
-    // 4. Colours agree.
+    // 3. Colours agree.
     if (row.color && entry.color && row.color !== entry.color) {
       problems.push({
         kind: 'colour-mismatch',
@@ -130,25 +168,50 @@ if (!catalogue) {
     }
   }
 
-  // 3. Every available, on overlay that is not the basemap is lit in the legend.
-  for (const entry of catalogue.rows) {
-    if (entry.status === 'on' && !legendByLabel.has(entry.label)) {
-      problems.push({ kind: 'active-layer-missing-from-legend', label: entry.label })
+  // 4. The legend is the incident and the fleet, in order - nothing more.
+  if (legendLabels.join('|') !== LEGEND_ROWS.join('|')) {
+    problems.push({ kind: 'legend-rows', want: LEGEND_ROWS.join('|'), got: legendLabels.join('|') })
+  }
+  if (legend.groupHeadings > 0) {
+    problems.push({ kind: 'legend-group-headings', count: legend.groupHeadings })
+  }
+
+  // 5. The drawer is exactly the operational set.
+  const drawerLabels = catalogue.rows.map((r) => r.label)
+  if (drawerLabels.join('|') !== DRAWER_ROWS.join('|')) {
+    problems.push({ kind: 'drawer-rows', want: DRAWER_ROWS.join('|'), got: drawerLabels.join('|') })
+  }
+
+  // 6. Rows explain themselves on hover, not by growing.
+  for (const row of catalogue.rows) {
+    if (!row.title || row.title.length < 4) {
+      problems.push({ kind: 'drawer-row-no-title', label: row.label })
+    }
+    if (row.noteLines > 0) {
+      problems.push({ kind: 'drawer-note-line', label: row.label, count: row.noteLines })
     }
   }
 
-  // 5. Group order matches.
-  const legendSeq = legend.groups.join('|')
-  const catalogueSeq = catalogue.groups.filter((g) => legend.groups.includes(g)).join('|')
-  if (legendSeq !== catalogueSeq) {
-    problems.push({ kind: 'group-order', legend: legendSeq, catalogue: catalogueSeq })
+  // 7. Drawer groups follow the store's declared order, with none invented.
+  const groupSeq = catalogue.groups.join('|')
+  const expectedGroups = GROUP_ORDER.filter((g) => catalogue.groups.includes(g)).join('|')
+  if (groupSeq !== expectedGroups) {
+    problems.push({ kind: 'group-order', want: expectedGroups, got: groupSeq })
   }
+}
+
+if (scaleBars > 0) {
+  problems.push({ kind: 'scale-bar-returned', count: scaleBars })
 }
 
 const out = {
   ok: problems.length === 0 && errs.length === 0,
-  rowCount: legend.rows.length,
-  groups: legend.groups,
+  legendRows: legend.rows.length,
+  legendOrder: legend.rows.map((r) => r.label),
+  drawerRows: catalogue ? catalogue.rows.length : 0,
+  drawerOrder: catalogue ? catalogue.rows.map((r) => r.label) : [],
+  groups: catalogue ? catalogue.groups : [],
+  scaleBars,
   lit: legend.rows.filter((r) => r.state === 'on').map((r) => r.label),
   dimmed: legend.rows.filter((r) => r.state === 'nodata').map((r) => r.label),
   problems,

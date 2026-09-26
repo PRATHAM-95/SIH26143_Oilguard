@@ -4,6 +4,7 @@ import {
   MAP_LAYER_CATALOG,
   LAYER_GROUP_ORDER,
   LAYER_GROUP_LABEL,
+  OPERATIONAL_LAYER_IDS,
   MapLayerId,
 } from '@/store/mapStore'
 
@@ -63,8 +64,11 @@ export function LayerDrawer({
 
       <div className="overflow-y-auto p-2" role="group" aria-label="Layer catalogue">
         {LAYER_GROUP_ORDER.map((group) => {
-          const layersInGroup = (Object.keys(MAP_LAYER_CATALOG) as MapLayerId[]).filter(
-            (id) => MAP_LAYER_CATALOG[id].group === group
+          // Only the operational layers, so the drawer lists the same set the
+          // toolbar row and the legend describe. See OPERATIONAL_LAYER_IDS for
+          // what that leaves out and why each exclusion is still reachable.
+          const layersInGroup = OPERATIONAL_LAYER_IDS.filter(
+            (id) => MAP_LAYER_CATALOG[id].group === group,
           )
 
           if (layersInGroup.length === 0) return null
@@ -87,37 +91,29 @@ export function LayerDrawer({
                       disabled={!isAvailable}
                       aria-pressed={isAvailable ? isVisible : undefined}
                       onClick={() => toggleLayer(id)}
-                      className="group w-full flex flex-col px-2 py-1.5 rounded transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--border-default)] disabled:hover:bg-transparent"
+                      // The note moves to the tooltip rather than a second line
+                      // under every row. It was doubling the height of the list
+                      // to repeat text the toolbar pill already carries, and the
+                      // reason a layer exists is wanted once, not on every visit.
+                      title={isAvailable ? (meta.note ?? meta.label) : (meta.emptyNote ?? 'Not available in this session')}
+                      className="group w-full flex items-center justify-between px-2 py-1.5 rounded transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--border-default)] disabled:hover:bg-transparent"
                     >
-                      <span className="flex items-center justify-between">
-                        <span className="flex items-center space-x-2">
-                          <span
-                            className="w-3 h-3 rounded border border-current"
-                            style={{
-                              backgroundColor: isVisible ? meta.color || 'white' : 'transparent',
-                              borderColor: meta.color || 'white',
-                            }}
-                            aria-hidden="true"
-                          />
-                          <span className={`text-sm ${isVisible ? 'text-ink-1' : 'text-ink-3 group-hover:text-ink-1'}`}>
-                            {meta.label}
-                          </span>
-                        </span>
-                        <span className="text-[10px] font-mono text-ink-3">
-                          {isAvailable ? (isVisible ? 'on' : 'off') : 'no data'}
+                      <span className="flex items-center space-x-2">
+                        <span
+                          className="w-3 h-3 rounded border border-current"
+                          style={{
+                            backgroundColor: isVisible ? meta.color || 'white' : 'transparent',
+                            borderColor: meta.color || 'white',
+                          }}
+                          aria-hidden="true"
+                        />
+                        <span className={`text-sm ${isVisible ? 'text-ink-1' : 'text-ink-3 group-hover:text-ink-1'}`}>
+                          {meta.label}
                         </span>
                       </span>
-
-                      {meta.emptyNote && !isVisible && (
-                        <span className="text-[10px] text-ink-muted mt-1 ml-5">
-                          {meta.emptyNote}
-                        </span>
-                      )}
-                      {meta.note && isVisible && (
-                        <span className="text-[10px] text-ink-muted mt-1 ml-5">
-                          {meta.note}
-                        </span>
-                      )}
+                      <span className="text-[10px] font-mono text-ink-3">
+                        {isAvailable ? (isVisible ? 'on' : 'off') : 'no data'}
+                      </span>
                     </button>
                   )
                 })}

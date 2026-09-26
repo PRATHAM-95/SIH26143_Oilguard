@@ -1,7 +1,5 @@
 import {
   MAP_LAYER_CATALOG,
-  LAYER_GROUP_LABEL,
-  LAYER_GROUP_ORDER,
   useMapStore,
   type MapLayerId,
 } from '@/store/mapStore'
@@ -46,78 +44,53 @@ const SHAPE: Partial<Record<MapLayerId, Shape>> = {
 }
 
 /**
- * Draw order within each group: the evidence an operator reads first, then the
- * context, then the environment.
+ * Draw order: the evidence an operator reads first, then the fleet, then what
+ * the fleet leaves behind.
  *
- * The step-scoped analysis products - backtracking, uncertainty and source
- * probability - are deliberately absent. They belong to the attribution step and
- * the layer drawer already explains them, so listing them would push the legend
- * down the map for rows that are off almost all the time.
+ * This used to be thirteen rows in four labelled groups, which made a 324px-tall
+ * panel out of four rows' worth of reading. It now names only the incident and
+ * the fleet, and the group headings go with it - four rows do not need to be
+ * sorted into categories, and the headings cost as much height as two rows.
+ *
+ * The environment and analysis layers are still switchable, in the toolbar row
+ * and the layer drawer. A legend's job is to say what the bright things on the
+ * map are, and a dimmed "Wind Vectors" row does not help anyone read the water.
  */
-const ROW_ORDER: MapLayerId[] = [
-  'sarSlicks',
-  'sarFootprint',
-  'slick',
-  'vessels',
-  'attribution',
-  'vesselTrails',
-  'shippingLanes',
-  'eez',
-  'drift',
-  'currents',
-  'wind',
-  'weather',
-  'incidents',
-]
+const ROW_ORDER: MapLayerId[] = ['sarSlicks', 'vessels', 'vesselTrails', 'drift']
 
 export function MapLegend() {
   const visibility = useMapStore((s) => s.visibility)
   const available = useAvailableMapLayers()
 
-  const groups = LAYER_GROUP_ORDER.map((group) => ({
-    group,
-    rows: ROW_ORDER.map((id) => ({ id, entry: MAP_LAYER_CATALOG[id] }))
-      .filter(
-        (r) =>
-          r.entry.group === group &&
-          // The basemap is a background, not an overlay, so it has no legend row.
-          r.id !== 'satellite',
-      )
-      .sort((a, b) => Number(available.has(b.id)) - Number(available.has(a.id))),
-  })).filter((g) => g.rows.length > 0)
+  const rows = ROW_ORDER.map((id) => ({ id, entry: MAP_LAYER_CATALOG[id] })).filter(
+    (r) => r.id !== 'satellite',
+  )
 
   return (
     <section className="cc-legend" aria-label="Map legend">
       <div className="cc-legend-kicker">Legend</div>
-      {groups.map((g) => (
-        <div key={g.group} className="cc-legend-group">
-          <div className="cc-legend-groupname">{LAYER_GROUP_LABEL[g.group]}</div>
-          <ul className="cc-legend-list">
-            {g.rows.map(({ id, entry }) => {
-              const drawable = available.has(id)
-              const on = drawable && visibility[id]
-              return (
-                <li
-                  key={id}
-                  className="cc-legend-row"
-                  data-on={on || undefined}
-                  data-nodata={!drawable || undefined}
-                  data-shape={SHAPE[id] ?? 'dot'}
-                  style={{ '--cc-legend-color': entry.color } as React.CSSProperties}
-                  title={
-                    drawable
-                      ? (entry.note ?? entry.label)
-                      : (entry.emptyNote ?? 'Not available in this session')
-                  }
-                >
-                  <span className="cc-legend-mark" aria-hidden="true" />
-                  {entry.label}
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      ))}
+      <ul className="cc-legend-list">
+        {rows.map(({ id, entry }) => {
+          const drawable = available.has(id)
+          const on = drawable && visibility[id]
+          return (
+            <li
+              key={id}
+              className="cc-legend-row"
+              data-on={on || undefined}
+              data-nodata={!drawable || undefined}
+              data-shape={SHAPE[id] ?? 'dot'}
+              style={{ '--cc-legend-color': entry.color } as React.CSSProperties}
+              title={
+                drawable ? (entry.note ?? entry.label) : (entry.emptyNote ?? 'Not available in this session')
+              }
+            >
+              <span className="cc-legend-mark" aria-hidden="true" />
+              {entry.label}
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }

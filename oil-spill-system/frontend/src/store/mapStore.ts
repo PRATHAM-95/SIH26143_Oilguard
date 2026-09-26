@@ -50,6 +50,39 @@ export const LAYER_GROUP_LABEL: Record<LayerGroup, string> = {
 
 export const LAYER_GROUP_ORDER: LayerGroup[] = ['observation', 'simulation', 'environment', 'analysis']
 
+/**
+ * The layers the map's own controls describe, in one place.
+ *
+ * The catalogue holds 17 entries because the rest of the app needs to name every
+ * layer it can draw. The command centre's three layer surfaces did not need all
+ * of them: the toolbar's row, the legend and the drawer each listed a different
+ * selection, so the same map presented three different answers to "what can I
+ * turn on". This is the union of what the toolbar offers and what the legend
+ * explains, and the drawer now lists exactly it.
+ *
+ * Deliberately excluded, and still fully functional:
+ *   - `satellite` — the basemap is chosen by the SAT/DARK control, not a toggle.
+ *   - `backtracking`, `uncertainty`, `sourceProbability`, `attribution` — the
+ *     step-scoped analysis products. The investigation stepper turns each one on
+ *     when its stage runs, so they are not something an operator sets by hand.
+ *   - `weather`, `incidents` — no connected provider, so they only ever render
+ *     as disabled rows explaining an absence.
+ *   - `shippingLanes` — synthetic demo context, not part of the scenario.
+ *   - `slick` — the app-level observation point, which only exists once a
+ *     journey step releases a spill. The detection it would otherwise be
+ *     confused with is `sarSlicks`, which is in this list.
+ */
+export const OPERATIONAL_LAYER_IDS: MapLayerId[] = [
+  'sarSlicks',
+  'vessels',
+  'vesselTrails',
+  'drift',
+  'eez',
+  'sarFootprint',
+  'currents',
+  'wind',
+]
+
 /** Colour swatches mirror styles/vsco.ts so the palette can never drift. */
 export const MAP_LAYER_CATALOG: Record<MapLayerId, LayerVisibility> = {
   satellite: {
