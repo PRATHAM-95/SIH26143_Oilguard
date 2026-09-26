@@ -302,6 +302,20 @@ export type MapSelection = {
   name?: string | null
 }
 
+/**
+ * What the pointer is currently over, plus where on screen it is.
+ *
+ * deck.gl reports hover in the same pick payload as click, so a hovered object
+ * can be highlighted in the layer stack while a DOM tooltip is positioned from
+ * the same coordinates. `x`/`y` are pixels relative to the map pane, which is
+ * the space the overlay chrome is positioned in.
+ */
+export type MapHover = {
+  pick: MapSelection | null
+  x: number
+  y: number
+}
+
 type MapStoreState = {
   view: MapViewState
   visibility: Record<MapLayerId, boolean>
@@ -309,6 +323,8 @@ type MapStoreState = {
   selection: MapSelection | null
   /** Live cursor position in the map pane, for the coordinate readout. */
   cursor: { lon: number; lat: number } | null
+  /** Object under the pointer, for hover highlighting and the hover tooltip. */
+  hover: MapHover | null
   /** Bounds requested by pages to fit the area of interest. */
   fitBounds: Bounds | null
   /**
@@ -326,6 +342,7 @@ type MapStoreState = {
   select: (selection: MapSelection | null) => void
   clearSelection: () => void
   setCursor: (cursor: { lon: number; lat: number } | null) => void
+  setHover: (hover: MapHover | null) => void
   requestFit: (bounds: Bounds) => void
   clearFit: () => void
   setBasemap: (basemap: 'dark' | 'satellite') => void
@@ -340,6 +357,7 @@ export const useMapStore = create<MapStoreState>((set) => ({
   ready: false,
   selection: null,
   cursor: null,
+  hover: null,
   fitBounds: null,
   basemap: 'satellite',
   pulse: false,
@@ -353,6 +371,7 @@ export const useMapStore = create<MapStoreState>((set) => ({
   select: (selection) => set({ selection }),
   clearSelection: () => set({ selection: null }),
   setCursor: (cursor) => set({ cursor }),
+  setHover: (hover) => set({ hover }),
   requestFit: (bounds) => set({ fitBounds: bounds }),
   clearFit: () => set({ fitBounds: null }),
   setBasemap: (basemap) => set({ basemap }),

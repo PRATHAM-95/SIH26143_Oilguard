@@ -25,6 +25,27 @@ function DeckOverlay({ layers }: { layers: MapboxOverlayProps['layers'] | undefi
         interleaved: true,
         layers: undefined,
         getCursor: ({ isHovering }) => (isHovering ? 'pointer' : ''),
+        onHover: (info) => {
+          // Mirror deck.gl's hover pick into the map store so both the deck layer
+          // stack and the DOM tooltip read one source of truth. Writes are
+          // guarded because onHover fires on every mouse move: a fresh object
+          // each time would re-render the layer stack and the tooltip on every
+          // pixel of travel.
+          const pick = (info.object as { pick?: unknown } | null)?.pick
+          const next =
+            pick && typeof pick === 'object' && 'kind' in pick
+              ? (pick as MapSelection)
+              : null
+          const prev = useMapStore.getState().hover
+          if (prev?.pick?.kind === next?.kind && prev?.pick?.id === next?.id) {
+            if (prev) {
+              // Same object, new pointer position: only the offset can change.
+              useMapStore.getState().setHover({ ...prev, x: info.x, y: info.y })
+            }
+            return
+          }
+          useMapStore.getState().setHover(next ? { pick: next, x: info.x, y: info.y } : null)
+        },
         onClick: (info) => {
           const pick = (info.object as { pick?: unknown } | null)?.pick
           onSelectRef.current?.(
@@ -120,7 +141,10 @@ export default function MapView({ layers, onViewStateChange, onSelect, children 
           useMapStore.getState().setCursor({ lon: e.lngLat.lng, lat: e.lngLat.lat })
           onHoverRef.current?.()
         }}
-        onMouseLeave={() => useMapStore.getState().setCursor(null)}
+        onMouseLeave={() => {
+          useMapStore.getState().setCursor(null)
+          useMapStore.getState().setHover(null)
+        }}
         attributionControl={false}
         maxZoom={12}
         minZoom={2}

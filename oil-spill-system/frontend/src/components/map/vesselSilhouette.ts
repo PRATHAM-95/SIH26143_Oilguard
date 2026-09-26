@@ -58,6 +58,45 @@ export function getVesselColor(vessel: { type?: string; id?: string }, isSelecte
 }
 
 /**
+ * Role a vessel plays in the current investigation. This, not its type, is what
+ * the command-centre map encodes: an operator needs to see who is under
+ * suspicion at a glance, and a hull-type palette cannot say that. A candidate
+ * bulk carrier and a non-candidate tanker would otherwise be the only two
+ * colours on screen, indistinguishable in meaning.
+ */
+export type VesselRole = 'selected' | 'candidate' | 'shipOfInterest' | 'normal' | 'stale'
+
+/**
+ * Investigation-role palette, most significant first.
+ *
+ * Normal traffic is a deliberately desaturated slate rather than a full blue:
+ * there are around twenty background vessels in view, and at the mandated
+ * density a saturated fill for each of them would out-shout the three that
+ * matter. "Blue = normal" holds, but quietly.
+ */
+export function getVesselRoleColor(role: VesselRole, isHovered: boolean): RgbaColor {
+  const lift = (c: RgbaColor, by = 26): RgbaColor => [
+    Math.min(255, c[0] + by),
+    Math.min(255, c[1] + by),
+    Math.min(255, c[2] + by),
+    c[3],
+  ]
+  switch (role) {
+    case 'selected':
+      return [248, 247, 244, 255] // porcelain, ringed in signal blue
+    case 'candidate':
+      return isHovered ? [255, 138, 74, 255] : [240, 112, 58, 245]
+    case 'shipOfInterest':
+      return [0, 217, 139, 240]
+    case 'stale':
+      return [114, 125, 137, 150] // grey: position known, record too old to trust
+    case 'normal':
+    default:
+      return isHovered ? lift([122, 158, 196, 235]) : [122, 158, 196, 195]
+  }
+}
+
+/**
  * Computes heading vector end-point coordinates based on actual heading and genuine SOG.
  * Length reflects speed when genuinely available (e.g. 10 kn -> ~0.05°), never invented.
  */

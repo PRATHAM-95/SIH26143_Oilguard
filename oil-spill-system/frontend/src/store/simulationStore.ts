@@ -167,6 +167,13 @@ export function vesselDtoToIntegrated(v: VesselDto): IntegratedVessel {
     position: { lon: v.position.longitude, lat: v.position.latitude },
     speed: v.speed,
     heading: v.heading,
+    // Registry detail the map and popup show. Passed through undefined-clean so
+    // "not reported" stays distinguishable from a reported empty value.
+    imo: v.imo ?? null,
+    status: v.status ?? null,
+    lastSeen: v.lastSeen ?? null,
+    destination: v.destination ?? null,
+    flag: v.flag ?? null,
   }
 }
 

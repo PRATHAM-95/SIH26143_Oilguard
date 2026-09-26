@@ -113,6 +113,16 @@ export type IntegratedVessel = {
   position: { lon: number; lat: number }
   speed: number
   heading: number
+  /**
+   * Optional AIS registry detail. Absent on the legacy simulation feed, so every
+   * consumer must treat these as unknown rather than empty - a vessel with no
+   * IMO is a gap in the record, not a vessel with an empty string for one.
+   */
+  imo?: string | null
+  status?: string | null
+  lastSeen?: string | null
+  destination?: string | null
+  flag?: string | null
 }
 
 export type SimulationStatus =

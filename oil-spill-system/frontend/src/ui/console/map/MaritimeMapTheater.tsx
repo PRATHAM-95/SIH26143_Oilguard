@@ -7,7 +7,7 @@ import { GraticuleFrame } from './GraticuleFrame'
 import { LayerDrawer } from '../LayerDrawer'
 
 // Deck.gl layer hooks
-import { useSimulationLayers } from '@/components/map/SimulationLayers'
+import { useSimulationLayers, useCandidateClusterLayers } from '@/components/map/SimulationLayers'
 import { useSarLayers } from '@/components/investigation/SarObservation'
 import { useInvestigationMapLayers } from '@/components/map/InvestigationMap'
 import { useBacktrackingLayers } from '@/components/backtracking/BacktrackingMap'
@@ -25,6 +25,7 @@ import {
 import { useBasemapLabelLayers } from '@/components/map/BasemapLabels'
 import { MapLayerToolbar } from '@/components/map/maritime/MapLayerToolbar'
 import { MapSelectionPopup } from '@/components/map/maritime/MapSelectionPopup'
+import { VesselHoverCard } from '@/components/map/maritime/VesselHoverCard'
 import { NorthArrow } from '@/components/map/maritime/NorthArrow'
 import { RegionSelector } from '@/components/map/maritime/RegionSelector'
 import { HistoricalReferenceGallery } from '@/components/intel/HistoricalReferenceGallery'
@@ -36,6 +37,7 @@ import '@/styles/maritime-overlays.css'
 
 export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boolean } = {}) {
   const simLayers = useSimulationLayers()
+  const clusterLayers = useCandidateClusterLayers()
   const sarLayers = useSarLayers()
   const invLayers = useInvestigationMapLayers()
   const btLayers = useBacktrackingLayers()
@@ -60,8 +62,7 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
   const setLayersOpen = useUiStore((s) => s.setLayersOpen)
 
   const layers = useMemo(
-    () => [
-      ...simLayers,
+    () => [      ...simLayers,
       ...sarLayers,
       ...invLayers,
       ...btLayers,
@@ -77,6 +78,10 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
       // basemap names the water body you are reading the incident in, and
       // should never be occluded by a slick edge or a pass track.
       ...basemapLabelLayers,
+      // The counted candidate badge goes very last of all. It occupies the same
+      // few pixels as the pickable slick origin and the attribution candidate
+      // markers, so it has to out-rank them to be hoverable at all.
+      ...clusterLayers,
     ],
     [
       simLayers,
@@ -92,7 +97,8 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
       weatherLayers,
       incidentLayers,
       basemapLabelLayers,
-    ]
+      clusterLayers,
+    ],
   )
 
   // Catalogue rows light up only for layers where real data exists. The
@@ -141,6 +147,7 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
       >
         <MapFurniture />
         <AutoEnableLayers />
+        <VesselHoverCard />
         <MapSelectionPopup />
       </MapView>
     </div>

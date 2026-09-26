@@ -33,6 +33,30 @@ export function hhmmZ(iso: string | null | undefined): string | null {
   return d.toISOString().slice(11, 16).concat('Z')
 }
 
+/**
+ * Age of an AIS fix, phrased for an operator ("4 min ago").
+ *
+ * A raw ISO timestamp answers "when was this recorded?" but the question an
+ * operator actually has is "how stale is this position?". Shared by the hover
+ * card and the selection popup so the same vessel never shows two different
+ * notions of its age.
+ *
+ * `nowMs` defaults to wall-clock time, but a controlled demo runs on a
+ * synthetic epoch - pass `referenceNowMs()` there or every demo fix reads as
+ * months stale.
+ */
+export function ageFromNow(iso: string | null | undefined, nowMs?: number): string | null {
+  if (!iso) return null
+  const t = Date.parse(iso)
+  if (!Number.isFinite(t)) return null
+  const mins = Math.max(0, Math.round(((nowMs ?? Date.now()) - t) / 60000))
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hours = Math.round(mins / 60)
+  if (hours < 24) return `${hours} h ago`
+  return `${Math.round(hours / 24)} d ago`
+}
+
 const KM_DEG_LAT = 111.32
 
 /** Deck.gl-friendly circle ring in [lon, lat] pairs (for selection rings). */

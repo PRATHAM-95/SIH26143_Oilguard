@@ -13,6 +13,8 @@
  * demo adapter and no live WebSocket is opened — the frontend makes zero
  * localhost/API/WebSocket network calls.
  */
+import { demoClock } from '@/lib/demo/seed'
+
 export function resolveDemoMode(envFlag: boolean, search: string): boolean {
   const query = new URLSearchParams(search)
   const q = query.get('demo')
@@ -39,4 +41,23 @@ export const DEMO_MODE_LABEL = 'CONTROLLED DEMO · SIMULATED DATA'
 
 export function isDemoMode(): boolean {
   return DEMO_ENABLED
+}
+
+/**
+ * Epoch milliseconds of "now" in the frame the rest of the UI is using.
+ *
+ * A demo session runs on a fixed synthetic epoch rather than wall-clock time -
+ * every timestamp it produces (activity feed, SAR acquisition, AIS last-seen)
+ * is expressed in that frame. Anything that computes a *duration* therefore has
+ * to measure against the same clock: subtracting a demo timestamp from
+ * Date.now() made a vessel whose fix was four minutes old report "seen 117 d
+ * ago", which is both absurd and self-contradicting next to an "Underway" AIS
+ * status.
+ */
+export function referenceNowMs(): number {
+  if (!DEMO_ENABLED) return Date.now()
+  // Read live rather than captured at boot: the session clock advances with the
+  // scenario. Guarded because a malformed stored session yields a NaN epoch.
+  const t = Date.parse(demoClock())
+  return Number.isFinite(t) ? t : Date.now()
 }

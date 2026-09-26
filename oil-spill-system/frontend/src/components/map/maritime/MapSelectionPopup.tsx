@@ -8,7 +8,8 @@ import { useInvestigationStore } from '@/store/investigationStore'
 import { stageRankedVessels } from '@/components/map/InvestigationMap'
 import { useSelectionFocus } from '@/components/workspace/selection'
 import { useConnectionStore } from '@/store/connectionStore'
-import { dms, haversineKm } from '@/components/map/maritime/geo'
+import { dms, haversineKm, ageFromNow } from '@/components/map/maritime/geo'
+import { referenceNowMs } from '@/lib/demo/mode'
 
 const POPUP_KINDS = new Set(['spill', 'slick', 'sar_candidate', 'vessel', 'ais_candidate'])
 
@@ -239,6 +240,23 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
             <span className="mm-pop-k">MMSI</span>
             <span className="mm-pop-v mono">{vessel.mmsi || '—'}</span>
           </div>
+          {/* Registry detail. IMO and last-seen rows are omitted when the feed
+              does not report them, so a gap in the record reads as absent
+              rather than as a field that was measured and came back empty. */}
+          {vessel.imo ? (
+            <div className="mm-pop-row">
+              <span className="mm-pop-k">IMO</span>
+              <span className="mm-pop-v mono">{vessel.imo}</span>
+            </div>
+          ) : null}
+          <div className="mm-pop-row">
+            <span className="mm-pop-k">Flag</span>
+            <span className="mm-pop-v mono">{vessel.flag || '—'}</span>
+          </div>
+          <div className="mm-pop-row">
+            <span className="mm-pop-k">Destination</span>
+            <span className="mm-pop-v">{vessel.destination || '—'}</span>
+          </div>
           <div className="mm-pop-row">
             <span className="mm-pop-k">Speed</span>
             <span className="mm-pop-v">
@@ -253,8 +271,16 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
           </div>
           <div className="mm-pop-row">
             <span className="mm-pop-k">AIS status</span>
-            <span className="mm-pop-v">{live ? 'live stream' : 'cached'}</span>
+            <span className="mm-pop-v">{vessel.status || (live ? 'live stream' : 'cached')}</span>
           </div>
+          {vessel.lastSeen ? (
+            <div className="mm-pop-row">
+              <span className="mm-pop-k">Last seen</span>
+              <span className="mm-pop-v mono">
+                {ageFromNow(vessel.lastSeen, referenceNowMs()) ?? vessel.lastSeen}
+              </span>
+            </div>
+          ) : null}
           <div className="mm-pop-row">
             <span className="mm-pop-k">Dist. to slick</span>
             <span className="mm-pop-v">{dist != null ? `${dist.toFixed(1)} km` : '—'}</span>
