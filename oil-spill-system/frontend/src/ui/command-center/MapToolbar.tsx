@@ -15,15 +15,29 @@ import { noDataLayers } from './AoiCard'
  * rather than implying live data.
  */
 
-type Pill = { id: MapLayerId; label: string; glyph: string; color: string }
+type Pill = { id: MapLayerId; label: string; glyph: string }
 
+/**
+ * The six layers that earn a permanent place in the single row.
+ *
+ * Which six is an editorial choice, so the list stays here. Everything the pill
+ * displays about a layer - its colour, its tooltip, its no-data state - is read
+ * from the catalogue instead of being repeated, so a pill cannot describe a layer
+ * other than the one it toggles.
+ *
+ * The first entry was `slick`, the observed-spill marker, while carrying
+ * `sarSlicks`' colour and the label "Oil Spills". That marker only draws once a
+ * journey step releases a spill, so the pill read as on with nothing on the map,
+ * and the detection this map exists to show had no control at all. It now points
+ * at the layer it was already describing.
+ */
 const PILLS: Pill[] = [
-  { id: 'slick', label: 'Oil Spills', glyph: '◉', color: '#FF8A63' },
-  { id: 'vessels', label: 'Vessels', glyph: '▲', color: '#7AD4FF' },
-  { id: 'eez', label: 'EEZ Boundaries', glyph: '⊞', color: '#5CB2D6' },
-  { id: 'sarFootprint', label: 'Satellite Passes', glyph: '✈', color: '#60A5CD' },
-  { id: 'currents', label: 'Ocean Currents', glyph: '≋', color: '#4F8F9C' },
-  { id: 'wind', label: 'Wind Vectors', glyph: '≋', color: '#8AA4BD' },
+  { id: 'sarSlicks', label: 'Oil Spills', glyph: '◉' },
+  { id: 'vessels', label: 'Vessels', glyph: '▲' },
+  { id: 'eez', label: 'EEZ Boundaries', glyph: '⊞' },
+  { id: 'sarFootprint', label: 'Satellite Passes', glyph: '✈' },
+  { id: 'currents', label: 'Ocean Currents', glyph: '≋' },
+  { id: 'wind', label: 'Wind Vectors', glyph: '≋' },
 ]
 
 export function MapToolbar() {
@@ -40,7 +54,7 @@ export function MapToolbar() {
   return (
     <div className="cc-mtoolbar" role="toolbar" aria-label="Map layers and basemap">
       <div className="cc-mtoolbar-pills">
-        {PILLS.map(({ id, label, glyph, color }) => {
+        {PILLS.map(({ id, label, glyph }) => {
           const entry = MAP_LAYER_CATALOG[id]
           const missing = noData.has(id)
           const on = visibility[id] && !missing
@@ -51,7 +65,7 @@ export function MapToolbar() {
               className="cc-mpill"
               aria-pressed={on}
               data-nodata={missing || undefined}
-              style={{ '--pill-color': color } as React.CSSProperties}
+              style={{ '--pill-color': entry.color } as React.CSSProperties}
               title={missing ? (entry.emptyNote ?? entry.note) : (entry.note ?? entry.label)}
               onClick={() => toggleLayer(id)}
             >
