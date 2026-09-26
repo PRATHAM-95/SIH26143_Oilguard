@@ -8,6 +8,7 @@ import { useInvestigationStore } from '@/store/investigationStore'
 import { stageRankedVessels } from '@/components/map/InvestigationMap'
 import { useSelectionFocus } from '@/components/workspace/selection'
 import { useConnectionStore } from '@/store/connectionStore'
+import { SarThumb } from '@/components/map/maritime/SarThumb'
 import { dms, haversineKm, ageFromNow } from '@/components/map/maritime/geo'
 import { referenceNowMs } from '@/lib/demo/mode'
 
@@ -94,6 +95,28 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
       ? s.candidates.find((c) => c.id === selection.id) ?? null
       : null,
   )
+  /**
+   * The detection this card is about, even when the click landed on the spill
+   * point rather than the slick itself.
+   *
+   * The observed-spill marker is the one thing on the map that is clickable at
+   * every zoom, so it is how an operator usually opens this card - but the
+   * detection geometry lives in the SAR store, keyed to a candidate rather than
+   * to the spill. Falling back to the highest-confidence oil candidate means the
+   * card shows the real detection instead of a "no preview" placeholder.
+   */
+  const featuredOil = useSarStore((s) => {
+    const oil = s.candidates.filter((c) => c.classification === 'OIL_CANDIDATE')
+    if (oil.length === 0) return null
+    return oil.reduce((best, c) => (c.confidence > best.confidence ? c : best))
+  })
+  // The card describes one detection, and the store always holds the full
+  // detection list, so the pick is memoised on confidence rather than recomputed
+  // on every selection change.
+  const detection = useMemo(
+    () => candidate ?? featuredOil,
+    [candidate, featuredOil],
+  )
   const sarAcquisitionTime = useSarStore((s) => s.acquisitionTime)
   const sarProvenance = useSarStore((s) => s.provenance)
   const stages = useInvestigationStore((s) => s.stages)
@@ -117,8 +140,8 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
       selection.kind === 'sar_candidate'
         ? `SLICK-${String(candidate?.id ?? '').slice(0, 16).toUpperCase() || 'TBD'}`
         : `SLICK-${String(spill?.spillEventId ?? '').slice(0, 16).toUpperCase() || 'TBD'}`
-    const kindLabel = candidate
-      ? `SAR · ${candidate.classification.replace('_', ' ')}`
+    const kindLabel = detection
+      ? `SAR · ${detection.classification.replace('_', ' ')}`
       : 'Observed spill'
     const coordLabel = coord ? dms(coord.lat, coord.lon) : 'position unavailable'
     const regionName = coord ? regionFor(coord.lat, coord.lon) : null
@@ -126,8 +149,8 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
     let body: ReactNode
     let footer: ReactNode = null
 
-    if (candidate) {
-      const sev = severityClass(candidate.confidence)
+    if (detection) {
+      const sev = severityClass(detection.confidence)
       body = (
         <>
           <div className="mm-pop-row">
@@ -136,16 +159,16 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
           </div>
           <div className="mm-pop-row">
             <span className="mm-pop-k">Area</span>
-            <span className="mm-pop-v">{candidate.areaKm2.toFixed(2)} km²</span>
+            <span className="mm-pop-v">{detection.areaKm2.toFixed(2)} km²</span>
           </div>
           <div className="mm-pop-row">
             <span className="mm-pop-k">Confidence</span>
-            <span className="mm-pop-v">{(candidate.confidence * 100).toFixed(0)}%</span>
+            <span className="mm-pop-v">{(detection.confidence * 100).toFixed(0)}%</span>
           </div>
           <div className="mm-pop-row">
             <span className="mm-pop-k">Length</span>
             <span className="mm-pop-v">
-              {candidate.lengthKm != null ? `${candidate.lengthKm.toFixed(1)} km` : '—'}
+              {detection.lengthKm != null ? `${detection.lengthKm.toFixed(1)} km` : '—'}
             </span>
           </div>
         </>
@@ -186,10 +209,7 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
       <>
         {close}
         <div className="mm-pop-head" style={{ borderLeftColor: 'var(--c-sar)' }}>
-          <div className="mm-sar-thumb" aria-hidden="true">
-            <span>SAR</span>
-            <em>preview n/a</em>
-          </div>
+          <SarThumb candidate={detection} />
           <div className="mm-pop-title">
             <div className="mm-pop-kind">{kindLabel}</div>
             <div className="mm-pop-name">{head}</div>

@@ -142,6 +142,9 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
             radiusMinPixels: 4,
             radiusMaxPixels: 6,
             getFillColor: line,
+            // Deliberately not pickable here. This dot draws inside the slick
+            // stack, but the incident's *pick* is composed above the whole map
+            // by useIncidentMarkerLayers - see the note there for why.
           }),
         )
       }
@@ -241,6 +244,59 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
 
     return layers
   }, [candidates, footprint, showSlicks, showFootprint, pulse])
+}
+
+/**
+ * The incident's pick target, composed above every other layer.
+ *
+ * Two independent facts made the incident unopenable at the command centre's
+ * resting camera, and neither is fixed by tweaking the slick itself:
+ *
+ *   - The detector polygon is about three pixels across at the default zoom, so
+ *     the slick fill was a valid but effectively unhittable target.
+ *   - The candidate-count badge is appended last in the overall stack precisely
+ *     so it can be hovered, and at this zoom its centre sits on the incident
+ *     with a 17-24px pick radius. Being topmost, it took every click meant for
+ *     the slick and opened the lead vessel's card instead.
+ *
+ * deck.gl resolves a pick top-down through the layer array, so priority here is
+ * decided by composition order. This marker therefore lives in its own hook that
+ * the theatre appends after the cluster badge: the incident is the subject of the
+ * map, and a count of nearby traffic should not out-rank it. A ScatterplotLayer
+ * picks within its *drawn* radius, so `radiusMinPixels` holds a usable hit area at
+ * every zoom, and the position is the real centroid of the real detector
+ * geometry - the marker is a pick target for what is already on screen, not a
+ * new object invented to be clickable.
+ */
+export function useIncidentMarkerLayers(): NonNullable<MapboxOverlayProps['layers']> {
+  const candidates = useSarStore((s) => s.candidates)
+  const showSlicks = useMapStore((s) => s.visibility.sarSlicks)
+
+  return useMemo(() => {
+    const featured = featuredCandidate(candidates)
+    if (!showSlicks || !featured) return []
+    const color = (featured.classification === 'OIL_CANDIDATE'
+      ? VSCO.sar.slick
+      : VSCO.sar.lookalike) as [number, number, number]
+
+    return [
+      new ScatterplotLayer({
+        id: 'sar-incident-marker',
+        data: [
+          {
+            coordinates: [featured.centroid.lon, featured.centroid.lat] as [number, number],
+            pick: { kind: 'sar_candidate', id: featured.id },
+          },
+        ],
+        getPosition: (d: { coordinates: [number, number] }) => d.coordinates,
+        getRadius: 900,
+        radiusMinPixels: 8,
+        radiusMaxPixels: 10,
+        getFillColor: color,
+        pickable: true,
+      }),
+    ]
+  }, [candidates, showSlicks])
 }
 
 export function SarObservationPanel({ simulationId }: { simulationId: string | null }) {

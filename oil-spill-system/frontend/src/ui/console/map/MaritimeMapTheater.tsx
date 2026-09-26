@@ -8,7 +8,7 @@ import { LayerDrawer } from '../LayerDrawer'
 
 // Deck.gl layer hooks
 import { useSimulationLayers, useCandidateClusterLayers } from '@/components/map/SimulationLayers'
-import { useSarLayers } from '@/components/investigation/SarObservation'
+import { useSarLayers, useIncidentMarkerLayers } from '@/components/investigation/SarObservation'
 import { useInvestigationMapLayers } from '@/components/map/InvestigationMap'
 import { useBacktrackingLayers } from '@/components/backtracking/BacktrackingMap'
 import { useAttributionLayers } from '@/components/attribution/AttributionMap'
@@ -36,6 +36,7 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
   const simLayers = useSimulationLayers()
   const clusterLayers = useCandidateClusterLayers()
   const sarLayers = useSarLayers()
+const incidentMarkerLayers = useIncidentMarkerLayers()
   const invLayers = useInvestigationMapLayers()
   const btLayers = useBacktrackingLayers()
   const attLayers = useAttributionLayers()
@@ -75,6 +76,11 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
       // few pixels as the pickable slick origin and the attribution candidate
       // markers, so it has to out-rank them to be hoverable at all.
       ...clusterLayers,
+      // ...and the incident out-ranks the badge in turn. deck.gl picks top-down
+      // through this array, the badge's 17-24px pick radius covers the slick at
+      // regional zoom, and the detection is the one thing on this map that must
+      // never be the thing you cannot click. See useIncidentMarkerLayers.
+      ...incidentMarkerLayers,
     ],
     [
       simLayers,
@@ -91,6 +97,7 @@ export function MaritimeMapTheater({ showToolbar = true }: { showToolbar?: boole
       incidentLayers,
       basemapLabelLayers,
       clusterLayers,
+      incidentMarkerLayers,
     ],
   )
 

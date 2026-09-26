@@ -1283,6 +1283,14 @@
   border-radius: 3px;
 }
 
+/* Lift the fly-to control clear of the zoom cluster.
+   The shared rule reserves 96px for a stack of three 30px buttons; the command
+   centre uses 40px targets, so the stack is 131px tall and the region selector
+   was landing on top of zoom-in, swallowing the click. */
+.cc-root .region-selector {
+  bottom: 146px;
+}
+
 /* Selected-incident popup: make the SAR thumbnail read at a glance. */
 .cc-root .map-selection-popup {
   background: linear-gradient(180deg, rgba(17, 25, 35, 0.97) 0%, rgba(12, 18, 26, 0.97) 100%);

@@ -244,6 +244,22 @@
   color: var(--ink-3, #4E5965);
 }
 
+/* The rendered detection: a real canvas, not a text placeholder. Sized in CSS
+   pixels so the backing store stays crisp on high-DPI displays. */
+.mm-sar-thumb--img {
+  padding: 0;
+  overflow: hidden;
+  background: #05080d;
+  line-height: 0;
+}
+
+.mm-sar-thumb--img canvas {
+  display: block;
+  width: 42px;
+  height: 36px;
+  image-rendering: auto;
+}
+
 .mm-pop-title {
   min-width: 0;
   display: flex;

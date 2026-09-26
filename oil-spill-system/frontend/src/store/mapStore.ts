@@ -141,7 +141,16 @@ export const MAP_LAYER_CATALOG: Record<MapLayerId, LayerVisibility> = {
     note: 'Ranked candidates, not confirmed ships of interest',
   },
   sarSlicks: {
-    visible: false,
+    /**
+     * On by default. This map exists to show a detected slick, and the detection
+     * is the one layer with nothing else to stand in for it: with this off, the
+     * command centre rendered no incident geometry at all, only fleet traffic and
+     * a candidate badge, so the operator's first question had no answer on the
+     * screen. The layer stays honest through its own note - detector
+     * classification, not ground truth - and the incident card labels the
+     * thumbnail a schematic.
+     */
+    visible: true,
     label: 'Potential oil slick',
     group: 'observation',
     color: '#ff8a63',

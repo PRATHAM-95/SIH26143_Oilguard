@@ -102,6 +102,52 @@ const furniture = await page.evaluate(() => {
 if (!furniture.coordReadout) missing.push('coordinate readout')
 if (!furniture.compass) missing.push('compass rose')
 
+/**
+ * Every control must actually be clickable.
+ *
+ * Correct sizes are not enough: the region selector was sized correctly and
+ * still sat on top of zoom-in, so the button rendered at a perfect 40x40 and
+ * could not be clicked. `elementFromPoint` is the honest test - it reports what
+ * the browser would actually hand the click to at the control's own centre.
+ */
+const INTERACTIVE = [
+  'maplibre zoom in',
+  'maplibre zoom out',
+  'maplibre compass',
+  'region selector trigger',
+  'layer toolbar pills',
+  'basemap group',
+  'layer drawer toggle',
+]
+const blocked = await page.evaluate((names) => {
+  const sel = {
+    'maplibre zoom in': 'button.maplibregl-ctrl-zoom-in',
+    'maplibre zoom out': 'button.maplibregl-ctrl-zoom-out',
+    'maplibre compass': 'button.maplibregl-ctrl-compass',
+    'region selector trigger': '.region-selector-trigger',
+    'layer toolbar pills': '.cc-mtoolbar-pills button',
+    'basemap group': '.cc-basegroup button',
+    'layer drawer toggle': '.cc-mtoolbar button[aria-expanded]',
+  }
+  const out = []
+  for (const name of names) {
+    for (const el of document.querySelectorAll(sel[name])) {
+      const r = el.getBoundingClientRect()
+      if (r.width === 0 || r.height === 0) continue
+      const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)
+      if (!hit || (hit !== el && !el.contains(hit))) {
+        out.push({
+          control: name,
+          label: (el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 28),
+          blockedBy: hit ? (hit.className || hit.tagName).toString().slice(0, 48) : 'nothing',
+        })
+      }
+    }
+  }
+  return out
+}, INTERACTIVE)
+for (const b of blocked) violations.push({ control: `${b.control} (unreachable)`, ...b })
+
 const out = {
   ok: violations.length === 0 && missing.length === 0,
   target: `${TARGET}x${TARGET}`,
