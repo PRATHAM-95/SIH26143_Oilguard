@@ -41,6 +41,9 @@ describe('Protected Architecture Contracts (M0-M9)', () => {
     // M10: weather, incidents and eez are additive compatible layers (approved
     // integration decision). The original 13 protected IDs keep their order;
     // weather+incidents sit after 'currents', eez is appended after 'drift'.
+    // M11: shippingLanes is likewise additive, inserted before 'drift'. It was
+    // added to the catalogue without touching this list, so the assertion had
+    // been failing on a count of 16 against a catalogue of 17.
     const EXPECTED_MAP_LAYERS = [
       'satellite',
       'slick',
@@ -56,12 +59,13 @@ describe('Protected Architecture Contracts (M0-M9)', () => {
       'attribution',
       'sarSlicks',
       'sarFootprint',
+      'shippingLanes',
       'drift',
       'eez',
     ]
 
     const actualLayerIds = Object.keys(MAP_LAYER_CATALOG)
-    expect(actualLayerIds).toHaveLength(16)
+    expect(actualLayerIds).toHaveLength(17)
     expect(actualLayerIds).toEqual(EXPECTED_MAP_LAYERS)
   })
 })
