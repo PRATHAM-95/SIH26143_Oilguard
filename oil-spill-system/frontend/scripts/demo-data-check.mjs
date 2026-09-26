@@ -126,6 +126,7 @@ if (check('SAR observation has candidates', !!primary)) {
 
 // 8. Attribution reports the same candidate set the geometry implies.
 const attribution = seed.attributionDto()
+const incident = seed.demoIncidentDto()
 const ranked = attribution.rankedVessels ?? []
 check(
   'attribution DTO ranks the derived candidate count',
@@ -152,10 +153,75 @@ check(
   String(attribution.aisSource),
 )
 
+// 10. Every slick's reported geometry must be the geometry that was drawn.
+//
+//     This is the check that was missing while the primary slick claimed
+//     4.21 km² over a ring covering 203 km²: the numbers were literals beside
+//     the polygon, so nothing compared them. Each candidate is re-measured here
+//     from its own ring, independently of the seed's own helper, so a change to
+//     either side that is not matched by the other fails the probe.
+const kmPerDegLon = (lat) => 111.32 * Math.cos(toRad(lat))
+const ringAreaKm2 = (ring, lat) => {
+  const kx = kmPerDegLon(lat)
+  const ky = 110.57
+  let twice = 0
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    twice += ring[j][0] * kx * (ring[i][1] * ky) - ring[i][0] * kx * (ring[j][1] * ky)
+  }
+  return Math.abs(twice / 2)
+}
+const ringPerimeterKm = (ring, lat) => {
+  const kx = kmPerDegLon(lat)
+  const ky = 110.57
+  let sum = 0
+  for (let i = 1; i < ring.length; i++) {
+    sum += Math.hypot((ring[i][0] - ring[i - 1][0]) * kx, (ring[i][1] - ring[i - 1][1]) * ky)
+  }
+  return sum
+}
+
+for (const c of sar.candidates ?? []) {
+  const lat = c.centroid[1]
+  const area = ringAreaKm2(c.polygon, lat)
+  // 2% tolerance: the seed rounds to 2dp, so exact equality is not meaningful.
+  check(
+    `${c.candidate_id} area matches its drawn ring`,
+    Math.abs(area - c.area_km2) / Math.max(area, 1e-9) < 0.02,
+    `stated ${c.area_km2} km2, ring measures ${area.toFixed(2)} km2`,
+  )
+  check(
+    `${c.candidate_id} perimeter matches its drawn ring`,
+    Math.abs(ringPerimeterKm(c.polygon, lat) - c.perimeter_km) < 0.05,
+    `stated ${c.perimeter_km} km, ring measures ${ringPerimeterKm(c.polygon, lat).toFixed(2)} km`,
+  )
+  check(
+    `${c.candidate_id} length is at least its width`,
+    c.length_km >= c.width_km,
+    `length ${c.length_km}, width ${c.width_km}`,
+  )
+}
+
+// 11. The observation rollup and the incident record must quote the same slick as
+//     the candidate list, since all three are read by different screens.
+check(
+  'observation area equals the primary candidate area',
+  sar.slick_area_km2 === primary?.area_km2,
+  `observation ${sar.slick_area_km2}, candidate ${primary?.area_km2}`,
+)
+check(
+  'observation confidence equals the primary candidate confidence',
+  sar.confidence === primary?.confidence,
+  `observation ${sar.confidence}, candidate ${primary?.confidence}`,
+)
+check(
+  'incident record area equals the primary candidate area',
+  incident.slick?.area_km2 === primary?.area_km2,
+  `incident ${incident.slick?.area_km2}, candidate ${primary?.area_km2}`,
+)
+
 const report = {
   origin,
-  fleetSize: fleet.length,
-  attributionRadiusKm: seed.DEMO_ATTRIBUTION_RADIUS_KM,
+  fleetSize: fleet.length,  attributionRadiusKm: seed.DEMO_ATTRIBUTION_RADIUS_KM,
   candidates: candidates.map((v, i) => ({
     name: v.name,
     km: +candidateDistances[i].toFixed(1),

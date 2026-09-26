@@ -46,6 +46,25 @@ export const DEMO_DRIFT_RUN_ID = 'DEMO-DRIFT-0001'
 export const DEMO_BACKTRACK_RUN_ID = 'DEMO-BCK-0001'
 export const DEMO_ATTRIBUTION_RUN_ID = 'DEMO-ATR-0001'
 
+/**
+ * The controlled incident's own identity and headline figures.
+ *
+ * These were previously inline literals repeated across the candidate, the
+ * observation rollup and the incident DTO, which is how the map came to report
+ * one area while drawing another. Everything that states the incident now reads
+ * it from here, and the geometry is measured from these figures rather than
+ * asserted beside them.
+ *
+ * The identifier is dated in the SLICK-YYYY-MMDD-NNN form an operator would
+ * quote across a watch, and the date is the UTC acquisition date of the scene
+ * that produced the detection - 2026-06-01, the scenario epoch. A reference that
+ * disagreed with the "Detected" timestamp two inches below it on the same card
+ * would be the exact kind of drift this pass exists to remove.
+ */
+export const DEMO_SLICK_ID = 'SLICK-2026-0601-001'
+export const DEMO_SLICK_CONFIDENCE = 0.92
+export const DEMO_SLICK_AREA_KM2 = 2.4
+
 /** Provenance strings used across demo fixtures (honest, machine-readable). */
 export const DEMO_PROVENANCE = 'SYNTHETIC'
 export const DEMO_PROVENANCE_NOTE = 'CONTROLLED DEMO · SIMULATED DATA'
@@ -554,6 +573,78 @@ function approxBboxOf(ring: [number, number][]) {
   }
 }
 
+/** Ground sample spacing of the synthetic scene, in metres. */
+const DEMO_SAR_PIXEL_M = 12
+
+/** Kilometres per degree at a given latitude, for a local flat-earth frame. */
+const KM_PER_DEG_LON = (lat: number) => 111.32 * Math.cos((lat * Math.PI) / 180)
+const KM_PER_DEG_LAT = 110.57
+
+/**
+ * Detector metrics measured off the drawn ring.
+ *
+ * These used to be hand-written constants sitting next to the geometry, and they
+ * had drifted apart badly: the primary slick reported 4.21 km² and a 3.4 km
+ * length while the ring the map actually drew was 203 km² and 19 km across. The
+ * card and the map were describing two different objects, and nothing caught it
+ * because the numbers were never compared with the shape.
+ *
+ * Measuring instead of asserting means the figure on the card is a property of
+ * the polygon under it, so the two cannot disagree. Length and width come from
+ * the principal axes rather than the bounding box, so a slick rotated into the
+ * map's frame still reports its own long axis instead of its diagonal.
+ */
+function ringMetrics(ring: [number, number][], center: { lon: number; lat: number }) {
+  const kx = KM_PER_DEG_LON(center.lat)
+  const ky = KM_PER_DEG_LAT
+  const pts = ring.map(([lon, lat]) => [(lon - center.lon) * kx, (lat - center.lat) * ky])
+
+  // Shoelace, on the closed ring.
+  let twice = 0
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    twice += pts[j][0] * pts[i][1] - pts[i][0] * pts[j][1]
+  }
+  const areaKm2 = Math.abs(twice / 2)
+
+  let perimeterKm = 0
+  for (let i = 1; i < pts.length; i++) {
+    perimeterKm += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])
+  }
+
+  // Principal axes by covariance, so length/width are orientation-independent.
+  const n = pts.length
+  const mx = pts.reduce((s, p) => s + p[0], 0) / n
+  const my = pts.reduce((s, p) => s + p[1], 0) / n
+  let sxx = 0
+  let syy = 0
+  let sxy = 0
+  for (const [x, y] of pts) {
+    sxx += (x - mx) ** 2
+    syy += (y - my) ** 2
+    sxy += (x - mx) * (y - my)
+  }
+  const theta = 0.5 * Math.atan2(2 * sxy, sxx - syy)
+  const ct = Math.cos(theta)
+  const st = Math.sin(theta)
+  const us = pts.map(([x, y]) => Math.abs((x - mx) * ct + (y - my) * st))
+  const vs = pts.map(([x, y]) => Math.abs(-(x - mx) * st + (y - my) * ct))
+  const majorKm = Math.max(...us)
+  const minorKm = Math.max(...vs)
+
+  const r2 = (v: number) => Math.round(v * 100) / 100
+  return {
+    areaKm2: r2(areaKm2),
+    perimeterKm: r2(perimeterKm),
+    lengthKm: r2(majorKm),
+    widthKm: r2(minorKm),
+    // How much of its own ellipse the outline fills: 1 is a perfect ellipse.
+    shapeFactor: Math.round((areaKm2 / (Math.PI * 0.25 * majorKm * minorKm || 1)) * 100) / 100,
+    aspectRatio: Math.round((majorKm / (minorKm || 1)) * 100) / 100,
+    orientationDeg: Math.round(((theta * 180) / Math.PI + 360) % 180),
+    pixelArea: Math.round((areaKm2 * 1e6) / (DEMO_SAR_PIXEL_M * DEMO_SAR_PIXEL_M)),
+  }
+}
+
 /** Deterministic close-out of the synthetic slick ring around some centre. */
 function aroundOrigin(center: { lon: number; lat: number }, factor: number, jitter: number): [number, number][] {
   return slickRing(center, factor, Math.round(factor * 1000) + jitter)
@@ -583,14 +674,24 @@ function topCandidateSummary(): { mmsi: string; name: string; rank: number } | n
 
 function sarCandidates(): SarSlickCandidateDto[] {
   const { lon, lat } = DEMO_SPILL_LOCATION
+  const center = { lon, lat }
   // Primary slick: the largest detection, elongated along the reported
   // orientation with a lobed, asymmetric outline.
-  const primaryRing = slickRing({ lon, lat }, 0.052, 11, 1.9, 38)
+  //
+  // The scale is the one that makes the drawn ring measure 2.4 km², which is the
+  // area the incident reports. Area goes as the square of the scale, so this is
+  // a measured constant rather than a drawn guess - demo-data-check recomputes it
+  // from the polygon and fails if the two ever part company.
+  const primaryRing = slickRing(center, 0.005651, 11, 1.9, 38)
+  const primary = ringMetrics(primaryRing, center)
   // Look-alike sits inside the primary footprint — same scene, rejected class.
-  const lookAlikeRing = slickRing({ lon: lon - 0.03, lat: lat + 0.018 }, 0.012, 31, 1.4, 205)
+  const lookAlikeRing = slickRing({ lon: lon - 0.0007, lat: lat + 0.0004 }, 0.0014, 31, 1.4, 205)
+  const lookAlike = ringMetrics(lookAlikeRing, { lon: lon - 0.0007, lat: lat + 0.0004 })
   const approxBbox = approxBboxOf
   const secondary = DEMO_SECONDARY_SLICKS.map((s) => {
-    const ring = slickRing({ lon: s.lon, lat: s.lat }, s.scale, 47 + s.id.length + Math.round(s.lon), 1.5, s.rotation)
+    const at = { lon: s.lon, lat: s.lat }
+    const ring = slickRing(at, s.scale, 47 + s.id.length + Math.round(s.lon), 1.5, s.rotation)
+    const m = ringMetrics(ring, at)
     return {
       candidate_id: s.id,
       classification: 'UNCERTAIN' as const,
@@ -598,14 +699,14 @@ function sarCandidates(): SarSlickCandidateDto[] {
       polygon: ring,
       centroid: [s.lon, s.lat] as [number, number],
       bbox: approxBbox(ring),
-      area_km2: Math.round(s.scale * s.scale * 7300 * 100) / 100,
-      perimeter_km: Math.round(s.scale * 5.4 * 100) / 100,
-      length_km: Math.round(s.scale * 2 * 1.5 * 111 * 100) / 100,
-      width_km: Math.round(s.scale * 2 * 111 * 100) / 100,
-      aspect_ratio: 1.5,
-      orientation_deg: s.rotation,
-      shape_factor: 0.49,
-      pixel_area: Math.round(s.scale * s.scale * 1.4e7),
+      area_km2: m.areaKm2,
+      perimeter_km: m.perimeterKm,
+      length_km: m.lengthKm,
+      width_km: m.widthKm,
+      aspect_ratio: m.aspectRatio,
+      orientation_deg: m.orientationDeg,
+      shape_factor: m.shapeFactor,
+      pixel_area: m.pixelArea,
       contrast_db: Math.round((-0.4 - s.confidence * 1.6) * 100) / 100,
       incidence_deg: 33.9,
       look_alike_hints: ['low contrast', 'wind-current alignment unconfirmed'],
@@ -614,20 +715,20 @@ function sarCandidates(): SarSlickCandidateDto[] {
   })
   return [
     {
-      candidate_id: 'DEMO-CAND-0001',
+      candidate_id: DEMO_SLICK_ID,
       classification: 'OIL_CANDIDATE',
-      confidence: 0.91,
+      confidence: DEMO_SLICK_CONFIDENCE,
       polygon: primaryRing,
       centroid: [Math.round(lon * 1000) / 1000, Math.round(lat * 1000) / 1000],
       bbox: approxBbox(primaryRing),
-      area_km2: 4.21,
-      perimeter_km: 9.76,
-      length_km: 3.42,
-      width_km: 1.61,
-      aspect_ratio: 2.13,
-      orientation_deg: 38.4,
-      shape_factor: 0.61,
-      pixel_area: 89231,
+      area_km2: primary.areaKm2,
+      perimeter_km: primary.perimeterKm,
+      length_km: primary.lengthKm,
+      width_km: primary.widthKm,
+      aspect_ratio: primary.aspectRatio,
+      orientation_deg: primary.orientationDeg,
+      shape_factor: primary.shapeFactor,
+      pixel_area: primary.pixelArea,
       contrast_db: -2.13,
       incidence_deg: 33.8,
       look_alike_hints: [],
@@ -638,16 +739,16 @@ function sarCandidates(): SarSlickCandidateDto[] {
       classification: 'LOOK_ALIKE',
       confidence: 0.21,
       polygon: lookAlikeRing,
-      centroid: [Math.round((lon - 0.03) * 1000) / 1000, Math.round((lat + 0.018) * 1000) / 1000],
+      centroid: [Math.round((lon - 0.0007) * 1000) / 1000, Math.round((lat + 0.0004) * 1000) / 1000],
       bbox: approxBbox(lookAlikeRing),
-      area_km2: 0.42,
-      perimeter_km: 2.31,
-      length_km: 0.84,
-      width_km: 0.61,
-      aspect_ratio: 1.31,
-      orientation_deg: 201.4,
-      shape_factor: 0.47,
-      pixel_area: 7312,
+      area_km2: lookAlike.areaKm2,
+      perimeter_km: lookAlike.perimeterKm,
+      length_km: lookAlike.lengthKm,
+      width_km: lookAlike.widthKm,
+      aspect_ratio: lookAlike.aspectRatio,
+      orientation_deg: lookAlike.orientationDeg,
+      shape_factor: lookAlike.shapeFactor,
+      pixel_area: lookAlike.pixelArea,
       contrast_db: -0.41,
       incidence_deg: 33.5,
       look_alike_hints: ['biogenic film', 'low backscatter'],
@@ -658,6 +759,11 @@ function sarCandidates(): SarSlickCandidateDto[] {
 }
 
 export function sarObservation(): SarObservationDto {
+  // The observation's headline figures are the primary candidate's own figures,
+  // read back out of the candidate list rather than typed alongside it. That is
+  // what stops "4.21 km² on the card, 203 km² on the map" from being possible.
+  const candidates = sarCandidates()
+  const primary = candidates.find((c) => c.classification === 'OIL_CANDIDATE')
   return {
     observationId: DEMO_SAR_OBSERVATION_ID,
     status: 'completed',
@@ -670,9 +776,9 @@ export function sarObservation(): SarObservationDto {
     scene_id: 'S1_DEMO_2026_CR_88',
     detector: 'ONNX',
     detector_version: 'demo-2026.1',
-    candidates: sarCandidates(),
-    confidence: 0.91,
-    slick_area_km2: 4.21,
+    candidates,
+    confidence: primary?.confidence ?? 0,
+    slick_area_km2: primary?.area_km2 ?? 0,
     age_available: true,
     age_estimate: syntheticIso(-1.5),
     warnings: [DEMO_PROVENANCE_NOTE],
@@ -971,14 +1077,22 @@ function stageSummary(
   | { referenceId: string | null; referenceType: string | null; summary: Record<string, unknown> | null }
   | undefined {
   switch (stageId) {
-    case 'detection':
+    case 'detection': {
+      const primary = sarCandidates().find((c) => c.classification === 'OIL_CANDIDATE')
       return {
         referenceId: DEMO_SAR_OBSERVATION_ID,
         referenceType: 'sarObservation',
-        summary: { candidates: 3, topConfidence: 0.91, slickAreaKm2: 4.21 },
+        // Read from the candidates, so the stage record cannot quote an area the
+        // map is not drawing.
+        summary: {
+          candidates: 3,
+          topConfidence: primary?.confidence ?? 0,
+          slickAreaKm2: primary?.area_km2 ?? 0,
+        },
       }
+    }
     case 'characterization':
-      return { referenceId: DEMO_SAR_OBSERVATION_ID, referenceType: 'sarObservation', summary: { primaryCandidate: 'DEMO-CAND-0001' } }
+      return { referenceId: DEMO_SAR_OBSERVATION_ID, referenceType: 'sarObservation', summary: { primaryCandidate: DEMO_SLICK_ID } }
     case 'environment':
       return { referenceId: null, referenceType: null, summary: { source: DEMO_PROVENANCE, dataset: `${DEMO_PROVENANCE_NOTE} FIELD` } }
     case 'forward_drift':
@@ -1309,12 +1423,16 @@ export function demoSimulationDto(session: DemoSessionState = readDemoSession())
 
 export function demoIncidentDto(session: DemoSessionState = readDemoSession()) {
   const center = { lon: session.spillLon, lat: session.spillLat }
+  // Same ring the map draws and the SAR observation reports, so the incident
+  // record cannot describe a third, different slick.
+  const ring = slickRing(center, 0.005651, 11, 1.9, 38)
+  const m = ringMetrics(ring, center)
   return {
     slick: {
-      geometry: { type: 'Polygon', coordinates: [aroundOrigin(center, 0.05, 11)] },
-      area_km2: 4.21,
+      geometry: { type: 'Polygon', coordinates: [ring] },
+      area_km2: m.areaKm2,
       centroid: { lat: center.lat, lon: center.lon },
-      orientation: 38.4,
+      orientation: m.orientationDeg,
     },
     environment: {
       source: DEMO_PROVENANCE,

@@ -9,6 +9,7 @@ import { stageRankedVessels } from '@/components/map/InvestigationMap'
 import { useSelectionFocus } from '@/components/workspace/selection'
 import { useConnectionStore } from '@/store/connectionStore'
 import { SarThumb } from '@/components/map/maritime/SarThumb'
+import { slickLabel } from '@/components/investigation/SarObservation'
 import { dms, haversineKm, ageFromNow } from '@/components/map/maritime/geo'
 import { referenceNowMs } from '@/lib/demo/mode'
 
@@ -136,10 +137,9 @@ function MapSelectionCard({ selection }: { selection: MapSelection }) {
       selection.kind === 'sar_candidate' && candidate
         ? candidate.centroid
         : spill?.location ?? null
-    const head =
-      selection.kind === 'sar_candidate'
-        ? `SLICK-${String(candidate?.id ?? '').slice(0, 16).toUpperCase() || 'TBD'}`
-        : `SLICK-${String(spill?.spillEventId ?? '').slice(0, 16).toUpperCase() || 'TBD'}`
+    const head = slickLabel(
+      selection.kind === 'sar_candidate' ? candidate?.id : spill?.spillEventId,
+    )
     const kindLabel = detection
       ? `SAR · ${detection.classification.replace('_', ' ')}`
       : 'Observed spill'

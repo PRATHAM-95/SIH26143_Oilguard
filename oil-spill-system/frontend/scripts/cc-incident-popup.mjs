@@ -7,14 +7,18 @@
  *      be reachable only by clicking a vessel, so its SAR branch - the one an
  *      operator actually opens first - was never exercised.
  *
- *   2. It must be reachable the way an operator reaches it. The detector
- *      polygon is genuinely tiny at the default camera (about a pixel across
- *      while vessel glyphs are pinned to a 20px minimum), so aiming at the
- *      slick geometry is a scale problem, not a test. The observed-spill marker
- *      is the app's pickable 8px-radius point at the same coordinates and is
- *      what a user clicks first; the probe picks that.
+ *   2. It must be reachable the way an operator reaches it. The detector is a
+ *      1.4 km slick seen in a regional view, so the polygon itself is sub-pixel
+ *      and aiming at slick geometry is a scale problem rather than a test. The
+ *      incident carries a pickable marker at its real centroid, and that is what
+ *      the probe picks.
  *
- *   3. The SAR thumbnail must be drawn from the detector geometry rather than
+ *   3. The figures on the card must be the seed's own. demo-data-check proves
+ *      those figures match the polygon the seed draws; this proves the card is
+ *      showing those figures, so the two halves of the reconciliation cannot be
+ *      individually correct while disagreeing with each other.
+ *
+ *   4. The SAR thumbnail must be drawn from the detector geometry rather than
  *      being a text placeholder. It is checked by pixel: a canvas that rendered
  *      the detection has dark oil over lighter speckled sea, so the mean must sit
  *      below mid-grey while the spread stays wide and no pixel is chromatic. A
@@ -212,13 +216,25 @@ const checks = {
   realPickReachesPopup: Boolean(popup),
   // A SAR card, not a vessel card: the whole point of this pass.
   showsSlick: Boolean(popup && /SAR|OBSERVED|SLICK/i.test(popup.kind + popup.name)),
-  nameIsRealId: Boolean(popup && /^SLICK-/.test(popup.name)),
+  // The exact incident reference, not merely something starting with SLICK-:
+  // the card is where an operator copies the identifier from.
+  nameIsRealId: popup?.name === seed.DEMO_SLICK_ID,
   hasClose: Boolean(popup?.hasClose),
   hasPositionRow: Boolean(popup?.rows.some((r) => r.startsWith('Position'))),
-  // The incident card is reached from the spill marker, which has no candidate
-  // of its own - the detection must still come through.
+  // The incident card is reached from a marker that has no candidate of its own,
+  // so the detection figures must still come through from the SAR store.
   showsDetectionMetrics: Boolean(
     popup && popup.rows.some((r) => r.startsWith('Area')) && popup.rows.some((r) => r.startsWith('Confidence')),
+  ),
+  // And they must be the seed's own figures. demo-data-check proves the figures
+  // match the drawn polygon; this proves the card is showing those figures.
+  areaMatchesSeed: Boolean(
+    popup?.rows.some((r) => r === `Area: ${seed.DEMO_SLICK_AREA_KM2.toFixed(2)} km²`),
+  ),
+  confidenceMatchesSeed: Boolean(
+    popup?.rows.some(
+      (r) => r === `Confidence: ${Math.round(seed.DEMO_SLICK_CONFIDENCE * 100)}%`,
+    ),
   ),
   thumbnailIsCanvas: Boolean(popup?.thumbIsCanvas),
   placeholderGone: Boolean(popup && !popup.thumbIsTextPlaceholder),

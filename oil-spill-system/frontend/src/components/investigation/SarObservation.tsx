@@ -216,7 +216,7 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
             [
               {
                 coordinates: [featured.centroid.lon, featured.centroid.lat] as [number, number],
-                text: `SLICK-${featured.id.slice(0, 12).toUpperCase()}`,
+                text: slickLabel(featured.id),
                 color: isOil ? [255, 176, 140] : [232, 200, 150],
               },
             ],
@@ -268,6 +268,22 @@ export function useSarLayers(): NonNullable<MapboxOverlayProps['layers']> {
  * geometry - the marker is a pick target for what is already on screen, not a
  * new object invented to be clickable.
  */
+/**
+ * Operator-facing name for a detection.
+ *
+ * The primary candidate's id is already the incident reference an operator would
+ * quote - SLICK-YYYY-MMDD-NNN - so prefixing it again produced
+ * "SLICK-SLICK-2026-0922-" and then truncated the part that mattered. Secondary
+ * and rejected candidates keep their internal ids, so those still get the
+ * prefix. Shared so the map label and the incident card cannot disagree.
+ */
+export function slickLabel(id: string | null | undefined): string {
+  const raw = String(id ?? '').trim()
+  if (!raw) return 'SLICK-TBD'
+  const upper = raw.toUpperCase()
+  return upper.startsWith('SLICK-') ? upper : `SLICK-${upper}`
+}
+
 export function useIncidentMarkerLayers(): NonNullable<MapboxOverlayProps['layers']> {
   const candidates = useSarStore((s) => s.candidates)
   const showSlicks = useMapStore((s) => s.visibility.sarSlicks)
