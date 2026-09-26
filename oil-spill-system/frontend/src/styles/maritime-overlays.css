@@ -416,7 +416,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
+  /* 30px hit height, matching the toolbar pills and the square controls. */
+  min-height: 30px;
+  padding: 0 12px;
   border: 1px solid var(--line-2, #38485B);
   border-radius: var(--radius-full, 9999px);
   background: var(--bg-surface-glass, rgba(11, 17, 24, 0.88));

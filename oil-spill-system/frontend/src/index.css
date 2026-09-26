@@ -56,8 +56,18 @@
 .maplibregl-ctrl-group button {
   background-color: transparent !important;
   border-bottom: 1px solid var(--color-chartline, #1E3550) !important;
-  width: 30px !important;
-  height: 30px !important;
+  /* 40x40 hit target, matching every other square control on the map. These
+     sit on top of a dense operational map where a 30px target is easy to miss
+     next to vessel glyphs. */
+  width: 40px !important;
+  height: 40px !important;
+}
+
+/* The vendor icon is a fixed-size background image, so growing the button alone
+   would leave the glyph off-centre. */
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(85%) hue-rotate(180deg) brightness(110%) !important;
+  margin: 0 auto !important;
 }
 
 .maplibregl-ctrl-group button:last-child {
@@ -68,8 +78,9 @@
   background-color: var(--color-deck, #122336) !important;
 }
 
-.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
-  filter: invert(85%) hue-rotate(180deg) brightness(110%) !important;
+.maplibregl-ctrl-group button:focus-visible {
+  outline: 2px solid var(--color-cyan, #7AD4FF) !important;
+  outline-offset: -2px !important;
 }
 
 .maplibregl-ctrl-attrib {

@@ -924,7 +924,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 36px;
+  min-height: 40px;
   padding: 5px 6px 5px 8px;
   border-radius: var(--cc-radius);
   background: linear-gradient(180deg, rgba(16, 24, 34, 0.94) 0%, rgba(12, 18, 26, 0.93) 100%);
@@ -951,8 +951,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 26px;
-  padding: 0 10px;
+  /* 30px keeps every pill on the toolbar above the 28px comfortable minimum
+     while staying thin enough that the map keeps the visual weight. */
+  height: 30px;
+  padding: 0 11px;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--cc-line);
@@ -1017,7 +1019,7 @@
 
 .cc-basegroup {
   display: inline-flex;
-  height: 26px;
+  height: 30px;
   border-radius: 3px;
   overflow: hidden;
   border: 1px solid var(--cc-line);
@@ -1055,8 +1057,9 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 26px;
-  padding: 0 10px;
+  /* Matches the layer pills and the basemap group. */
+  height: 30px;
+  padding: 0 11px;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--cc-line-2);
@@ -1102,7 +1105,10 @@
   left: 12px;
   bottom: 74px;
   z-index: 6;
-  min-width: 148px;
+  min-width: 164px;
+  max-height: calc(100% - 150px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 9px 11px 10px;
   border-radius: var(--cc-radius);
   background: rgba(12, 18, 26, 0.93);
@@ -1120,10 +1126,27 @@
   color: var(--cc-dim);
 }
 
+/* Groups keep a dense legend readable: the label the layer drawer groups by,
+   so an operator finds "Ocean currents" in the same place in both surfaces. */
+.cc-legend-group + .cc-legend-group {
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px solid var(--cc-line-1);
+}
+
+.cc-legend-groupname {
+  margin-bottom: 3px;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #3f5265;
+}
+
 .cc-legend-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1132,8 +1155,9 @@
 .cc-legend-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 10.5px;
+  gap: 7px;
+  line-height: 1.35;
+  font-size: 10px;
   color: #55697d;
   transition: color 0.14s ease;
 }
@@ -1142,12 +1166,20 @@
   color: #c3d3e1;
 }
 
+/* A layer whose data source is not connected stays in place, dimmed, so the
+   legend keeps a stable layout without implying a live feed. */
+.cc-legend-row[data-nodata] {
+  color: #33445a;
+  font-style: italic;
+}
+
 .cc-legend-mark {
   width: 10px;
   height: 10px;
   flex: 0 0 auto;
-  background: currentColor;
-  opacity: 0.85;
+  /* Falls back to the row's catalogue colour so a new layer needs no CSS. */
+  background: var(--cc-legend-color, currentColor);
+  opacity: 0.9;
 }
 
 .cc-legend-row[data-shape='blob'] .cc-legend-mark {
@@ -1155,20 +1187,34 @@
   background: linear-gradient(145deg, #ff8a63, #e34b3a);
 }
 
-.cc-legend-row[data-shape='triangle'] .cc-legend-mark {
+.cc-legend-row[data-shape='vessel'] .cc-legend-mark {
   background: none;
   width: 0;
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-bottom: 9px solid #7ad4ff;
+  border-bottom: 9px solid var(--cc-legend-color, #7ad4ff);
   opacity: 1;
 }
 
 .cc-legend-row[data-shape='dash'] .cc-legend-mark {
   height: 0;
-  border-top: 2px dashed #5cb2d6;
+  border-top: 2px dashed var(--cc-legend-color, #5cb2d6);
   background: none;
+}
+
+.cc-legend-row[data-shape='arrow'] .cc-legend-mark {
+  background: none;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid var(--cc-legend-color, #8aa4bd);
+  opacity: 0.9;
+}
+
+.cc-legend-row[data-nodata] .cc-legend-mark {
+  opacity: 0.32;
 }
 
 /* --- Right-side control cluster (above MapLibre navigation control) --- */
@@ -1209,17 +1255,32 @@
   cursor: not-allowed;
 }
 
-/* Move the live compass to the bottom-left stack and drop the raw coordinate
-   readout — the technical scale bar stays, the telemetry does not. */
+/* Bottom-left measurement stack: MapLibre's scale bar sits at the pane corner,
+   so the compass and the live coordinate readout are laid out to its right.
+   The compass used to be dropped straight onto the scale bar, and the readout
+   was hidden outright; both are worth keeping on a maritime map, where reading
+   back a position is the whole point of a coordinate fix. */
 .cc-root .north-arrow {
   top: auto;
-  bottom: 12px;
-  left: 12px;
+  bottom: 14px;
+  left: 100px;
   right: auto;
 }
 
+.cc-root .map-furniture {
+  left: 130px;
+  bottom: 13px;
+}
+
 .cc-root .coord-readout {
-  display: none;
+  display: block;
+  padding: 3px 8px;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #9fb4c7;
+  background: rgba(10, 15, 22, 0.86);
+  border-color: var(--cc-line-2);
+  border-radius: 3px;
 }
 
 /* Selected-incident popup: make the SAR thumbnail read at a glance. */
